@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<accessibility-service
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/accessibility_setting_description"
-    android:packageNames="pl.jojczak.penmouses"
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityFlags="flagDefault"
+    android:canPerformGestures="true"
+    android:canRetrieveWindowContent="false"
+    android:description="@string/accessibility_setting_description"
     android:notificationTimeout="100"
-    android:canRetrieveWindowContent="false"/>
+    android:packageNames="pl.jojczak.penmouses" />

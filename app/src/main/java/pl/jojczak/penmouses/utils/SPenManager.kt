@@ -1,4 +1,4 @@
-package pl.jojczak.penmouses
+package pl.jojczak.penmouses.utils
 
 import android.content.Context
 import android.util.Log
@@ -18,25 +18,26 @@ class SPenManager(
 ) {
     private var sPenUnitManager: SpenUnitManager? = null
 
-    fun connectToSPen(callback: (x: Float, y: Float) -> Unit) {
+    var onSPenMoveListener: (x: Float, y: Float) -> Unit = { _, _ -> }
+    var onSPenButtonClickListener: (buttonDown: Boolean) -> Unit = {}
+
+    fun connectToSPen() {
         Log.i(TAG, "Connecting to S-Pen...")
         val sPenRemote = SpenRemote.getInstance()
 
         if (sPenRemote.isFeatureEnabled(SpenRemote.FEATURE_TYPE_BUTTON) &&
-            sPenRemote.isFeatureEnabled(SpenRemote.FEATURE_TYPE_AIR_MOTION)) {
+            sPenRemote.isFeatureEnabled(SpenRemote.FEATURE_TYPE_AIR_MOTION)
+        ) {
             if (!sPenRemote.isConnected) {
-                sPenRemote.connect(activityContext, ConnectionResultCallback(callback))
+                sPenRemote.connect(activityContext, ConnectionResultCallback())
             }
         }
     }
 
-    private inner class ConnectionResultCallback(
-        private val callback: (x: Float, y: Float) -> Unit
-    ) : SpenRemote.ConnectionResultCallback {
+    private inner class ConnectionResultCallback : SpenRemote.ConnectionResultCallback {
         override fun onSuccess(sPenUnitManager: SpenUnitManager?) {
             Log.i(TAG, "Connection successful")
             this@SPenManager.sPenUnitManager = sPenUnitManager
-            registerAirMotionEventListener(callback)
         }
 
         override fun onFailure(errorCode: Int) {
@@ -60,29 +61,42 @@ class SPenManager(
             when (mEvent.action) {
                 ButtonEvent.ACTION_DOWN -> {
                     Log.d(TAG, "Button pressed")
+                    onSPenButtonClickListener(true)
                 }
+
                 ButtonEvent.ACTION_UP -> {
                     Log.d(TAG, "Button released")
+                    onSPenButtonClickListener(false)
                 }
             }
         }
     }
 
-    fun registerAirMotionEventListener(callback: (x: Float, y: Float) -> Unit) {
+    fun registerAirMotionEventListener() {
         sPenUnitManager?.let {
             val airMotionUnit = it.getUnit(SpenUnit.TYPE_AIR_MOTION)
-            it.registerSpenEventListener(AirMotionEventListener(callback), airMotionUnit)
+            it.registerSpenEventListener(AirMotionEventListener(), airMotionUnit)
+
+            Log.i(TAG, "Air motion event listener registered")
         }
     }
 
-    private inner class AirMotionEventListener(
-        private val callback: (x: Float, y: Float) -> Unit
-    ) : SpenEventListener {
+    private inner class AirMotionEventListener : SpenEventListener {
         override fun onEvent(event: SpenEvent) {
             val mEvent = AirMotionEvent(event)
-            callback(mEvent.deltaX, mEvent.deltaY)
-
+            onSPenMoveListener(mEvent.deltaX, mEvent.deltaY)
         }
+    }
+
+    fun disconnectFromSPen() {
+        Log.d(TAG, "Disconnecting from S-Pen...")
+        sPenUnitManager?.let {
+            val buttonUnit = it.getUnit(SpenUnit.TYPE_BUTTON)
+            val airMotionUnit = it.getUnit(SpenUnit.TYPE_AIR_MOTION)
+            it.unregisterSpenEventListener(buttonUnit)
+            it.unregisterSpenEventListener(airMotionUnit)
+        }
+        SpenRemote.getInstance().disconnect(activityContext)
     }
 
     private fun mapConnectionError(errorCode: Int) = when (errorCode) {
