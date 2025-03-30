@@ -1,4 +1,19 @@
 <resources>
     <string name="app_name">PenMouse S</string>
     <string name="accessibility_setting_description">Hello world</string>
+
+    <string name="home_logo_alt">Pen Mouse S Logo</string>
+
+    <string name="home_steps_1">Step 1</string>
+    <string name="home_steps_1_settings">Settings</string>
+    <string name="home_steps_1_des">Disable system S Pen gestures</string>
+    <string name="home_steps_1_more">App can\'t verify this, so we\'ll take your word for it :)</string>
+
+    <string name="home_steps_2">Step 2</string>
+    <string name="home_steps_2_settings">Accessibility settings</string>
+    <string name="home_steps_2_des">Enable PenMouse S accessibility service</string>
+
+    <string name="home_steps_3">Step 3</string>
+    <string name="home_steps_3_des">Start Air Mouse</string>
+    <string name="home_steps_3_more">Remember to REMOVE the S Pen from the phone BEFORE turning on Air Mouse</string>
 </resources>

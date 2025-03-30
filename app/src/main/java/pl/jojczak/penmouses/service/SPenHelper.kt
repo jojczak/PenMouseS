@@ -1,5 +1,6 @@
 package pl.jojczak.penmouses.service
 
+import android.graphics.Path
 import android.os.Handler
 import android.os.Looper
 import android.view.Display
@@ -10,9 +11,12 @@ class SPenHelper(
     sPenManager: SPenManager,
     private val params: WindowManager.LayoutParams,
     private val display: Display,
-    private val performClick: (down: ButtonEvent, up: ButtonEvent) -> Unit,
+    private val performTouch: (sPenPath: Path) -> Unit,
     private val updateLayout: () -> Unit
 ) {
+    private var isSPenPressed = false
+    private var pressedTime = 0L
+    private var sPenPath = Path()
 
     init {
         sPenManager.apply {
@@ -31,33 +35,43 @@ class SPenHelper(
         params.x += (x * CURSOR_SENSITIVITY).toInt()
         params.y -= (y * CURSOR_SENSITIVITY).toInt()
 
-        if (params.x < 0) params.x = 0
-        if (params.x > display.mode.physicalWidth) params.x = display.mode.physicalWidth
-        if (params.y < 0) params.y = 0
-        if (params.y > display.mode.physicalHeight) params.y = display.mode.physicalHeight
+        params.x = params.x.coerceIn(0, display.mode.physicalWidth)
+        params.y = params.y.coerceIn(0, display.mode.physicalHeight)
 
         updateLayout()
     }
 
-    private var buttonDownEvent = ButtonEvent(0f, 0f)
+    private val handler = Handler(Looper.getMainLooper())
+    private val runnable = object : Runnable {
+        override fun run() {
+            sPenPath.lineTo(params.x.toFloat(), params.y.toFloat())
+            pressedTime += TICK_TIME
 
-    private fun onSPenButtonClick(buttonDown: Boolean) {
-        if (buttonDown) {
-            buttonDownEvent = ButtonEvent(params.x.toFloat(), params.y.toFloat())
-        } else {
-            val buttonUpEvent = ButtonEvent(params.x.toFloat(), params.y.toFloat())
-            performClick(buttonDownEvent, buttonUpEvent)
+            if (isSPenPressed && pressedTime < MAX_BUTTON_DOWN_TIME) {
+                handler.postDelayed(this, TICK_TIME)
+            } else {
+                performTouch(sPenPath)
+            }
         }
     }
 
-    data class ButtonEvent(
-        val x: Float,
-        val y: Float,
-        val timestamp: Long = System.currentTimeMillis()
-    )
+    private fun onSPenButtonClick(buttonDown: Boolean) {
+        if (buttonDown) {
+            isSPenPressed = true
+            pressedTime = 0
+            sPenPath.reset()
+            sPenPath.moveTo(params.x.toFloat(), params.y.toFloat())
+            handler.post(runnable)
+        } else {
+            isSPenPressed = false
+        }
+    }
 
     companion object {
         private const val DELAY_TO_EVENT_REGISTER = 2000L
         private const val CURSOR_SENSITIVITY = 700f
+
+        private const val MAX_BUTTON_DOWN_TIME = 1000
+        private const val TICK_TIME = 50L
     }
 }

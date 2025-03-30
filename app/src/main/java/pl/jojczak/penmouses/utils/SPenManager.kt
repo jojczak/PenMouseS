@@ -1,6 +1,5 @@
 package pl.jojczak.penmouses.utils
 
-import android.content.Context
 import android.util.Log
 import com.samsung.android.sdk.penremote.AirMotionEvent
 import com.samsung.android.sdk.penremote.ButtonEvent
@@ -11,10 +10,10 @@ import com.samsung.android.sdk.penremote.SpenRemote.Error.CONNECTION_FAILED
 import com.samsung.android.sdk.penremote.SpenRemote.Error.UNSUPPORTED_DEVICE
 import com.samsung.android.sdk.penremote.SpenUnit
 import com.samsung.android.sdk.penremote.SpenUnitManager
-
+import pl.jojczak.penmouses.di.ActivityProvider
 
 class SPenManager(
-    private val activityContext: Context
+    private val activityProvider: ActivityProvider
 ) {
     private var sPenUnitManager: SpenUnitManager? = null
 
@@ -29,7 +28,7 @@ class SPenManager(
             sPenRemote.isFeatureEnabled(SpenRemote.FEATURE_TYPE_AIR_MOTION)
         ) {
             if (!sPenRemote.isConnected) {
-                sPenRemote.connect(activityContext, ConnectionResultCallback())
+                sPenRemote.connect(activityProvider.getActivity(), ConnectionResultCallback())
             }
         }
     }
@@ -96,7 +95,7 @@ class SPenManager(
             it.unregisterSpenEventListener(buttonUnit)
             it.unregisterSpenEventListener(airMotionUnit)
         }
-        SpenRemote.getInstance().disconnect(activityContext)
+        SpenRemote.getInstance().disconnect(activityProvider.getActivity())
     }
 
     private fun mapConnectionError(errorCode: Int) = when (errorCode) {

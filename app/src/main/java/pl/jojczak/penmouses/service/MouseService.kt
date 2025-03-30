@@ -20,16 +20,23 @@ import android.view.WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
 import android.view.WindowManager.LayoutParams.WRAP_CONTENT
 import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
-import pl.jojczak.penmouses.PenMouseSApp
+import dagger.hilt.android.AndroidEntryPoint
 import pl.jojczak.penmouses.R
+import pl.jojczak.penmouses.utils.SPenManager
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MouseService : AccessibilityService() {
+
     private lateinit var windowManager: WindowManager
     private lateinit var cursorView: ImageView
     private lateinit var params: WindowManager.LayoutParams
     private lateinit var display: Display
 
     private lateinit var sPenHelper: SPenHelper
+
+    @Inject
+    lateinit var sPenManager: SPenManager
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -86,21 +93,13 @@ class MouseService : AccessibilityService() {
 
     // Step 4: Set up S-Pen event listeners
     private fun setupSPen() {
-        if (application !is PenMouseSApp) {
-            Log.e(TAG, "Application is not PenMouseSApp")
-            return
-        }
-        (application as PenMouseSApp).sPenManager?.let {
-            sPenHelper = SPenHelper(
-                sPenManager = it,
-                params = params,
-                display = display,
-                performClick = ::performClick,
-                updateLayout = ::updateLayout
-            )
-        } ?: run {
-            Log.e(TAG, "sPenManager is null")
-        }
+        sPenHelper = SPenHelper(
+            sPenManager = sPenManager,
+            params = params,
+            display = display,
+            performTouch = ::performTouch,
+            updateLayout = ::updateLayout
+        )
     }
 
     private fun updateLayout() {
@@ -109,28 +108,18 @@ class MouseService : AccessibilityService() {
         }
     }
 
-    private fun performClick(
-        down: SPenHelper.ButtonEvent,
-        up: SPenHelper.ButtonEvent
-    ) {
-        val duration = up.timestamp - down.timestamp
+    private fun performTouch(sPenPath: Path) {
+        Log.d(TAG, "performTouch")
 
-        val path = Path().apply {
-            moveTo(down.x, down.y)
-            lineTo(up.x, up.y)
-        }
-
-        val gestureStroke = GestureDescription.StrokeDescription(path, 0, duration)
+        val gestureStroke = GestureDescription.StrokeDescription(sPenPath, 0, TOUCH_DURATION)
         val gestureBuilder = GestureDescription.Builder().apply {
             addStroke(gestureStroke)
         }
-
         dispatchGesture(gestureBuilder.build(), null, null)
     }
 
     override fun onDestroy() {
-        val sPenManager = (application as PenMouseSApp).sPenManager
-        sPenManager?.disconnectFromSPen()
+        sPenManager.disconnectFromSPen()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
@@ -140,5 +129,6 @@ class MouseService : AccessibilityService() {
         private const val TAG = "MouseService"
 
         private const val CURSOR_SIZE = 200
+        private const val TOUCH_DURATION = 100L
     }
 }

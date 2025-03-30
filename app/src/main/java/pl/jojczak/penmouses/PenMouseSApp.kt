@@ -1,8 +1,17 @@
 package pl.jojczak.penmouses
 
 import android.app.Application
-import pl.jojczak.penmouses.utils.SPenManager
+import dagger.hilt.android.HiltAndroidApp
+import pl.jojczak.penmouses.di.ActivityProvider
+import javax.inject.Inject
 
-class PenMouseSApp: Application() {
-    var sPenManager: SPenManager? = null
+@HiltAndroidApp
+class PenMouseSApp : Application() {
+    @Inject
+    lateinit var activityProvider: ActivityProvider
+
+    override fun onCreate() {
+        super.onCreate()
+        registerActivityLifecycleCallbacks(activityProvider)
+    }
 }
