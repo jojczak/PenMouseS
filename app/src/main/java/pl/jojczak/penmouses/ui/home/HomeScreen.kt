@@ -20,20 +20,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -42,13 +41,15 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import pl.jojczak.penmouses.R
+import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
+import pl.jojczak.penmouses.ui.theme.clickable_text_corner
 import pl.jojczak.penmouses.ui.theme.elevation_2
+import pl.jojczak.penmouses.ui.theme.getRedButtonColors
 import pl.jojczak.penmouses.ui.theme.pad_l
 import pl.jojczak.penmouses.ui.theme.pad_m
 import pl.jojczak.penmouses.ui.theme.pad_s
@@ -73,7 +74,7 @@ fun HomeScreen(
         state = state,
         changeSPenFeaturesState = viewModel::changeSPenFeaturesState,
         changeDialogState = viewModel::changeDialogState,
-        toggleService = viewModel::sendStartSignalToService
+        toggleService = viewModel::sendSignalToService
     )
 }
 
@@ -82,7 +83,7 @@ fun HomeScreenContent(
     state: HomeScreenState,
     changeSPenFeaturesState: (Boolean) -> Unit = { },
     changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
-    toggleService: (Boolean) -> Unit = { }
+    toggleService: (AppToServiceEvent.Event) -> Unit = { }
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -102,6 +103,7 @@ fun HomeScreenContent(
         StepsContainer(
             areSPenFeaturesDisabled = state.areSPenFeaturesDisabled,
             isAccessibilityEnabled = state.isAccessibilityEnabled,
+            serviceStatus = state.serviceStatus,
             changeSPenFeaturesState = changeSPenFeaturesState,
             changeDialogState = changeDialogState,
             toggleService = toggleService
@@ -123,9 +125,10 @@ private fun AppLogo() {
 private fun StepsContainer(
     areSPenFeaturesDisabled: Boolean,
     isAccessibilityEnabled: Boolean,
+    serviceStatus: AppToServiceEvent.ServiceStatus,
     changeSPenFeaturesState: (Boolean) -> Unit = { },
     changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
-    toggleService: (Boolean) -> Unit
+    toggleService: (AppToServiceEvent.Event) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(pad_s),
@@ -165,9 +168,8 @@ private fun StepsContainer(
             blocked = !areSPenFeaturesDisabled || !isAccessibilityEnabled,
         ) {
             StepButton(
-                stepDescResId = R.string.home_steps_3_des,
-                stepMoreResId = R.string.home_steps_3_more,
-                onClick = { toggleService(true) }
+                serviceStatus = serviceStatus,
+                toggleService = toggleService
             )
         }
     }
@@ -188,9 +190,7 @@ private fun StepContainer(
         modifier = Modifier.fillMaxWidth()
     ) {
         Box {
-            Column(
-                modifier = Modifier.padding(pad_m)
-            ) {
+            Column {
                 StepHeader(
                     stepTextResId = stepTextResId,
                     stepSettingsResId = stepSettingsResId,
@@ -225,26 +225,32 @@ private fun StepHeader(
     onMoreClick: (() -> Unit)? = null,
     settingsCallback: (Context) -> Unit = { },
 ) {
-    Row(
-        verticalAlignment = Alignment.Top,
-        modifier = Modifier.padding(bottom = pad_s)
-    ) {
+    Row(verticalAlignment = Alignment.Top) {
         Row {
             Text(
                 text = stringResource(stepTextResId),
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA)
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
+                modifier = Modifier.padding(top = pad_m, start = pad_m)
             )
             onMoreClick?.let {
                 Text(
                     text = stringResource(R.string.home_steps_bullet),
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA)
-                )
-                Text(
-                    text = stringResource(R.string.home_steps_more),
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { onMoreClick() }
+                    modifier = Modifier.padding(top = pad_m)
                 )
+                Box(
+                    modifier = Modifier.padding(top = pad_s)
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_steps_more),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(clickable_text_corner))
+                            .clickable { onMoreClick() }
+                            .padding(pad_xs)
+                    )
+                }
             }
         }
         if (stepSettingsResId != null) {
@@ -266,45 +272,72 @@ private fun RowScope.SettingsLink(
     Spacer(
         modifier = Modifier.weight(1f)
     )
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(pad_xs),
-        modifier = Modifier.clickable { settingsCallback(context) }
+    Box(
+        modifier = Modifier.padding(pad_s)
     ) {
-        Text(
-            text = stringResource(stepSettingsResId),
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
-            style = MaterialTheme.typography.bodySmall
-        )
-        Icon(
-            painter = painterResource(R.drawable.open_in_new_24px),
-            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
-            contentDescription = null,
-            modifier = Modifier.size(LINK_ICON_SIZE)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(pad_xs),
+            modifier = Modifier
+                .clip(RoundedCornerShape(clickable_text_corner))
+                .clickable { settingsCallback(context) }
+                .padding(pad_xs)
+        ) {
+            Text(
+                text = stringResource(stepSettingsResId),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
+                style = MaterialTheme.typography.bodySmall
+            )
+            Icon(
+                painter = painterResource(R.drawable.open_in_new_24px),
+                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
+                contentDescription = null,
+                modifier = Modifier.size(LINK_ICON_SIZE)
+            )
+        }
     }
 }
 
 @Composable
 private fun StepButton(
-    @StringRes stepDescResId: Int,
-    @StringRes stepMoreResId: Int? = null,
-    onClick: () -> Unit = { }
+    serviceStatus: AppToServiceEvent.ServiceStatus,
+    toggleService: (AppToServiceEvent.Event) -> Unit = { }
 ) {
-    StepTextMore(
-        stepMoreResId = stepMoreResId,
-        modifier = Modifier.padding(bottom = pad_m)
+    Text(
+        text = stringResource(R.string.home_steps_3_more),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_MORE_ALPHA),
+        fontStyle = FontStyle.Italic,
+        textAlign = TextAlign.Justify,
+        modifier = Modifier.padding(vertical = pad_s, horizontal = pad_m)
     )
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = pad_m)
     ) {
-        Button(
-            onClick = onClick
-        ) {
-            Text(
-                text = stringResource(stepDescResId).uppercase(),
-            )
+        when (serviceStatus) {
+            AppToServiceEvent.ServiceStatus.ON -> {
+                Button(
+                    onClick = { toggleService(AppToServiceEvent.Event.Stop) },
+                    colors = getRedButtonColors()
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_steps_3_turn_off),
+                    )
+                }
+            }
+
+            AppToServiceEvent.ServiceStatus.OFF -> {
+                Button(
+                    onClick = { toggleService(AppToServiceEvent.Event.Start) }
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_steps_3_turn_on),
+                    )
+                }
+            }
         }
     }
 }
@@ -321,33 +354,16 @@ private fun StepSwitch(
     ) {
         Text(
             text = stringResource(stepDescResId),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = pad_m, bottom = pad_m)
         )
-        CompositionLocalProvider(
-            LocalMinimumInteractiveComponentSize provides 0.dp,
-        ) {
-            Switch(
-                checked = checked,
-                enabled = enabled,
-                onCheckedChange = onCheckedChange
-            )
-        }
-    }
-}
 
-@Composable
-private fun StepTextMore(
-    @StringRes stepMoreResId: Int?,
-    modifier: Modifier = Modifier
-) {
-    stepMoreResId?.let {
-        Text(
-            text = stringResource(it),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_MORE_ALPHA),
-            fontStyle = FontStyle.Italic,
-            textAlign = TextAlign.Justify,
-            modifier = modifier
+        Switch(
+            checked = checked,
+            enabled = enabled,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier.padding(end = pad_m, bottom = pad_xs)
         )
     }
 }
@@ -377,7 +393,11 @@ private fun HomeScreenDayPreview() {
     PenMouseSTheme {
         Surface {
             HomeScreenContent(
-                state = HomeScreenState()
+                state = HomeScreenState(
+                    serviceStatus = AppToServiceEvent.ServiceStatus.ON,
+                    areSPenFeaturesDisabled = true,
+                    isAccessibilityEnabled = true
+                )
             )
         }
     }

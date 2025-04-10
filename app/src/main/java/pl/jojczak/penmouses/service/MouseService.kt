@@ -5,6 +5,7 @@ import android.accessibilityservice.GestureDescription
 import android.content.Context
 import android.graphics.Path
 import android.graphics.PixelFormat
+import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.os.Handler
 import android.os.Looper
@@ -39,12 +40,10 @@ class MouseService : AccessibilityService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var appToServiceEventObserver: Job? = null
 
-    private lateinit var windowManager: WindowManager
-    private lateinit var cursorView: ImageView
-    private lateinit var params: WindowManager.LayoutParams
-    private lateinit var display: Display
-
-    private lateinit var sPenHelper: SPenHelper
+    private var windowManager: WindowManager? = null
+    private var cursorView: ImageView? = null
+    private var params: WindowManager.LayoutParams? = null
+    private var display: Display? = null
 
     @Inject
     lateinit var sPenManager: SPenManager
@@ -60,19 +59,33 @@ class MouseService : AccessibilityService() {
         cancelAppToServiceEventObserver()
         appToServiceEventObserver = serviceScope.launch {
             AppToServiceEvent.event.collect { event ->
-                Log.d(TAG, "event: $event")
+                when (event) {
+                    AppToServiceEvent.Event.Start -> startAirMouse()
+                    AppToServiceEvent.Event.Stop -> stopAirMouse(true)
+                    AppToServiceEvent.Event.StopOnDestroy -> stopAirMouse(false)
+                }
             }
         }
     }
 
     private fun startAirMouse() {
-        setupWindowManagerAndDisplay()
-        setupOverlayParams()
-        setupCursorView()
-        setupSPen()
+        Handler(Looper.getMainLooper()).post {
+            setupWindowManagerAndDisplay()
+            setupOverlayParams()
+            setupCursorView()
+            setupSPen()
+        }
+    }
 
-        params.x = 500
-        params.y = 500
+    private fun stopAirMouse(withSPenManager: Boolean) {
+        Handler(Looper.getMainLooper()).post {
+            windowManager?.removeView(cursorView)
+            if (withSPenManager) sPenManager.disconnectFromSPen()
+            windowManager = null
+            cursorView = null
+            params = null
+            display = null
+        }
     }
 
     // Step 1: Set up WindowManager and Display
@@ -110,26 +123,25 @@ class MouseService : AccessibilityService() {
             setImageResource(R.drawable.cursor)
         }
 
-        params.width = (CURSOR_SIZE * ratio).toInt()
-        params.height = CURSOR_SIZE
+        params?.width = (CURSOR_SIZE * ratio).toInt()
+        params?.height = CURSOR_SIZE
 
-        windowManager.addView(cursorView, params)
+        windowManager?.addView(cursorView, params)
     }
 
     // Step 4: Set up S-Pen event listeners
     private fun setupSPen() {
-        sPenHelper = SPenHelper(
-            sPenManager = sPenManager,
-            params = params,
-            display = display,
+        sPenManager.connectToSPen(
             performTouch = ::performTouch,
             updateLayout = ::updateLayout
         )
     }
 
-    private fun updateLayout() {
+    private fun updateLayout(pos: Point) {
         Handler(Looper.getMainLooper()).post {
-            windowManager.updateViewLayout(cursorView, params)
+            params?.x = pos.x
+            params?.y = pos.y
+            windowManager?.updateViewLayout(cursorView, params)
         }
     }
 
@@ -149,7 +161,8 @@ class MouseService : AccessibilityService() {
     }
 
     override fun onDestroy() {
-        sPenManager.disconnectFromSPen()
+        Log.d(TAG, "onDestroy")
+        stopAirMouse(true)
         cancelAppToServiceEventObserver()
         serviceScope.cancel()
         super.onDestroy()

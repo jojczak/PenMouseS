@@ -1,35 +1,66 @@
 package pl.jojczak.penmouses.ui.home
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.provider.Settings
+import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import pl.jojczak.penmouses.di.SharedPreferencesModule.PREF_KEY_SPEN_FEATURES_DISABLED
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.service.MouseService
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<HomeScreenState> = MutableStateFlow(HomeScreenState())
     val state: StateFlow<HomeScreenState> = _state.asStateFlow()
 
-    fun sendStartSignalToService(toggle: Boolean) {
-        AppToServiceEvent.event.tryEmit(toggle)
+    init {
+        viewModelScope.launch {
+            AppToServiceEvent.serviceStatus.collect {
+                _state.update { state ->
+                    state.copy(serviceStatus = it)
+                }
+            }
+        }
+    }
+
+    fun sendSignalToService(event: AppToServiceEvent.Event) {
+        AppToServiceEvent.event.tryEmit(event)
     }
 
     fun onLifecycleEvent(lifecycleState: Lifecycle.State) {
         when (lifecycleState) {
-            Lifecycle.State.RESUMED -> checkAccessibilityPermission()
+            Lifecycle.State.RESUMED -> {
+                checkAccessibilityPermission()
+                checkSPenFeaturesState()
+            }
+
             else -> {}
+        }
+    }
+
+    private fun checkSPenFeaturesState() {
+        _state.update {
+            it.copy(
+                areSPenFeaturesDisabled = sharedPreferences.getBoolean(
+                    PREF_KEY_SPEN_FEATURES_DISABLED,
+                    false
+                )
+            )
         }
     }
 
@@ -38,6 +69,11 @@ class HomeScreenViewModel @Inject constructor(
             it.copy(
                 areSPenFeaturesDisabled = state
             )
+        }
+
+        sharedPreferences.edit {
+            putBoolean(PREF_KEY_SPEN_FEATURES_DISABLED, state)
+            apply()
         }
     }
 

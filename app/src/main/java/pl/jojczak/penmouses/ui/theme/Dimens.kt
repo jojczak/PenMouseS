@@ -9,6 +9,8 @@ val pad_l = 16.dp
 val pad_xl = 24.dp
 val pad_xxl = 32.dp
 
+val clickable_text_corner = 6.dp
+
 val elevation_1 = 1.dp
 val elevation_2 = 3.dp
 

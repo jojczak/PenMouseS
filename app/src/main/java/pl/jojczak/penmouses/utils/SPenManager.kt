@@ -1,6 +1,15 @@
 package pl.jojczak.penmouses.utils
 
+import android.accessibilityservice.AccessibilityService.DISPLAY_SERVICE
+import android.app.Activity
+import android.content.Context
+import android.graphics.Path
+import android.graphics.Point
+import android.hardware.display.DisplayManager
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.Display
 import com.samsung.android.sdk.penremote.AirMotionEvent
 import com.samsung.android.sdk.penremote.ButtonEvent
 import com.samsung.android.sdk.penremote.SpenEvent
@@ -10,25 +19,61 @@ import com.samsung.android.sdk.penremote.SpenRemote.Error.CONNECTION_FAILED
 import com.samsung.android.sdk.penremote.SpenRemote.Error.UNSUPPORTED_DEVICE
 import com.samsung.android.sdk.penremote.SpenUnit
 import com.samsung.android.sdk.penremote.SpenUnitManager
+import kotlinx.coroutines.flow.update
 import pl.jojczak.penmouses.di.ActivityProvider
+import pl.jojczak.penmouses.service.AppToServiceEvent
 
 class SPenManager(
     private val activityProvider: ActivityProvider
 ) {
     private var sPenUnitManager: SpenUnitManager? = null
+    private var display: Display? = null
+    private var performTouch: ((Path) -> Unit)? = null
+    private var updateLayout: ((Point) -> Unit)? = null
 
-    var onSPenMoveListener: (x: Float, y: Float) -> Unit = { _, _ -> }
-    var onSPenButtonClickListener: (buttonDown: Boolean) -> Unit = {}
+    private var isSPenPressed = false
+    private var pressedTime = 0L
+    private var sPenPath = Path()
+    private val handler = Handler(Looper.getMainLooper())
 
-    fun connectToSPen() {
+    val currentPos = Point(0, 0)
+
+    // Step 1
+    fun connectToSPen(
+        performTouch: (Path) -> Unit,
+        updateLayout: (Point) -> Unit
+    ) {
         Log.i(TAG, "Connecting to S-Pen...")
+
+        val activity = activityProvider.getActivity() ?: run {
+            Log.e(TAG, "Activity is null, cannot connect to S-Pen")
+            return
+        }
+
+        this.performTouch = performTouch
+        this.updateLayout = updateLayout
+
+        setupDisplay(activity)
+        setupConnection(activity)
+    }
+
+    // Step 2: Set up Display
+    private fun setupDisplay(context: Context) {
+        val displayManager = context.getSystemService(DISPLAY_SERVICE) as DisplayManager
+        display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)
+    }
+
+    // Step 3: Set up Connection
+    private fun setupConnection(activity: Activity) {
         val sPenRemote = SpenRemote.getInstance()
 
         if (sPenRemote.isFeatureEnabled(SpenRemote.FEATURE_TYPE_BUTTON) &&
             sPenRemote.isFeatureEnabled(SpenRemote.FEATURE_TYPE_AIR_MOTION)
         ) {
             if (!sPenRemote.isConnected) {
-                sPenRemote.connect(activityProvider.getActivity(), ConnectionResultCallback())
+                sPenRemote.connect(activity, ConnectionResultCallback())
+            } else {
+                AppToServiceEvent.serviceStatus.update { AppToServiceEvent.ServiceStatus.ON }
             }
         }
     }
@@ -37,10 +82,17 @@ class SPenManager(
         override fun onSuccess(sPenUnitManager: SpenUnitManager?) {
             Log.i(TAG, "Connection successful")
             this@SPenManager.sPenUnitManager = sPenUnitManager
+            AppToServiceEvent.serviceStatus.update { AppToServiceEvent.ServiceStatus.ON }
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                registerButtonEventListener()
+                registerAirMotionEventListener()
+            }, DELAY_TO_EVENT_REGISTER)
         }
 
         override fun onFailure(errorCode: Int) {
             Log.e(TAG, "Connection failed: ${mapConnectionError(errorCode)}")
+            AppToServiceEvent.serviceStatus.update { AppToServiceEvent.ServiceStatus.OFF }
         }
     }
 
@@ -57,16 +109,27 @@ class SPenManager(
         override fun onEvent(event: SpenEvent) {
             val mEvent = ButtonEvent(event)
 
-            when (mEvent.action) {
-                ButtonEvent.ACTION_DOWN -> {
-                    Log.d(TAG, "Button pressed")
-                    onSPenButtonClickListener(true)
-                }
+            if (mEvent.action == ButtonEvent.ACTION_DOWN) {
+                isSPenPressed = true
+                pressedTime = 0
+                sPenPath.reset()
+                sPenPath.moveTo(currentPos.x.toFloat(), currentPos.y.toFloat())
+                handler.post(runnable)
+            } else {
+                isSPenPressed = false
+            }
+        }
+    }
 
-                ButtonEvent.ACTION_UP -> {
-                    Log.d(TAG, "Button released")
-                    onSPenButtonClickListener(false)
-                }
+    private val runnable = object : Runnable {
+        override fun run() {
+            sPenPath.lineTo(currentPos.x.toFloat(), currentPos.y.toFloat())
+            pressedTime += TICK_TIME
+
+            if (isSPenPressed && pressedTime < MAX_BUTTON_DOWN_TIME) {
+                handler.postDelayed(this, TICK_TIME)
+            } else {
+                performTouch?.invoke(sPenPath)
             }
         }
     }
@@ -82,20 +145,40 @@ class SPenManager(
 
     private inner class AirMotionEventListener : SpenEventListener {
         override fun onEvent(event: SpenEvent) {
-            val mEvent = AirMotionEvent(event)
-            onSPenMoveListener(mEvent.deltaX, mEvent.deltaY)
+            display?.let { display ->
+                val mEvent = AirMotionEvent(event)
+
+                currentPos.x += (mEvent.deltaX * CURSOR_SENSITIVITY).toInt()
+                currentPos.y -= (mEvent.deltaY * CURSOR_SENSITIVITY).toInt()
+
+                currentPos.x = currentPos.x.coerceIn(0, display.mode.physicalWidth)
+                currentPos.y = currentPos.y.coerceIn(0, display.mode.physicalHeight)
+
+                updateLayout?.invoke(currentPos)
+            }
         }
     }
 
     fun disconnectFromSPen() {
         Log.d(TAG, "Disconnecting from S-Pen...")
+
         sPenUnitManager?.let {
             val buttonUnit = it.getUnit(SpenUnit.TYPE_BUTTON)
             val airMotionUnit = it.getUnit(SpenUnit.TYPE_AIR_MOTION)
             it.unregisterSpenEventListener(buttonUnit)
             it.unregisterSpenEventListener(airMotionUnit)
         }
-        SpenRemote.getInstance().disconnect(activityProvider.getActivity())
+        sPenUnitManager = null
+        try {
+            SpenRemote.getInstance().disconnect(activityProvider.getActivity())
+        } catch (e: Exception) {
+            Log.e(TAG, "Error disconnecting from S-Pen, probably activity destroyed before disconnect", e)
+        }
+
+        performTouch = null
+        updateLayout = null
+        display = null
+        AppToServiceEvent.serviceStatus.update { AppToServiceEvent.ServiceStatus.OFF }
     }
 
     private fun mapConnectionError(errorCode: Int) = when (errorCode) {
@@ -106,5 +189,10 @@ class SPenManager(
 
     companion object {
         private const val TAG = "SPenManager"
+
+        private const val DELAY_TO_EVENT_REGISTER = 2000L
+        private const val CURSOR_SENSITIVITY = 700f
+        private const val MAX_BUTTON_DOWN_TIME = 1000
+        private const val TICK_TIME = 50L
     }
 }

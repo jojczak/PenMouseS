@@ -1,7 +1,20 @@
 package pl.jojczak.penmouses.service
 
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 object AppToServiceEvent {
-    val event = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+    val serviceStatus = MutableStateFlow(ServiceStatus.OFF)
+    val event = MutableSharedFlow<Event>(extraBufferCapacity = 1)
+
+    sealed class Event {
+        data object Start : Event()
+        data object Stop : Event()
+        data object StopOnDestroy : Event()
+    }
+
+    enum class ServiceStatus {
+        ON,
+        OFF
+    }
 }

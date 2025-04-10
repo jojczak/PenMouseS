@@ -2,7 +2,7 @@
     <string name="app_name">PenMouse S</string>
 
     <string name="home_logo_alt">Pen Mouse S Logo</string>
-    <string name="home_steps_bullet">\u00A0•\u00A0</string>
+    <string name="home_steps_bullet">\u00A0•</string>
     <string name="home_steps_more">More info</string>
     <string name="home_steps_dialog_dismiss">Dismiss</string>
 
@@ -17,6 +17,7 @@
     <string name="home_steps_2_dialog_content">Pen Mouse S requires its accessibility service to be enabled for proper functionality.\n\nAccessibility services are needed to:\n\n- Display the cursor above other apps, including the notification panel and the lock screen\n- Simulate touch input on the screen, mirroring S Pen movements\n\nPen Mouse S does not read your screen content.</string>
 
     <string name="home_steps_3">Step 3</string>
-    <string name="home_steps_3_des">Start Air Mouse</string>
     <string name="home_steps_3_more">Remember to REMOVE the S Pen from the phone BEFORE turning on Air Mouse</string>
+    <string name="home_steps_3_turn_on">START AIR MOUSE</string>
+    <string name="home_steps_3_turn_off">STOP AIR MOUSE</string>
 </resources>
