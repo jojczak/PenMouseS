@@ -3,6 +3,6 @@
     android:accessibilityFlags="flagDefault"
     android:canPerformGestures="true"
     android:canRetrieveWindowContent="false"
-    android:description="@string/accessibility_setting_description"
+    android:description="@string/home_steps_2_dialog_content"
     android:notificationTimeout="100"
     android:packageNames="pl.jojczak.penmouses" />

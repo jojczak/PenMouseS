@@ -11,3 +11,5 @@ val pad_xxl = 32.dp
 
 val elevation_1 = 1.dp
 val elevation_2 = 3.dp
+
+val LINK_ICON_SIZE = 16.dp

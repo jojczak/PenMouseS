@@ -2,11 +2,13 @@ package pl.jojczak.penmouses.service
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
+import android.content.Context
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.Handler
 import android.os.Looper
+import android.os.UserManager
 import android.util.Log
 import android.view.Display
 import android.view.Gravity
@@ -21,12 +23,21 @@ import android.view.WindowManager.LayoutParams.WRAP_CONTENT
 import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.utils.SPenManager
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MouseService : AccessibilityService() {
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var appToServiceEventObserver: Job? = null
 
     private lateinit var windowManager: WindowManager
     private lateinit var cursorView: ImageView
@@ -40,7 +51,21 @@ class MouseService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        val userManager = getSystemService(Context.USER_SERVICE) as UserManager
+        userManager.isUserAGoat
+        registerReceiver()
+    }
 
+    private fun registerReceiver() {
+        cancelAppToServiceEventObserver()
+        appToServiceEventObserver = serviceScope.launch {
+            AppToServiceEvent.event.collect { event ->
+                Log.d(TAG, "event: $event")
+            }
+        }
+    }
+
+    private fun startAirMouse() {
         setupWindowManagerAndDisplay()
         setupOverlayParams()
         setupCursorView()
@@ -118,8 +143,16 @@ class MouseService : AccessibilityService() {
         dispatchGesture(gestureBuilder.build(), null, null)
     }
 
+    private fun cancelAppToServiceEventObserver() {
+        appToServiceEventObserver?.cancel()
+        appToServiceEventObserver = null
+    }
+
     override fun onDestroy() {
         sPenManager.disconnectFromSPen()
+        cancelAppToServiceEventObserver()
+        serviceScope.cancel()
+        super.onDestroy()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit

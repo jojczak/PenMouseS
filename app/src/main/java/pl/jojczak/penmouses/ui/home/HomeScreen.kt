@@ -1,12 +1,12 @@
 package pl.jojczak.penmouses.ui.home
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
-import android.provider.Settings
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,45 +25,87 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import pl.jojczak.penmouses.R
+import pl.jojczak.penmouses.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
-import pl.jojczak.penmouses.ui.theme.elevation_1
 import pl.jojczak.penmouses.ui.theme.elevation_2
 import pl.jojczak.penmouses.ui.theme.pad_l
 import pl.jojczak.penmouses.ui.theme.pad_m
 import pl.jojczak.penmouses.ui.theme.pad_s
-import pl.jojczak.penmouses.ui.theme.pad_xl
 import pl.jojczak.penmouses.ui.theme.pad_xs
 import pl.jojczak.penmouses.ui.theme.pad_xxl
 
+private const val STEP_TITLE_ALPHA = 0.7f
+private const val STEP_MORE_ALPHA = 0.5f
+
 @Composable
-fun HomeScreen() {
-    HomeScreenContent()
+fun HomeScreen(
+    viewModel: HomeScreenViewModel = hiltViewModel()
+) {
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(lifecycleState) {
+        viewModel.onLifecycleEvent(lifecycleState)
+    }
+
+    HomeScreenContent(
+        state = state,
+        changeSPenFeaturesState = viewModel::changeSPenFeaturesState,
+        changeDialogState = viewModel::changeDialogState,
+        toggleService = viewModel::sendStartSignalToService
+    )
 }
 
 @Composable
-fun HomeScreenContent() {
+fun HomeScreenContent(
+    state: HomeScreenState,
+    changeSPenFeaturesState: (Boolean) -> Unit = { },
+    changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
+    toggleService: (Boolean) -> Unit = { }
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .padding(pad_l)
     ) {
+        Step1Dialog(
+            showDialog = state.showStep1Dialog,
+            changeDialogState = changeDialogState
+        )
+        Step2Dialog(
+            showDialog = state.showStep2Dialog,
+            changeDialogState = changeDialogState
+        )
         AppLogo()
-        StepsContainer()
+        StepsContainer(
+            areSPenFeaturesDisabled = state.areSPenFeaturesDisabled,
+            isAccessibilityEnabled = state.isAccessibilityEnabled,
+            changeSPenFeaturesState = changeSPenFeaturesState,
+            changeDialogState = changeDialogState,
+            toggleService = toggleService
+        )
     }
 }
 
@@ -72,77 +114,104 @@ private fun AppLogo() {
     Image(
         painter = painterResource(R.drawable.logo_light),
         contentDescription = stringResource(R.string.home_logo_alt),
-        modifier = Modifier.padding(horizontal = pad_xxl)
+        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+        modifier = Modifier.padding(pad_xxl)
     )
 }
 
 @Composable
-private fun StepsContainer() {
-    Surface(
-        tonalElevation = elevation_1,
-        shape = RoundedCornerShape(pad_s),
-        modifier = Modifier.padding(top = pad_xl)
+private fun StepsContainer(
+    areSPenFeaturesDisabled: Boolean,
+    isAccessibilityEnabled: Boolean,
+    changeSPenFeaturesState: (Boolean) -> Unit = { },
+    changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
+    toggleService: (Boolean) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(pad_s),
+        modifier = Modifier.padding(top = pad_m)
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(pad_s),
-            modifier = Modifier.padding(pad_s)
+        StepContainer(
+            stepTextResId = R.string.home_steps_1,
+            stepSettingsResId = R.string.home_steps_1_settings,
+            blocked = false,
+            onMoreClick = { changeDialogState(1, true) },
+            settingsCallback = { openSettings(it) }
         ) {
-            Step(
-                stepTextResId = R.string.home_steps_1,
+            StepSwitch(
                 stepDescResId = R.string.home_steps_1_des,
-                stepMoreResId = R.string.home_steps_1_more,
-                stepSettingsResId = R.string.home_steps_1_settings
-            ) {
-                openSettings(it)
-            }
-            Step(
-                stepTextResId = R.string.home_steps_2,
+                checked = areSPenFeaturesDisabled,
+                onCheckedChange = { changeSPenFeaturesState(!areSPenFeaturesDisabled) }
+            )
+        }
+        StepContainer(
+            stepTextResId = R.string.home_steps_2,
+            stepSettingsResId = R.string.home_steps_2_settings,
+            blocked = !areSPenFeaturesDisabled,
+            onMoreClick = { changeDialogState(2, true) },
+            settingsCallback = { openAccessibilitySettings(it) }
+        ) {
+            StepSwitch(
                 stepDescResId = R.string.home_steps_2_des,
-                stepSettingsResId = R.string.home_steps_2_settings
-            ) {
-                openAccessibilitySettings(it)
-            }
-            Step(
-                stepTextResId = R.string.home_steps_3,
+                checked = isAccessibilityEnabled,
+                enabled = !isAccessibilityEnabled,
+                onCheckedChange = {
+                    if (it) changeDialogState(2, true)
+                }
+            )
+        }
+        StepContainer(
+            stepTextResId = R.string.home_steps_3,
+            blocked = !areSPenFeaturesDisabled || !isAccessibilityEnabled,
+        ) {
+            StepButton(
                 stepDescResId = R.string.home_steps_3_des,
                 stepMoreResId = R.string.home_steps_3_more,
-                isButton = true
+                onClick = { toggleService(true) }
             )
         }
     }
 }
 
 @Composable
-private fun Step(
+private fun StepContainer(
     @StringRes stepTextResId: Int,
-    @StringRes stepDescResId: Int,
-    @StringRes stepMoreResId: Int? = null,
     @StringRes stepSettingsResId: Int? = null,
-    isButton: Boolean = false,
+    blocked: Boolean,
+    onMoreClick: (() -> Unit)? = null,
     settingsCallback: (Context) -> Unit = { },
+    content: @Composable () -> Unit
 ) {
     Surface(
         tonalElevation = elevation_2,
         shape = RoundedCornerShape(pad_s),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier.padding(pad_m)
-        ) {
-            StepHeader(
-                stepTextResId = stepTextResId,
-                stepSettingsResId = stepSettingsResId,
-                settingsCallback = settingsCallback
-            )
-            if (isButton) {
-                StepButton(
-                    stepDescResId = stepDescResId,
-                    stepMoreResId = stepMoreResId
+        Box {
+            Column(
+                modifier = Modifier.padding(pad_m)
+            ) {
+                StepHeader(
+                    stepTextResId = stepTextResId,
+                    stepSettingsResId = stepSettingsResId,
+                    onMoreClick = onMoreClick,
+                    settingsCallback = settingsCallback
                 )
-            } else {
-                LabeledSwitch(
-                    stepDescResId = stepDescResId,
-                    stepMoreResId = stepMoreResId
+                content()
+            }
+            if (blocked) {
+                Box(
+                    modifier = Modifier
+                        .background(
+                            MaterialTheme.colorScheme.surfaceColorAtElevation(elevation_2)
+                                .copy(alpha = 0.7f)
+                        )
+                        .matchParentSize()
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {}
+                        )
                 )
             }
         }
@@ -153,16 +222,31 @@ private fun Step(
 private fun StepHeader(
     @StringRes stepTextResId: Int,
     @StringRes stepSettingsResId: Int? = null,
+    onMoreClick: (() -> Unit)? = null,
     settingsCallback: (Context) -> Unit = { },
 ) {
     Row(
         verticalAlignment = Alignment.Top,
-        modifier = Modifier.padding(bottom = pad_m)
+        modifier = Modifier.padding(bottom = pad_s)
     ) {
-        Text(
-            text = stringResource(stepTextResId),
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA)
-        )
+        Row {
+            Text(
+                text = stringResource(stepTextResId),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA)
+            )
+            onMoreClick?.let {
+                Text(
+                    text = stringResource(R.string.home_steps_bullet),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA)
+                )
+                Text(
+                    text = stringResource(R.string.home_steps_more),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { onMoreClick() }
+                )
+            }
+        }
         if (stepSettingsResId != null) {
             SettingsLink(
                 stepSettingsResId = stepSettingsResId,
@@ -196,7 +280,7 @@ private fun RowScope.SettingsLink(
             painter = painterResource(R.drawable.open_in_new_24px),
             tint = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
             contentDescription = null,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(LINK_ICON_SIZE)
         )
     }
 }
@@ -204,48 +288,48 @@ private fun RowScope.SettingsLink(
 @Composable
 private fun StepButton(
     @StringRes stepDescResId: Int,
-    @StringRes stepMoreResId: Int? = null
+    @StringRes stepMoreResId: Int? = null,
+    onClick: () -> Unit = { }
 ) {
+    StepTextMore(
+        stepMoreResId = stepMoreResId,
+        modifier = Modifier.padding(bottom = pad_m)
+    )
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxWidth()
     ) {
         Button(
-            onClick = {}
+            onClick = onClick
         ) {
             Text(
                 text = stringResource(stepDescResId).uppercase(),
             )
         }
     }
-    StepTextMore(
-        stepMoreResId = stepMoreResId,
-        modifier = Modifier.padding(top = pad_m)
-    )
 }
 
 @Composable
-private fun LabeledSwitch(
+private fun StepSwitch(
     @StringRes stepDescResId: Int,
-    @StringRes stepMoreResId: Int? = null
+    checked: Boolean,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit = { }
 ) {
-    val switchState = remember { mutableStateOf(false) }
-
     Row(
         horizontalArrangement = Arrangement.spacedBy(pad_l)
     ) {
-        Column(
+        Text(
+            text = stringResource(stepDescResId),
             modifier = Modifier.weight(1f)
-        ) {
-            Text(text = stringResource(stepDescResId))
-            StepTextMore(stepMoreResId = stepMoreResId)
-        }
+        )
         CompositionLocalProvider(
             LocalMinimumInteractiveComponentSize provides 0.dp,
         ) {
             Switch(
-                checked = switchState.value,
-                onCheckedChange = { switchState.value = !switchState.value }
+                checked = checked,
+                enabled = enabled,
+                onCheckedChange = onCheckedChange
             )
         }
     }
@@ -268,28 +352,35 @@ private fun StepTextMore(
     }
 }
 
-private fun openSettings(context: Context) {
-    context.startActivity(Intent(Settings.ACTION_SETTINGS))
-}
-
-private fun openAccessibilitySettings(context: Context) {
-    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-}
-
-private const val STEP_TITLE_ALPHA = 0.7f
-private const val STEP_MORE_ALPHA = 0.5f
-
 @Preview(
     showSystemUi = false,
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     showBackground = false, device = "spec:width=411dp,height=891dp"
 )
 @Composable
-private fun HomeScreenPreview() {
+private fun HomeScreenNightPreview() {
     PenMouseSTheme {
         Surface {
-            HomeScreenContent()
+            HomeScreenContent(
+                state = HomeScreenState()
+            )
         }
     }
 }
+
+@Preview(
+    showSystemUi = false,
+    showBackground = false, device = "spec:width=411dp,height=891dp"
+)
+@Composable
+private fun HomeScreenDayPreview() {
+    PenMouseSTheme {
+        Surface {
+            HomeScreenContent(
+                state = HomeScreenState()
+            )
+        }
+    }
+}
+
 

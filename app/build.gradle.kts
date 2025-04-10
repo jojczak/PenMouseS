@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.ksp)
 
+    implementation(libs.androidx.localbroadcastmanager)
+
     implementation(files("libs/sdk-v1.0.0.jar"))
     implementation(files("libs/spenremote-v1.0.1.jar"))
 

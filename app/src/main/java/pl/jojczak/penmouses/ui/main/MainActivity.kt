@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,7 +22,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         startService(Intent(this, MouseService::class.java))
-        setShowWhenLocked(true)
 
         setContent { AppContent() }
     }
@@ -29,10 +30,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppContent() {
     PenMouseSTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            HomeScreen()
+        Scaffold { paddings ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddings)
+            ) {
+                HomeScreen()
+            }
         }
     }
 }
