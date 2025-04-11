@@ -3,6 +3,7 @@ package pl.jojczak.penmouses.utils
 import android.accessibilityservice.AccessibilityService.DISPLAY_SERVICE
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Path
 import android.graphics.Point
 import android.hardware.display.DisplayManager
@@ -21,10 +22,13 @@ import com.samsung.android.sdk.penremote.SpenUnit
 import com.samsung.android.sdk.penremote.SpenUnitManager
 import kotlinx.coroutines.flow.update
 import pl.jojczak.penmouses.di.ActivityProvider
+import pl.jojczak.penmouses.di.SharedPreferencesModule.DEFAULT_SPEN_SENSITIVITY
+import pl.jojczak.penmouses.di.SharedPreferencesModule.PREF_KEY_SPEN_SENSITIVITY
 import pl.jojczak.penmouses.service.AppToServiceEvent
 
 class SPenManager(
-    private val activityProvider: ActivityProvider
+    private val activityProvider: ActivityProvider,
+    private val sharedPreferences: SharedPreferences
 ) {
     private var sPenUnitManager: SpenUnitManager? = null
     private var display: Display? = null
@@ -36,6 +40,7 @@ class SPenManager(
     private var sPenPath = Path()
     private val handler = Handler(Looper.getMainLooper())
 
+    private var sPenSensitivity = sharedPreferences.getFloat(PREF_KEY_SPEN_SENSITIVITY, DEFAULT_SPEN_SENSITIVITY)
     val currentPos = Point(0, 0)
 
     // Step 1
@@ -148,8 +153,8 @@ class SPenManager(
             display?.let { display ->
                 val mEvent = AirMotionEvent(event)
 
-                currentPos.x += (mEvent.deltaX * CURSOR_SENSITIVITY).toInt()
-                currentPos.y -= (mEvent.deltaY * CURSOR_SENSITIVITY).toInt()
+                currentPos.x += (mEvent.deltaX * (sPenSensitivity * S_PEN_SENSITIVITY_MULTIPLIER)).toInt()
+                currentPos.y -= (mEvent.deltaY * (sPenSensitivity * S_PEN_SENSITIVITY_MULTIPLIER)).toInt()
 
                 currentPos.x = currentPos.x.coerceIn(0, display.mode.physicalWidth)
                 currentPos.y = currentPos.y.coerceIn(0, display.mode.physicalHeight)
@@ -187,12 +192,16 @@ class SPenManager(
         else -> "Unknown error"
     }
 
+    fun updateSPenSensitivity(value: Float) {
+        sPenSensitivity = value
+    }
+
     companion object {
         private const val TAG = "SPenManager"
 
         private const val DELAY_TO_EVENT_REGISTER = 2000L
-        private const val CURSOR_SENSITIVITY = 700f
         private const val MAX_BUTTON_DOWN_TIME = 1000
-        private const val TICK_TIME = 50L
+        private const val TICK_TIME = 25L
+        private const val S_PEN_SENSITIVITY_MULTIPLIER = 20
     }
 }

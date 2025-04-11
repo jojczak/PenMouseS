@@ -9,15 +9,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,7 +52,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.ui.theme.LINK_ICON_SIZE
-import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
+import pl.jojczak.penmouses.ui.theme.PenMouseSThemePreview
 import pl.jojczak.penmouses.ui.theme.clickable_text_corner
 import pl.jojczak.penmouses.ui.theme.elevation_2
 import pl.jojczak.penmouses.ui.theme.getRedButtonColors
@@ -79,27 +85,17 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeScreenContent(
+private fun HomeScreenContent(
     state: HomeScreenState,
     changeSPenFeaturesState: (Boolean) -> Unit = { },
     changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
     toggleService: (AppToServiceEvent.Event) -> Unit = { }
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(pad_l)
+    HomeScreenContentPlacer(
+        modifier = Modifier.padding(
+            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+        )
     ) {
-        Step1Dialog(
-            showDialog = state.showStep1Dialog,
-            changeDialogState = changeDialogState
-        )
-        Step2Dialog(
-            showDialog = state.showStep2Dialog,
-            changeDialogState = changeDialogState
-        )
-        AppLogo()
         StepsContainer(
             areSPenFeaturesDisabled = state.areSPenFeaturesDisabled,
             isAccessibilityEnabled = state.isAccessibilityEnabled,
@@ -108,6 +104,56 @@ fun HomeScreenContent(
             changeDialogState = changeDialogState,
             toggleService = toggleService
         )
+    }
+
+    Step1Dialog(
+        showDialog = state.showStep1Dialog,
+        changeDialogState = changeDialogState
+    )
+
+    Step2Dialog(
+        showDialog = state.showStep2Dialog,
+        changeDialogState = changeDialogState
+    )
+}
+
+@Composable
+private fun HomeScreenContentPlacer(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    BoxWithConstraints(
+        modifier = modifier
+    ) {
+        if (maxHeight > maxWidth) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = pad_l)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                AppLogo()
+                content()
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = pad_l),
+            ) {
+                Box(modifier = Modifier.weight(0.382f)) {
+                    AppLogo()
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(0.618f)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    content()
+                }
+            }
+        }
     }
 }
 
@@ -132,7 +178,7 @@ private fun StepsContainer(
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(pad_s),
-        modifier = Modifier.padding(top = pad_m)
+        modifier = Modifier.padding(vertical = pad_m)
     ) {
         StepContainer(
             stepTextResId = R.string.home_steps_1,
@@ -369,37 +415,33 @@ private fun StepSwitch(
 }
 
 @Preview(
-    showSystemUi = false,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = false, device = "spec:width=411dp,height=891dp"
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 )
 @Composable
 private fun HomeScreenNightPreview() {
-    PenMouseSTheme {
-        Surface {
-            HomeScreenContent(
-                state = HomeScreenState()
+    PenMouseSThemePreview {
+        HomeScreenContent(
+            state = HomeScreenState(
+                serviceStatus = AppToServiceEvent.ServiceStatus.ON,
+                areSPenFeaturesDisabled = true,
+                isAccessibilityEnabled = true
             )
-        }
+        )
     }
 }
 
-@Preview(
-    showSystemUi = false,
-    showBackground = false, device = "spec:width=411dp,height=891dp"
-)
+@Preview(showSystemUi = true)
 @Composable
 private fun HomeScreenDayPreview() {
-    PenMouseSTheme {
-        Surface {
-            HomeScreenContent(
-                state = HomeScreenState(
-                    serviceStatus = AppToServiceEvent.ServiceStatus.ON,
-                    areSPenFeaturesDisabled = true,
-                    isAccessibilityEnabled = true
-                )
+    PenMouseSThemePreview {
+        HomeScreenContent(
+            state = HomeScreenState(
+                serviceStatus = AppToServiceEvent.ServiceStatus.ON,
+                areSPenFeaturesDisabled = true,
+                isAccessibilityEnabled = true
             )
-        }
+        )
     }
 }
 

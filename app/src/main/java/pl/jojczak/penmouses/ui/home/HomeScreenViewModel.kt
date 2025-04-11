@@ -29,6 +29,9 @@ class HomeScreenViewModel @Inject constructor(
     val state: StateFlow<HomeScreenState> = _state.asStateFlow()
 
     init {
+        checkAccessibilityPermission()
+        checkSPenFeaturesState()
+
         viewModelScope.launch {
             AppToServiceEvent.serviceStatus.collect {
                 _state.update { state ->
@@ -36,10 +39,6 @@ class HomeScreenViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun sendSignalToService(event: AppToServiceEvent.Event) {
-        AppToServiceEvent.event.tryEmit(event)
     }
 
     fun onLifecycleEvent(lifecycleState: Lifecycle.State) {
@@ -53,16 +52,10 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private fun checkSPenFeaturesState() {
-        _state.update {
-            it.copy(
-                areSPenFeaturesDisabled = sharedPreferences.getBoolean(
-                    PREF_KEY_SPEN_FEATURES_DISABLED,
-                    false
-                )
-            )
-        }
+    fun sendSignalToService(event: AppToServiceEvent.Event) {
+        AppToServiceEvent.event.tryEmit(event)
     }
+
 
     fun changeSPenFeaturesState(state: Boolean) {
         _state.update {
@@ -84,6 +77,17 @@ class HomeScreenViewModel @Inject constructor(
                 2 -> it.copy(showStep2Dialog = state)
                 else -> it
             }
+        }
+    }
+
+    private fun checkSPenFeaturesState() {
+        _state.update {
+            it.copy(
+                areSPenFeaturesDisabled = sharedPreferences.getBoolean(
+                    PREF_KEY_SPEN_FEATURES_DISABLED,
+                    false
+                )
+            )
         }
     }
 

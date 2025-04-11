@@ -11,6 +11,7 @@ object AppToServiceEvent {
         data object Start : Event()
         data object Stop : Event()
         data object StopOnDestroy : Event()
+        data class UpdateSensitivity(val value: Float) : Event()
     }
 
     enum class ServiceStatus {

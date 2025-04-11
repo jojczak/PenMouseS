@@ -19,4 +19,7 @@ object SharedPreferencesModule {
 
     private const val PREF_NAME = "penmouse_s_preferences"
     const val PREF_KEY_SPEN_FEATURES_DISABLED = "s_pen_features_disabled"
+    const val PREF_KEY_SPEN_SENSITIVITY= "s_pen_sensitivity"
+
+    const val DEFAULT_SPEN_SENSITIVITY = 40f
 }

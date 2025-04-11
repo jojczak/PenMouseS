@@ -1,5 +1,6 @@
 package pl.jojczak.penmouses.di
 
+import android.content.SharedPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +19,10 @@ object SPenModule {
 
     @Provides
     @Singleton
-    fun provideSPenManager(activityProvider: ActivityProvider): SPenManager {
-        return SPenManager(activityProvider)
+    fun provideSPenManager(
+        activityProvider: ActivityProvider,
+        sharedPreferences: SharedPreferences
+    ): SPenManager {
+        return SPenManager(activityProvider, sharedPreferences)
     }
 }

@@ -12,7 +12,6 @@ hilt = "2.50"
 hiltKsp = "1.2.0"
 hiltNavigationCompose = "1.2.0"
 ksp = "2.0.21-1.0.27"
-localBroadcastManager="1.1.0"
 
 [libraries]
 #core
@@ -20,8 +19,6 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
-androidx-localbroadcastmanager = { group = "androidx.localbroadcastmanager", name = "localbroadcastmanager", version.ref = "localBroadcastManager" }
 
 #ui
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -35,6 +32,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 hilt-ksp = { group = "androidx.hilt", name="hilt-compiler", version.ref = "hiltKsp" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 
 #tests
 junit = { group = "junit", name = "junit", version.ref = "junit" }

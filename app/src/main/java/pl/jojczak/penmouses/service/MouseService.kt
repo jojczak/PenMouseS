@@ -63,6 +63,9 @@ class MouseService : AccessibilityService() {
                     AppToServiceEvent.Event.Start -> startAirMouse()
                     AppToServiceEvent.Event.Stop -> stopAirMouse(true)
                     AppToServiceEvent.Event.StopOnDestroy -> stopAirMouse(false)
+                    is AppToServiceEvent.Event.UpdateSensitivity -> {
+                        sPenManager.updateSPenSensitivity(event.value)
+                    }
                 }
             }
         }

@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">PenMouse S</string>
 
+    <string name="screen_home">Home</string>
+    <string name="screen_settings">Settings</string>
+
     <string name="home_logo_alt">Pen Mouse S Logo</string>
     <string name="home_steps_bullet">\u00A0•</string>
     <string name="home_steps_more">More info</string>
@@ -20,4 +23,6 @@
     <string name="home_steps_3_more">Remember to REMOVE the S Pen from the phone BEFORE turning on Air Mouse</string>
     <string name="home_steps_3_turn_on">START AIR MOUSE</string>
     <string name="home_steps_3_turn_off">STOP AIR MOUSE</string>
+
+    <string name="settings_s_pen_sensitivity_slider_label">S Pen sensitivity: %s</string>
 </resources>
