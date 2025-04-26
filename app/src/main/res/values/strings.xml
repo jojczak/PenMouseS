@@ -35,4 +35,6 @@
     <string name="settings_change_cursor_button">Change</string>
     <string name="settings_change_cursor_file_type_error">Oops! The selected file isn\'t a supported image format.</string>
     <string name="settings_change_cursor_file_load_error">Oops! We couldn\'t load the image. Please try again.</string>
+    <string name="settings_cursor_hide_delay">Hide cursor after %ss of inactivity</string>
+    <string name="settings_cursor_hide_delay_indefinite">Keep cursor visible</string>
 </resources>

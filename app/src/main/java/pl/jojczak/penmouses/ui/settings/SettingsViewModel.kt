@@ -40,6 +40,7 @@ class SettingsViewModel @Inject constructor(
         _state.update {
             it.copy(
                 sPenSensitivity = preferencesManager.get(PrefKeys.SPEN_SENSITIVITY),
+                cursorHideDelay = preferencesManager.get(PrefKeys.CURSOR_HIDE_DELAY),
                 cursorSize = preferencesManager.get(PrefKeys.CURSOR_SIZE),
                 cursorType = preferencesManager.get(PrefKeys.CURSOR_TYPE),
             )
@@ -50,6 +51,10 @@ class SettingsViewModel @Inject constructor(
         when (key) {
             PrefKeys.SPEN_SENSITIVITY -> {
                 _state.update { it.copy(sPenSensitivity = value as Float) }
+            }
+
+            PrefKeys.CURSOR_HIDE_DELAY -> {
+                _state.update { it.copy(cursorHideDelay = value as Float) }
             }
 
             PrefKeys.CURSOR_SIZE -> {
@@ -64,6 +69,10 @@ class SettingsViewModel @Inject constructor(
         when (key) {
             PrefKeys.SPEN_SENSITIVITY -> {
                 AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateSensitivity)
+            }
+
+            PrefKeys.CURSOR_HIDE_DELAY -> {
+                AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateHideDelay)
             }
 
             PrefKeys.CURSOR_SIZE -> {

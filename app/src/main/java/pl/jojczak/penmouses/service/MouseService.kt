@@ -14,6 +14,7 @@ import android.os.UserManager
 import android.util.Log
 import android.view.Display
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
@@ -37,6 +38,7 @@ import pl.jojczak.penmouses.utils.PreferencesManager
 import pl.jojczak.penmouses.utils.SPenManager
 import pl.jojczak.penmouses.utils.getCursorBitmap
 import javax.inject.Inject
+import androidx.core.view.isGone
 
 @AndroidEntryPoint
 class MouseService : AccessibilityService() {
@@ -45,12 +47,17 @@ class MouseService : AccessibilityService() {
     private var appToServiceEventObserver: Job? = null
 
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val hideHandler = Handler(Looper.getMainLooper())
     private var windowManager: WindowManager? = null
     private var cursorView: ImageView? = null
     private var display: Display? = null
     private var params: WindowManager.LayoutParams? = null
     private var cursorImageBitmap: Bitmap? = null
     private var isAirMouseRunning = false
+    private var hideCursorDelay = PrefKeys.CURSOR_HIDE_DELAY.default.toLong()
+        set(value) {
+            field = value * 1000L
+        }
 
     @Inject
     lateinit var preferences: PreferencesManager
@@ -80,6 +87,7 @@ class MouseService : AccessibilityService() {
                     AppToServiceEvent.Event.UpdateSensitivity -> sPenManager.updateSPenSensitivity()
                     AppToServiceEvent.Event.UpdateCursorSize -> mainHandler.post { setupParams() }
                     AppToServiceEvent.Event.UpdateCursorType -> mainHandler.post { setupCursorImage() }
+                    AppToServiceEvent.Event.UpdateHideDelay -> mainHandler.post { updateHideDelay() }
                 }
             }
         }
@@ -101,12 +109,14 @@ class MouseService : AccessibilityService() {
             setupParams()
             setupCursorView()
             setupSPen()
+            updateHideDelay()
         }
     }
 
     // Stopping air mouse, clearing all variables
     private fun stopAirMouse(withSPenManager: Boolean) {
         Log.d(TAG, "Stopping AirMouse")
+        hideHandler.removeCallbacks(hideCursorRunnable)
         mainHandler.post {
             windowManager?.removeView(cursorView)
             if (withSPenManager) sPenManager.disconnectFromSPen()
@@ -192,15 +202,18 @@ class MouseService : AccessibilityService() {
     // Layout update when S-Pen moves
     private fun updateLayout(pos: Point) {
         mainHandler.post {
+            showCursorIfHidden()
             params?.x = pos.x
             params?.y = pos.y
             windowManager?.updateViewLayout(cursorView, params)
+            manageCursorHiding()
         }
     }
 
     // Simulate touch event via AccessibilityService when S-Pen button is clicked
     private fun performTouch(sPenPath: Path) {
         Log.d(TAG, "performTouch")
+        showCursorIfHidden()
 
         val gestureStroke = GestureDescription.StrokeDescription(sPenPath, 0, TOUCH_DURATION)
         val gestureBuilder = GestureDescription.Builder().apply {
@@ -208,6 +221,52 @@ class MouseService : AccessibilityService() {
         }
         dispatchGesture(gestureBuilder.build(), null, null)
     }
+
+    //region Cursor hiding functions
+    private fun updateHideDelay() {
+        showCursorIfHidden()
+        hideCursorDelay = preferences.get(PrefKeys.CURSOR_HIDE_DELAY).toLong()
+        manageCursorHiding()
+    }
+
+    private fun showCursorIfHidden() {
+        cursorView?.apply {
+            if (isGone && alpha == 0f) {
+                animate()
+                    .alpha(1f)
+                    .setDuration(100)
+                    .withStartAction {
+                        visibility = View.VISIBLE
+                    }
+                    .start()
+            }
+        }
+    }
+
+    private fun manageCursorHiding() {
+        hideHandler.removeCallbacks(hideCursorRunnable)
+        if (hideCursorDelay > 60000) {
+            Log.d(TAG, "Cursor hiding disabled because hideCursorDelay: $hideCursorDelay")
+            return
+        }
+        hideHandler.postDelayed(
+            hideCursorRunnable,
+            hideCursorDelay
+        )
+    }
+
+    private val hideCursorRunnable = Runnable {
+        cursorView?.apply {
+            animate()
+                .alpha(0f)
+                .setDuration(500)
+                .withEndAction {
+                    visibility = View.GONE
+                }
+                .start()
+        }
+    }
+    //endregion
 
     private fun cancelAppToServiceEventObserver() {
         appToServiceEventObserver?.cancel()

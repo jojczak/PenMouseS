@@ -75,6 +75,7 @@ object PrefKeys {
     val SPEN_SENSITIVITY = PrefKey("spen_sensitivity", 50f, 1f..100f)
     val CURSOR_SIZE = PrefKey("cursor_size", 60f, 20f..250f)
     val CURSOR_TYPE = PrefKey("cursor_type", CursorType.LIGHT)
+    val CURSOR_HIDE_DELAY = PrefKey("time_to_hide_cursor", 10f, 1f..61f)
 }
 
 data class PrefKey<T>(
@@ -90,5 +91,5 @@ enum class CursorType(
     LIGHT("light.png", R.string.settings_cursor_type_light),
     DARK("dark.png", R.string.settings_cursor_type_dark),
     RETRO("retro.png", R.string.settings_cursor_type_retro),
-    CUSTOM("custom.png", R.string.settings_cursor_type_custom)
+    CUSTOM("", R.string.settings_cursor_type_custom)
 }

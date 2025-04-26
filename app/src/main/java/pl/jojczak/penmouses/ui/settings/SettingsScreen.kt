@@ -135,6 +135,15 @@ fun SettingsScreenContent(
         )
         HorizontalDivider()
         SettingsSlider(
+            text = R.string.settings_cursor_hide_delay,
+            textOnLastValue = R.string.settings_cursor_hide_delay_indefinite,
+            value = state.cursorHideDelay,
+            prefKey = PrefKeys.CURSOR_HIDE_DELAY,
+            onValueChange = onValueChange,
+            onValueChangeFinished = onValueChangeFinished
+        )
+        HorizontalDivider()
+        SettingsSlider(
             text = R.string.settings_cursor_size_slider_label,
             value = state.cursorSize,
             prefKey = PrefKeys.CURSOR_SIZE,
@@ -154,6 +163,7 @@ fun SettingsScreenContent(
 @Composable
 private fun SettingsSlider(
     @StringRes text: Int,
+    @StringRes textOnLastValue: Int? = null,
     value: Float,
     prefKey: PrefKey<Float>,
     onValueChange: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
@@ -164,14 +174,18 @@ private fun SettingsSlider(
         modifier = Modifier.padding(pad_xl)
     ) {
         Text(
-            stringResource(text, round(value).toInt())
+            stringResource(
+                textOnLastValue.takeIf { it != null && value == prefKey.range.endInclusive } ?: text,
+                round(value).toInt()
+            )
         )
-        var sliderValue by mutableFloatStateOf(value)
+        var sliderValue by remember(value) { mutableFloatStateOf(value) }
         Slider(
             value = sliderValue,
             onValueChange = {
-                sliderValue = it
-                onValueChange(prefKey, it)
+                val roundedValue = round(it)
+                sliderValue = roundedValue
+                onValueChange(prefKey, roundedValue)
             },
             valueRange = prefKey.range,
             onValueChangeFinished = { onValueChangeFinished(prefKey, sliderValue) },
@@ -352,7 +366,7 @@ private fun SettingsScreenPreview() {
     PenMouseSThemePreview {
         SettingsScreenContent(
             state = SettingsScreenState(
-                cursorType = CursorType.CUSTOM
+                cursorType = CursorType.LIGHT
             )
         )
     }
