@@ -1,10 +1,10 @@
 package pl.jojczak.penmouses.di
 
-import android.content.SharedPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import pl.jojczak.penmouses.utils.PreferencesManager
 import pl.jojczak.penmouses.utils.SPenManager
 import javax.inject.Singleton
 
@@ -21,8 +21,8 @@ object SPenModule {
     @Singleton
     fun provideSPenManager(
         activityProvider: ActivityProvider,
-        sharedPreferences: SharedPreferences
+        preferencesManager: PreferencesManager
     ): SPenManager {
-        return SPenManager(activityProvider, sharedPreferences)
+        return SPenManager(activityProvider, preferencesManager)
     }
 }

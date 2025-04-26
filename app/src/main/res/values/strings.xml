@@ -24,5 +24,15 @@
     <string name="home_steps_3_turn_on">START AIR MOUSE</string>
     <string name="home_steps_3_turn_off">STOP AIR MOUSE</string>
 
-    <string name="settings_s_pen_sensitivity_slider_label">S Pen sensitivity: %s</string>
+    <string name="settings_reset_to_defaults">Reset to defaults</string>
+    <string name="settings_s_pen_sensitivity_slider_label">Sensitivity: %s</string>
+    <string name="settings_cursor_size_slider_label">Cursor size: %s dp</string>
+    <string name="settings_cursor_preview">Cursor preview</string>
+    <string name="settings_cursor_type_light">Light</string>
+    <string name="settings_cursor_type_dark">Dark</string>
+    <string name="settings_cursor_type_retro">Retro</string>
+    <string name="settings_cursor_type_custom">Custom</string>
+    <string name="settings_change_cursor_button">Change</string>
+    <string name="settings_change_cursor_file_type_error">Oops! The selected file isn\'t a supported image format.</string>
+    <string name="settings_change_cursor_file_load_error">Oops! We couldn\'t load the image. Please try again.</string>
 </resources>

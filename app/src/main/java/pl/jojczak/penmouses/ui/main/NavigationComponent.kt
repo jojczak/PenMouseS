@@ -73,10 +73,7 @@ private fun PenMouseSNavBar(
                 onClick = {
                     navController.navigate(screen.name) {
                         launchSingleTop = true
-                        restoreState = true
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
+                        popUpTo(navController.graph.startDestinationId)
                     }
                 },
                 icon = {

@@ -1,9 +1,7 @@
 package pl.jojczak.penmouses.ui.home
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.provider.Settings
-import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,15 +12,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pl.jojczak.penmouses.di.SharedPreferencesModule.PREF_KEY_SPEN_FEATURES_DISABLED
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.service.MouseService
+import pl.jojczak.penmouses.utils.PrefKeys
+import pl.jojczak.penmouses.utils.PreferencesManager
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val sharedPreferences: SharedPreferences
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<HomeScreenState> = MutableStateFlow(HomeScreenState())
@@ -45,7 +44,6 @@ class HomeScreenViewModel @Inject constructor(
         when (lifecycleState) {
             Lifecycle.State.RESUMED -> {
                 checkAccessibilityPermission()
-                checkSPenFeaturesState()
             }
 
             else -> {}
@@ -64,10 +62,7 @@ class HomeScreenViewModel @Inject constructor(
             )
         }
 
-        sharedPreferences.edit {
-            putBoolean(PREF_KEY_SPEN_FEATURES_DISABLED, state)
-            apply()
-        }
+        preferencesManager.put(PrefKeys.SPEN_FEATURES_DISABLED, state)
     }
 
     fun changeDialogState(step: Int, state: Boolean) {
@@ -81,14 +76,8 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     private fun checkSPenFeaturesState() {
-        _state.update {
-            it.copy(
-                areSPenFeaturesDisabled = sharedPreferences.getBoolean(
-                    PREF_KEY_SPEN_FEATURES_DISABLED,
-                    false
-                )
-            )
-        }
+        _state.value =
+            _state.value.copy(areSPenFeaturesDisabled = preferencesManager.get(PrefKeys.SPEN_FEATURES_DISABLED))
     }
 
     private fun checkAccessibilityPermission() {

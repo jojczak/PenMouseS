@@ -1,14 +1,12 @@
 package pl.jojczak.penmouses.ui.common
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,7 +52,7 @@ fun MoreInfoDialog(
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier.padding(pad_xl)
                     )
-                    DialogHorizontalLine()
+                    HorizontalDivider()
                     Box(
                         modifier = Modifier
                             .weight(1f, fill = false)
@@ -64,7 +62,7 @@ fun MoreInfoDialog(
                             content()
                         }
                     }
-                    DialogHorizontalLine()
+                    HorizontalDivider()
                     Box(
                         modifier = Modifier
                             .padding(horizontal = pad_xl, vertical = pad_m)
@@ -75,14 +73,4 @@ fun MoreInfoDialog(
             }
         }
     }
-}
-
-@Composable
-private fun DialogHorizontalLine() {
-    Spacer(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .height(1.dp)
-            .fillMaxWidth()
-    )
 }

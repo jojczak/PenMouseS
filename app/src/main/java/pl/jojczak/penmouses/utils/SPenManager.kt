@@ -3,7 +3,6 @@ package pl.jojczak.penmouses.utils
 import android.accessibilityservice.AccessibilityService.DISPLAY_SERVICE
 import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Path
 import android.graphics.Point
 import android.hardware.display.DisplayManager
@@ -22,13 +21,11 @@ import com.samsung.android.sdk.penremote.SpenUnit
 import com.samsung.android.sdk.penremote.SpenUnitManager
 import kotlinx.coroutines.flow.update
 import pl.jojczak.penmouses.di.ActivityProvider
-import pl.jojczak.penmouses.di.SharedPreferencesModule.DEFAULT_SPEN_SENSITIVITY
-import pl.jojczak.penmouses.di.SharedPreferencesModule.PREF_KEY_SPEN_SENSITIVITY
 import pl.jojczak.penmouses.service.AppToServiceEvent
 
 class SPenManager(
     private val activityProvider: ActivityProvider,
-    private val sharedPreferences: SharedPreferences
+    private val preferences: PreferencesManager
 ) {
     private var sPenUnitManager: SpenUnitManager? = null
     private var display: Display? = null
@@ -40,10 +37,10 @@ class SPenManager(
     private var sPenPath = Path()
     private val handler = Handler(Looper.getMainLooper())
 
-    private var sPenSensitivity = sharedPreferences.getFloat(PREF_KEY_SPEN_SENSITIVITY, DEFAULT_SPEN_SENSITIVITY)
+    private var sPenSensitivity = 0f
     val currentPos = Point(0, 0)
 
-    // Step 1
+    // Step 1: Getting activity, setting up event listeners and calling other init methods
     fun connectToSPen(
         performTouch: (Path) -> Unit,
         updateLayout: (Point) -> Unit
@@ -60,6 +57,7 @@ class SPenManager(
 
         setupDisplay(activity)
         setupConnection(activity)
+        updateSPenSensitivity()
     }
 
     // Step 2: Set up Display
@@ -192,8 +190,8 @@ class SPenManager(
         else -> "Unknown error"
     }
 
-    fun updateSPenSensitivity(value: Float) {
-        sPenSensitivity = value
+    fun updateSPenSensitivity() {
+        sPenSensitivity = preferences.get(PrefKeys.SPEN_SENSITIVITY)
     }
 
     companion object {

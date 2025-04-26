@@ -1,37 +1,87 @@
 package pl.jojczak.penmouses.ui.settings
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
-import androidx.compose.foundation.background
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.ui.theme.PenMouseSThemePreview
 import pl.jojczak.penmouses.ui.theme.elevation_1
+import pl.jojczak.penmouses.ui.theme.elevation_2
+import pl.jojczak.penmouses.ui.theme.pad_l
 import pl.jojczak.penmouses.ui.theme.pad_s
 import pl.jojczak.penmouses.ui.theme.pad_xl
+import pl.jojczak.penmouses.ui.theme.pad_xs
+import pl.jojczak.penmouses.ui.theme.radius_m
+import pl.jojczak.penmouses.utils.CursorType
+import pl.jojczak.penmouses.utils.PrefKey
+import pl.jojczak.penmouses.utils.PrefKeys
+import pl.jojczak.penmouses.utils.getCursorBitmap
 import kotlin.math.round
-
-private const val SLIDER_MIN = 1f
-private const val SLIDER_MAX = 100f
 
 @Composable
 fun SettingsScreen(
@@ -41,8 +91,10 @@ fun SettingsScreen(
 
     SettingsScreenContent(
         state = state,
-        updateSPenSensitivity = viewModel::updateSPenSensitivity,
-        saveSPenSensitivity = viewModel::saveSPenSensitivity
+        onValueChange = viewModel::updatePreference,
+        onValueChangeFinished = viewModel::savePreference,
+        onCursorTypeChange = viewModel::onCursorTypeChange,
+        onCustomCursorFileSelected = viewModel::loadCustomCursorImage
     )
 }
 
@@ -50,63 +102,258 @@ fun SettingsScreen(
 @Composable
 fun SettingsScreenContent(
     state: SettingsScreenState,
-    updateSPenSensitivity: (Float) -> Unit = { },
-    saveSPenSensitivity: () -> Unit = { }
+    onValueChange: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
+    onValueChangeFinished: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
+    onCursorTypeChange: (CursorType) -> Unit = {},
+    onCustomCursorFileSelected: (Uri) -> Unit = {}
 ) {
-    Column {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         TopAppBar(
             title = { Text(text = stringResource(R.string.screen_settings)) },
             colors = TopAppBarDefaults.topAppBarColors().copy(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(elevation_1)
-            )
+            ),
+            actions = {
+                IconButton(
+                    onClick = {}
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.reset_settings_24px),
+                        contentDescription = stringResource(R.string.settings_reset_to_defaults)
+                    )
+                }
+            }
         )
-        SPenSensitivitySlider(
-            sPenSensitivity = state.sPenSensitivity,
-            updateSPenSensitivity = updateSPenSensitivity,
-            saveSPenSensitivity = saveSPenSensitivity
+        SettingsSlider(
+            text = R.string.settings_s_pen_sensitivity_slider_label,
+            value = state.sPenSensitivity,
+            prefKey = PrefKeys.SPEN_SENSITIVITY,
+            onValueChange = onValueChange,
+            onValueChangeFinished = onValueChangeFinished
         )
-        Spacer(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .height(1.dp)
-                .fillMaxWidth()
+        HorizontalDivider()
+        SettingsSlider(
+            text = R.string.settings_cursor_size_slider_label,
+            value = state.cursorSize,
+            prefKey = PrefKeys.CURSOR_SIZE,
+            onValueChange = onValueChange,
+            onValueChangeFinished = onValueChangeFinished
+        )
+        HorizontalDivider()
+        SettingsChangeCursor(
+            cursorType = state.cursorType,
+            onCursorTypeChange = onCursorTypeChange,
+            onCustomCursorFileSelected = onCustomCursorFileSelected
         )
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
-private fun SPenSensitivitySlider(
-    sPenSensitivity: Float,
-    updateSPenSensitivity: (Float) -> Unit = { },
-    saveSPenSensitivity: () -> Unit = { }
+private fun SettingsSlider(
+    @StringRes text: Int,
+    value: Float,
+    prefKey: PrefKey<Float>,
+    onValueChange: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
+    onValueChangeFinished: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(pad_s),
         modifier = Modifier.padding(pad_xl)
     ) {
         Text(
-            stringResource(
-                R.string.settings_s_pen_sensitivity_slider_label,
-                round(sPenSensitivity).toInt()
-            )
+            stringResource(text, round(value).toInt())
         )
+        var sliderValue by mutableFloatStateOf(value)
         Slider(
-            value = sPenSensitivity,
-            onValueChange = { updateSPenSensitivity(it) },
-            valueRange = SLIDER_MIN..SLIDER_MAX,
-            onValueChangeFinished = { saveSPenSensitivity() }
+            value = sliderValue,
+            onValueChange = {
+                sliderValue = it
+                onValueChange(prefKey, it)
+            },
+            valueRange = prefKey.range,
+            onValueChangeFinished = { onValueChangeFinished(prefKey, sliderValue) },
         )
     }
 }
 
+@Composable
+private fun SettingsChangeCursor(
+    cursorType: CursorType,
+    onCursorTypeChange: (CursorType) -> Unit = {},
+    onCustomCursorFileSelected: (Uri) -> Unit = {}
+) {
+    val radioButtonsHeight = remember { mutableIntStateOf(0) }
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(pad_l),
+        modifier = Modifier
+            .padding(pad_xl)
+            .fillMaxWidth()
+    ) {
+        CursorPreview(
+            cursorType = cursorType,
+            radioButtonsHeight = radioButtonsHeight.intValue,
+            onCustomCursorFileSelected = onCustomCursorFileSelected
+        )
+        CursorTypeSelector(
+            cursorType = cursorType,
+            onCursorTypeChange = onCursorTypeChange,
+            radioButtonsHeight = radioButtonsHeight
+        )
+    }
+}
+
+@Composable
+private fun RowScope.CursorPreview(
+    cursorType: CursorType,
+    radioButtonsHeight: Int,
+    onCustomCursorFileSelected: (Uri) -> Unit = {}
+) {
+    val context = LocalContext.current
+    var cursorBitmap by remember(cursorType) {
+        mutableStateOf(getCursorBitmap(context, cursorType))
+    }
+
+    val pickImage = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            Log.d("PhotoPicker", "Selected URI: $uri")
+            onCustomCursorFileSelected(uri)
+            cursorBitmap = getCursorBitmap(context, cursorType)
+        } else {
+            Log.d("PhotoPicker", "No media selected")
+        }
+    }
+
+    val previewCorner by animateDpAsState(
+        targetValue = if (cursorType == CursorType.CUSTOM) 0.dp else radius_m,
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+    )
+
+    Column(
+        modifier = Modifier.weight(1f)
+    ) {
+        Surface(
+            tonalElevation = elevation_2,
+            modifier = Modifier
+                .clip(
+                    RoundedCornerShape(
+                        topStart = radius_m,
+                        topEnd = radius_m,
+                        bottomStart = previewCorner,
+                        bottomEnd = previewCorner,
+                    )
+                )
+                .height(with(LocalDensity.current) { radioButtonsHeight.toDp() })
+
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .padding(pad_l)
+                    .fillMaxSize()
+            ) {
+                cursorBitmap?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = stringResource(R.string.settings_cursor_preview),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
+        }
+        CustomCursorButton(
+            cursorType = cursorType,
+            pickImage = pickImage
+        )
+    }
+}
+
+@Composable
+private fun CustomCursorButton(
+    cursorType: CursorType,
+    pickImage: ManagedActivityResultLauncher<String, Uri?>
+) {
+    AnimatedVisibility(
+        visible = cursorType == CursorType.CUSTOM,
+        enter = expandVertically(),
+        exit = shrinkVertically()
+    ) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            FilledTonalButton(
+                onClick = {
+                    pickImage.launch("image/*")
+                },
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomStart = radius_m,
+                    bottomEnd = radius_m
+                ),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(stringResource(R.string.settings_change_cursor_button))
+            }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.CursorTypeSelector(
+    cursorType: CursorType,
+    onCursorTypeChange: (CursorType) -> Unit = {},
+    radioButtonsHeight: MutableIntState
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(pad_xs),
+        modifier = Modifier
+            .selectableGroup()
+            .weight(2f)
+            .onGloballyPositioned { coordinates ->
+                radioButtonsHeight.intValue = coordinates.size.height
+            }
+    ) {
+        CursorType.entries.forEach {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = cursorType == it,
+                        onClick = { onCursorTypeChange(it) },
+                        role = Role.RadioButton
+                    )
+                    .padding(pad_xs)
+            ) {
+                RadioButton(
+                    selected = cursorType == it,
+                    onClick = null
+                )
+                Text(
+                    text = stringResource(it.label),
+                    modifier = Modifier.padding(start = pad_s)
+                )
+            }
+        }
+    }
+}
+
+@Suppress("unused")
 private const val TAG = "SettingsScreen"
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL)
 @Composable
 private fun SettingsScreenPreview() {
     PenMouseSThemePreview {
         SettingsScreenContent(
-            state = SettingsScreenState()
+            state = SettingsScreenState(
+                cursorType = CursorType.CUSTOM
+            )
         )
     }
 }
