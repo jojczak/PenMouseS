@@ -27,14 +27,28 @@
     <string name="settings_reset_to_defaults">Reset to defaults</string>
     <string name="settings_s_pen_sensitivity_slider_label">Sensitivity: %s</string>
     <string name="settings_cursor_size_slider_label">Cursor size: %s dp</string>
+
     <string name="settings_cursor_preview">Cursor preview</string>
     <string name="settings_cursor_type_light">Light</string>
     <string name="settings_cursor_type_dark">Dark</string>
     <string name="settings_cursor_type_retro">Retro</string>
     <string name="settings_cursor_type_custom">Custom</string>
+
     <string name="settings_change_cursor_button">Change</string>
     <string name="settings_change_cursor_file_type_error">Oops! The selected file isn\'t a supported image format.</string>
     <string name="settings_change_cursor_file_load_error">Oops! We couldn\'t load the image. Please try again.</string>
+
     <string name="settings_cursor_hide_delay">Hide cursor after %ss of inactivity</string>
     <string name="settings_cursor_hide_delay_indefinite">Keep cursor visible</string>
+
+    <string name="settings_bird_hunt_check">Check also:\u00A0</string>
+    <string name="settings_bird_hunt">Bird Hunt</string>
+    <string name="settings_bird_hunt_desc">Motion game for S Pen</string>
+    <string name="settings_bird_hunt_url">https://play.google.com/store/apps/details?id=pl.jojczak.birdhunt</string>
+
+    <string name="settings_app_info">%s v%s created by\u00A0</string>
+    <string name="settings_app_info_version_unknown">.\u00A0Unknown</string>
+    <string name="settings_app_info_author">Jojczak</string>
+    <string name="settings_app_info_author_url">https://github.com/jojczak</string>
+    <string name="settings_app_info_github">Project on GitHub</string>
 </resources>

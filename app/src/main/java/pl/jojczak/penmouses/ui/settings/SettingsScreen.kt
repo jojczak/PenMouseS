@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -62,9 +64,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -81,6 +85,7 @@ import pl.jojczak.penmouses.utils.CursorType
 import pl.jojczak.penmouses.utils.PrefKey
 import pl.jojczak.penmouses.utils.PrefKeys
 import pl.jojczak.penmouses.utils.getCursorBitmap
+import pl.jojczak.penmouses.utils.openUrl
 import kotlin.math.round
 
 @Composable
@@ -108,7 +113,9 @@ fun SettingsScreenContent(
     onCustomCursorFileSelected: (Uri) -> Unit = {}
 ) {
     Column(
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        modifier = Modifier
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState())
     ) {
         TopAppBar(
             title = { Text(text = stringResource(R.string.screen_settings)) },
@@ -156,6 +163,13 @@ fun SettingsScreenContent(
             onCursorTypeChange = onCursorTypeChange,
             onCustomCursorFileSelected = onCustomCursorFileSelected
         )
+        Spacer(
+            modifier = Modifier.weight(1f)
+        )
+        HorizontalDivider()
+        BirdHuntBanner()
+        HorizontalDivider()
+        AppVersion()
     }
 }
 
@@ -175,7 +189,8 @@ private fun SettingsSlider(
     ) {
         Text(
             stringResource(
-                textOnLastValue.takeIf { it != null && value == prefKey.range.endInclusive } ?: text,
+                textOnLastValue.takeIf { it != null && value == prefKey.range.endInclusive }
+                    ?: text,
                 round(value).toInt()
             )
         )
@@ -357,8 +372,96 @@ private fun RowScope.CursorTypeSelector(
     }
 }
 
+@Composable
+private fun BirdHuntBanner() {
+    val context = LocalContext.current
+    var bannerSize by remember { mutableIntStateOf(0) }
+
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+            .onGloballyPositioned { bannerSize = it.size.height }
+            .openUrl(context, R.string.settings_bird_hunt_url)
+    ) {
+        Row(
+            modifier = Modifier.padding(pad_l)
+        ) {
+            Text(
+                text = stringResource(R.string.settings_bird_hunt_check),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = pad_xs)
+            )
+            Column {
+                Text(
+                    text = stringResource(R.string.settings_bird_hunt),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = stringResource(R.string.settings_bird_hunt_desc),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+        }
+        Image(
+            painter = painterResource(R.drawable.birdhunt_banner),
+            contentDescription = "Bird Hunt",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.height(with(LocalDensity.current) { bannerSize.toDp() })
+        )
+    }
+}
+
+@Composable
+private fun AppVersion() {
+    val context = LocalContext.current
+
+    val versionName = if (LocalInspectionMode.current) {
+        stringResource(R.string.settings_app_info_version_unknown)
+    } else {
+        context.packageManager.getPackageInfo(
+            context.packageName,
+            0
+        ).versionName ?: stringResource(R.string.settings_app_info_version_unknown)
+    }
+
+    val appInfoText = stringResource(
+        R.string.settings_app_info,
+        stringResource(R.string.app_name),
+        versionName
+    )
+
+    Column (
+        horizontalAlignment = Alignment.End,
+        modifier = Modifier.fillMaxWidth().padding(pad_l)
+    ) {
+        Row {
+            Text(
+                text = appInfoText,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = APP_INFO_TEXT_ALPHA),
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                text = stringResource(R.string.settings_app_info_author),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = APP_INFO_TEXT_ALPHA),
+                textDecoration = TextDecoration.Underline,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.openUrl(context, R.string.settings_app_info_author_url)
+            )
+        }
+        Text(
+            text = stringResource(R.string.settings_app_info_github),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = APP_INFO_TEXT_ALPHA),
+            textDecoration = TextDecoration.Underline,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.openUrl(context, R.string.settings_app_info_author_url)
+        )
+    }
+}
+
 @Suppress("unused")
 private const val TAG = "SettingsScreen"
+private const val APP_INFO_TEXT_ALPHA = 0.6f
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL)
 @Composable
