@@ -41,6 +41,10 @@
     <string name="settings_cursor_hide_delay">Hide cursor after %ss of inactivity</string>
     <string name="settings_cursor_hide_delay_indefinite">Keep cursor visible</string>
 
+    <string name="settings_s_pen_sleep_info">Disable stylus gyroscope 1 minute after hiding cursor</string>
+    <string name="settings_s_pen_sleep_enabled_info">Press the S Pen button and wait a moment to reactivate the gyroscope after inactivity. If cursor hiding above is disabled, the gyroscope will turn off after 5 minutes.</string>
+    <string name="settings_s_pen_sleep_disabled_warning">Warning: Continuous use of the S Pen\'s gyroscope may quickly drain the stylus battery.</string>
+
     <string name="settings_bird_hunt_check">Check also:\u00A0</string>
     <string name="settings_bird_hunt">Bird Hunt</string>
     <string name="settings_bird_hunt_desc">Motion game for S Pen</string>

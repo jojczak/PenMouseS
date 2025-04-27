@@ -40,6 +40,9 @@ class SPenManager(
     private var sPenSensitivity = 0f
     val currentPos = Point(0, 0)
 
+    var airMotionEnabled = false
+        private set
+
     // Step 1: Getting activity, setting up event listeners and calling other init methods
     fun connectToSPen(
         performTouch: (Path) -> Unit,
@@ -138,11 +141,26 @@ class SPenManager(
     }
 
     fun registerAirMotionEventListener() {
+        if (airMotionEnabled) {
+            Log.w(TAG, "Air motion event listener already registered")
+            return
+        }
         sPenUnitManager?.let {
             val airMotionUnit = it.getUnit(SpenUnit.TYPE_AIR_MOTION)
             it.registerSpenEventListener(AirMotionEventListener(), airMotionUnit)
-
+            airMotionEnabled = true
             Log.i(TAG, "Air motion event listener registered")
+        }
+    }
+
+    fun unregisterAirMotionEventListener() {
+        sPenUnitManager?.let {
+            val airMotionUnit = it.getUnit(SpenUnit.TYPE_AIR_MOTION)
+            it.unregisterSpenEventListener(airMotionUnit)
+            airMotionEnabled = false
+            Log.i(TAG, "Air motion event listener unregistered")
+        } ?: run {
+            Log.w(TAG, "sPenUnitManager is null, cannot unregister AirMotionEventListener")
         }
     }
 
@@ -181,6 +199,7 @@ class SPenManager(
         performTouch = null
         updateLayout = null
         display = null
+        airMotionEnabled = false
         AppToServiceEvent.serviceStatus.update { AppToServiceEvent.ServiceStatus.OFF }
     }
 

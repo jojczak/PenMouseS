@@ -41,6 +41,7 @@ class SettingsViewModel @Inject constructor(
             it.copy(
                 sPenSensitivity = preferencesManager.get(PrefKeys.SPEN_SENSITIVITY),
                 cursorHideDelay = preferencesManager.get(PrefKeys.CURSOR_HIDE_DELAY),
+                sPenSleepEnabled = preferencesManager.get(PrefKeys.SPEN_SLEEP_ENABLED),
                 cursorSize = preferencesManager.get(PrefKeys.CURSOR_SIZE),
                 cursorType = preferencesManager.get(PrefKeys.CURSOR_TYPE),
             )
@@ -79,6 +80,12 @@ class SettingsViewModel @Inject constructor(
                 AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateCursorSize)
             }
         }
+    }
+
+    fun onSPenSleepEnabledChange(sPenSleepEnabled: Boolean) {
+        _state.update { it.copy(sPenSleepEnabled = sPenSleepEnabled) }
+        preferencesManager.put(PrefKeys.SPEN_SLEEP_ENABLED, sPenSleepEnabled)
+        AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateSPenSleepEnabled)
     }
 
     fun onCursorTypeChange(cursorType: CursorType) {

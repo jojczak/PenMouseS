@@ -15,6 +15,7 @@ object AppToServiceEvent {
         data object UpdateCursorSize : Event()
         data object UpdateCursorType : Event()
         data object UpdateHideDelay : Event()
+        data object UpdateSPenSleepEnabled : Event()
     }
 
     enum class ServiceStatus {

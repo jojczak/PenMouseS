@@ -72,15 +72,17 @@ class PreferencesManager(
 
 object PrefKeys {
     val SPEN_FEATURES_DISABLED = PrefKey("spen_features_disabled", false)
-    val SPEN_SENSITIVITY = PrefKey("spen_sensitivity", 50f, 1f..100f)
-    val CURSOR_SIZE = PrefKey("cursor_size", 60f, 20f..250f)
+    val SPEN_SENSITIVITY = PrefKey("spen_sensitivity", 50f, 1f, 1f..100f)
+    val CURSOR_SIZE = PrefKey("cursor_size", 60f, 1f, 20f..250f)
     val CURSOR_TYPE = PrefKey("cursor_type", CursorType.LIGHT)
-    val CURSOR_HIDE_DELAY = PrefKey("time_to_hide_cursor", 10f, 1f..61f)
+    val CURSOR_HIDE_DELAY = PrefKey("time_to_hide_cursor", 10f, 5f, 5f..305f)
+    val SPEN_SLEEP_ENABLED = PrefKey("spen_sleep_enabled", true)
 }
 
 data class PrefKey<T>(
     val name: String,
     val default: T,
+    val step: Float = 1f,
     val range: ClosedFloatingPointRange<Float> = 0f..1f
 )
 

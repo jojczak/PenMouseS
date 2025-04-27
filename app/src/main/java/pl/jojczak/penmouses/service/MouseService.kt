@@ -48,16 +48,19 @@ class MouseService : AccessibilityService() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private val hideHandler = Handler(Looper.getMainLooper())
+    private val gyroSleepHandler = Handler(Looper.getMainLooper())
     private var windowManager: WindowManager? = null
     private var cursorView: ImageView? = null
     private var display: Display? = null
     private var params: WindowManager.LayoutParams? = null
     private var cursorImageBitmap: Bitmap? = null
     private var isAirMouseRunning = false
+
     private var hideCursorDelay = PrefKeys.CURSOR_HIDE_DELAY.default.toLong()
         set(value) {
             field = value * 1000L
         }
+    private var gyroSleepEnabled = PrefKeys.SPEN_SLEEP_ENABLED.default
 
     @Inject
     lateinit var preferences: PreferencesManager
@@ -87,7 +90,8 @@ class MouseService : AccessibilityService() {
                     AppToServiceEvent.Event.UpdateSensitivity -> sPenManager.updateSPenSensitivity()
                     AppToServiceEvent.Event.UpdateCursorSize -> mainHandler.post { setupParams() }
                     AppToServiceEvent.Event.UpdateCursorType -> mainHandler.post { setupCursorImage() }
-                    AppToServiceEvent.Event.UpdateHideDelay -> mainHandler.post { updateHideDelay() }
+                    AppToServiceEvent.Event.UpdateHideDelay,
+                    AppToServiceEvent.Event.UpdateSPenSleepEnabled -> mainHandler.post { updateHideDelay() }
                 }
             }
         }
@@ -117,9 +121,10 @@ class MouseService : AccessibilityService() {
     private fun stopAirMouse(withSPenManager: Boolean) {
         Log.d(TAG, "Stopping AirMouse")
         hideHandler.removeCallbacks(hideCursorRunnable)
+        gyroSleepHandler.removeCallbacks(gyroSleepRunnable)
         mainHandler.post {
             windowManager?.removeView(cursorView)
-            if (withSPenManager) sPenManager.disconnectFromSPen()
+            sPenManager.disconnectFromSPen()
             windowManager = null
             cursorView = null
             params = null
@@ -213,7 +218,14 @@ class MouseService : AccessibilityService() {
     // Simulate touch event via AccessibilityService when S-Pen button is clicked
     private fun performTouch(sPenPath: Path) {
         Log.d(TAG, "performTouch")
-        showCursorIfHidden()
+
+        if (!sPenManager.airMotionEnabled) {
+            Log.d(TAG, "Air motion not enabled, registering and ignoring path")
+            manageCursorHiding()
+            return
+        } else {
+            manageCursorHiding()
+        }
 
         val gestureStroke = GestureDescription.StrokeDescription(sPenPath, 0, TOUCH_DURATION)
         val gestureBuilder = GestureDescription.Builder().apply {
@@ -226,6 +238,7 @@ class MouseService : AccessibilityService() {
     private fun updateHideDelay() {
         showCursorIfHidden()
         hideCursorDelay = preferences.get(PrefKeys.CURSOR_HIDE_DELAY).toLong()
+        gyroSleepEnabled = preferences.get(PrefKeys.SPEN_SLEEP_ENABLED)
         manageCursorHiding()
     }
 
@@ -245,8 +258,12 @@ class MouseService : AccessibilityService() {
 
     private fun manageCursorHiding() {
         hideHandler.removeCallbacks(hideCursorRunnable)
-        if (hideCursorDelay > 60000) {
+        gyroSleepHandler.removeCallbacks(gyroSleepRunnable)
+        if (!sPenManager.airMotionEnabled) sPenManager.registerAirMotionEventListener()
+        showCursorIfHidden()
+        if (hideCursorDelay > HIDE_DELAY_INDEFINITELY) {
             Log.d(TAG, "Cursor hiding disabled because hideCursorDelay: $hideCursorDelay")
+            tryToEnableGyroSleepTimer()
             return
         }
         hideHandler.postDelayed(
@@ -256,6 +273,8 @@ class MouseService : AccessibilityService() {
     }
 
     private val hideCursorRunnable = Runnable {
+        Log.d(TAG, "Hiding cursor")
+        tryToEnableGyroSleepTimer()
         cursorView?.apply {
             animate()
                 .alpha(0f)
@@ -265,6 +284,19 @@ class MouseService : AccessibilityService() {
                 }
                 .start()
         }
+    }
+
+    private fun tryToEnableGyroSleepTimer() {
+        if (gyroSleepEnabled) {
+            gyroSleepHandler.postDelayed(gyroSleepRunnable, S_PEN_GYRO_SLEEP_TIME)
+        } else {
+            Log.d(TAG, "Gyro sleep disabled because gyroSleepEnabled: false")
+        }
+    }
+
+    private val gyroSleepRunnable = Runnable {
+        Log.d(TAG, "Unregistering AirMotionEventListener")
+        sPenManager.unregisterAirMotionEventListener()
     }
     //endregion
 
@@ -288,5 +320,7 @@ class MouseService : AccessibilityService() {
         private const val TAG = "MouseService"
 
         private const val TOUCH_DURATION = 100L
+        private const val S_PEN_GYRO_SLEEP_TIME = 60000L
+        private const val HIDE_DELAY_INDEFINITELY = 300000L
     }
 }

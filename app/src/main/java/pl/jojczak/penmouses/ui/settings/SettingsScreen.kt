@@ -9,12 +9,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +34,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
@@ -68,6 +71,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -77,6 +81,7 @@ import pl.jojczak.penmouses.ui.theme.PenMouseSThemePreview
 import pl.jojczak.penmouses.ui.theme.elevation_1
 import pl.jojczak.penmouses.ui.theme.elevation_2
 import pl.jojczak.penmouses.ui.theme.pad_l
+import pl.jojczak.penmouses.ui.theme.pad_m
 import pl.jojczak.penmouses.ui.theme.pad_s
 import pl.jojczak.penmouses.ui.theme.pad_xl
 import pl.jojczak.penmouses.ui.theme.pad_xs
@@ -98,6 +103,7 @@ fun SettingsScreen(
         state = state,
         onValueChange = viewModel::updatePreference,
         onValueChangeFinished = viewModel::savePreference,
+        onSPenSleepEnabledChange = viewModel::onSPenSleepEnabledChange,
         onCursorTypeChange = viewModel::onCursorTypeChange,
         onCustomCursorFileSelected = viewModel::loadCustomCursorImage
     )
@@ -109,6 +115,7 @@ fun SettingsScreenContent(
     state: SettingsScreenState,
     onValueChange: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
     onValueChangeFinished: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
+    onSPenSleepEnabledChange: (Boolean) -> Unit = {},
     onCursorTypeChange: (CursorType) -> Unit = {},
     onCustomCursorFileSelected: (Uri) -> Unit = {}
 ) {
@@ -148,6 +155,11 @@ fun SettingsScreenContent(
             prefKey = PrefKeys.CURSOR_HIDE_DELAY,
             onValueChange = onValueChange,
             onValueChangeFinished = onValueChangeFinished
+        )
+        HorizontalDivider()
+        SPenSleepCheckBox(
+            sPenSleepEnabled = state.sPenSleepEnabled,
+            onSPenSleepEnabledChange = onSPenSleepEnabledChange
         )
         HorizontalDivider()
         SettingsSlider(
@@ -198,13 +210,52 @@ private fun SettingsSlider(
         Slider(
             value = sliderValue,
             onValueChange = {
-                val roundedValue = round(it)
+                val roundedValue = (round(it  / prefKey.step)) * prefKey.step
                 sliderValue = roundedValue
                 onValueChange(prefKey, roundedValue)
             },
             valueRange = prefKey.range,
             onValueChangeFinished = { onValueChangeFinished(prefKey, sliderValue) },
         )
+    }
+}
+
+@Composable
+private fun SPenSleepCheckBox(
+    sPenSleepEnabled: Boolean,
+    onSPenSleepEnabledChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.padding(pad_m)
+            .clip(RoundedCornerShape(radius_m))
+            .clickable {
+                onSPenSleepEnabledChange(!sPenSleepEnabled)
+            }
+    ) {
+        Checkbox(
+            checked = sPenSleepEnabled,
+            onCheckedChange = onSPenSleepEnabledChange
+        )
+        Column {
+            Text(
+                text = stringResource(R.string.settings_s_pen_sleep_info)
+            )
+            Crossfade(sPenSleepEnabled) {
+                if (it) {
+                    Text(
+                        text = stringResource(R.string.settings_s_pen_sleep_enabled_info),
+                        fontStyle = FontStyle.Italic,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.settings_s_pen_sleep_disabled_warning),
+                        fontStyle = FontStyle.Italic,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -385,7 +436,7 @@ private fun BirdHuntBanner() {
             .openUrl(context, R.string.settings_bird_hunt_url)
     ) {
         Row(
-            modifier = Modifier.padding(pad_l)
+            modifier = Modifier.padding(start = pad_xl, top = pad_m, bottom = pad_m)
         ) {
             Text(
                 text = stringResource(R.string.settings_bird_hunt_check),
