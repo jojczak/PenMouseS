@@ -24,6 +24,10 @@
     <string name="home_steps_3_turn_on">START AIR MOUSE</string>
     <string name="home_steps_3_turn_off">STOP AIR MOUSE</string>
 
+    <string name="home_support_text">If you like this app, you can buy me a coffee\u00A0:)\u00A0☕️</string>
+    <string name="home_support_button">Donate\u00A0</string>
+    <string name="home_support_url">https://buymeacoffee.com/jojczak</string>
+
     <string name="settings_reset_to_defaults">Reset to defaults</string>
     <string name="settings_s_pen_sensitivity_slider_label">Sensitivity: %s</string>
     <string name="settings_cursor_size_slider_label">Cursor size: %s dp</string>
@@ -48,6 +52,7 @@
     <string name="settings_bird_hunt_check">Check also:\u00A0</string>
     <string name="settings_bird_hunt">Bird Hunt</string>
     <string name="settings_bird_hunt_desc">Motion game for S Pen</string>
+    <string name="settings_bird_hunt_button">Play\u00A0</string>
     <string name="settings_bird_hunt_url">https://play.google.com/store/apps/details?id=pl.jojczak.birdhunt</string>
 
     <string name="settings_app_info">%s v%s created by\u00A0</string>

@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -62,6 +63,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -77,6 +80,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.jojczak.penmouses.R
+import pl.jojczak.penmouses.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.ui.theme.PenMouseSThemePreview
 import pl.jojczak.penmouses.ui.theme.elevation_1
 import pl.jojczak.penmouses.ui.theme.elevation_2
@@ -91,6 +95,7 @@ import pl.jojczak.penmouses.utils.PrefKey
 import pl.jojczak.penmouses.utils.PrefKeys
 import pl.jojczak.penmouses.utils.getCursorBitmap
 import pl.jojczak.penmouses.utils.openUrl
+import pl.jojczak.penmouses.utils.openUrlClickable
 import kotlin.math.round
 
 @Composable
@@ -179,6 +184,8 @@ fun SettingsScreenContent(
             modifier = Modifier.weight(1f)
         )
         HorizontalDivider()
+        DonateComponent()
+        HorizontalDivider()
         BirdHuntBanner()
         HorizontalDivider()
         AppVersion()
@@ -226,7 +233,8 @@ private fun SPenSleepCheckBox(
     onSPenSleepEnabledChange: (Boolean) -> Unit
 ) {
     Row(
-        modifier = Modifier.padding(pad_m)
+        modifier = Modifier
+            .padding(pad_m)
             .clip(RoundedCornerShape(radius_m))
             .clickable {
                 onSPenSleepEnabledChange(!sPenSleepEnabled)
@@ -424,42 +432,91 @@ private fun RowScope.CursorTypeSelector(
 }
 
 @Composable
+private fun DonateComponent() {
+    val context = LocalContext.current
+
+    Row (
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .padding(vertical = pad_l, horizontal = pad_xl)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(R.string.home_support_text),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+        FilledTonalButton (
+            onClick = { openUrl(context, R.string.home_support_url) },
+        ) {
+            Text(text = stringResource(R.string.home_support_button))
+            Icon(
+                painter = painterResource(R.drawable.open_in_new_24px),
+                contentDescription = null,
+                modifier = Modifier.size(LINK_ICON_SIZE)
+            )
+        }
+    }
+}
+
+@Composable
 private fun BirdHuntBanner() {
     val context = LocalContext.current
-    var bannerSize by remember { mutableIntStateOf(0) }
+    var bannerHeight by remember { mutableIntStateOf(0) }
 
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-            .onGloballyPositioned { bannerSize = it.size.height }
-            .openUrl(context, R.string.settings_bird_hunt_url)
+    val shadowText = Shadow(
+        color = Color.Black,
+        blurRadius = 6f
+    )
+
+    Box (
+        modifier = Modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { bannerHeight = it.size.height }
     ) {
+        Image(
+            painter = painterResource(R.drawable.birdhunt_banner),
+            contentDescription = null,
+            contentScale = ContentScale.FillHeight,
+            modifier = with(LocalDensity.current) { Modifier.height(bannerHeight.toDp()) }
+        )
         Row(
-            modifier = Modifier.padding(start = pad_xl, top = pad_m, bottom = pad_m)
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = pad_l, horizontal = pad_xl)
         ) {
-            Text(
-                text = stringResource(R.string.settings_bird_hunt_check),
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = pad_xs)
-            )
-            Column {
+            Row {
                 Text(
-                    text = stringResource(R.string.settings_bird_hunt),
-                    style = MaterialTheme.typography.titleMedium
+                    text = stringResource(R.string.settings_bird_hunt_check),
+                    style = MaterialTheme.typography.bodySmall.copy(shadow = shadowText),
+                    modifier = Modifier.padding(top = pad_xs)
                 )
-                Text(
-                    text = stringResource(R.string.settings_bird_hunt_desc),
-                    style = MaterialTheme.typography.labelMedium
+                Column {
+                    Text(
+                        text = stringResource(R.string.settings_bird_hunt),
+                        style = MaterialTheme.typography.titleMedium.copy(shadow = shadowText)
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_bird_hunt_desc),
+                        style = MaterialTheme.typography.labelMedium.copy(shadow = shadowText)
+                    )
+                }
+            }
+
+            FilledTonalButton(
+                onClick = { openUrl(context, R.string.settings_bird_hunt_url) },
+            ) {
+                Text(text = stringResource(R.string.settings_bird_hunt_button))
+                Icon(
+                    painter = painterResource(R.drawable.open_in_new_24px),
+                    contentDescription = null,
+                    modifier = Modifier.size(LINK_ICON_SIZE)
                 )
             }
         }
-        Image(
-            painter = painterResource(R.drawable.birdhunt_banner),
-            contentDescription = "Bird Hunt",
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.height(with(LocalDensity.current) { bannerSize.toDp() })
-        )
     }
 }
 
@@ -484,7 +541,9 @@ private fun AppVersion() {
 
     Column (
         horizontalAlignment = Alignment.End,
-        modifier = Modifier.fillMaxWidth().padding(pad_l)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(pad_l)
     ) {
         Row {
             Text(
@@ -497,7 +556,7 @@ private fun AppVersion() {
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = APP_INFO_TEXT_ALPHA),
                 textDecoration = TextDecoration.Underline,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.openUrl(context, R.string.settings_app_info_author_url)
+                modifier = Modifier.openUrlClickable(context, R.string.settings_app_info_author_url)
             )
         }
         Text(
@@ -505,7 +564,7 @@ private fun AppVersion() {
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = APP_INFO_TEXT_ALPHA),
             textDecoration = TextDecoration.Underline,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.openUrl(context, R.string.settings_app_info_author_url)
+            modifier = Modifier.openUrlClickable(context, R.string.settings_app_info_author_url)
         )
     }
 }
