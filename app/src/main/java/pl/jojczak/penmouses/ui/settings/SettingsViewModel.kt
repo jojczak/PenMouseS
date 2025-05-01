@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.service.AppToServiceEvent
-import pl.jojczak.penmouses.utils.CURSOR_IMAGE_HEIGHT
+import pl.jojczak.penmouses.utils.CURSOR_IMAGE_WIDTH
 import pl.jojczak.penmouses.utils.CursorType
 import pl.jojczak.penmouses.utils.PrefKey
 import pl.jojczak.penmouses.utils.PrefKeys
@@ -37,6 +37,10 @@ class SettingsViewModel @Inject constructor(
     val state: StateFlow<SettingsScreenState> = _state.asStateFlow()
 
     init {
+        loadInitialSettings()
+    }
+
+    private fun loadInitialSettings() {
         _state.update {
             it.copy(
                 sPenSensitivity = preferencesManager.get(PrefKeys.SPEN_SENSITIVITY),
@@ -126,10 +130,9 @@ class SettingsViewModel @Inject constructor(
                 return
             }
 
-            val targetHeight = CURSOR_IMAGE_HEIGHT
-            val scaleFactor = targetHeight / originalBitmap.height.toFloat()
-            val targetWidth = (originalBitmap.width * scaleFactor).toInt()
-
+            val targetWidth = CURSOR_IMAGE_WIDTH
+            val scaleFactor = targetWidth / originalBitmap.width.toFloat()
+            val targetHeight = (originalBitmap.height * scaleFactor).toInt()
             val resizedBitmap = originalBitmap.scale(targetWidth, targetHeight)
 
             val outputFile = File(context.filesDir, CursorType.CUSTOM.fileName)
@@ -152,6 +155,16 @@ class SettingsViewModel @Inject constructor(
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    fun toggleSettingsResetDialog(show: Boolean) {
+        _state.update { it.copy(showSettingsResetDialog = show) }
+    }
+
+    fun resetSettings() {
+        preferencesManager.reset()
+        File(context.filesDir, CursorType.CUSTOM.fileName).delete()
+        loadInitialSettings()
     }
 
     companion object {

@@ -27,6 +27,7 @@
     <string name="home_support_text">If you like this app, you can buy me a coffee\u00A0:)\u00A0☕️</string>
     <string name="home_support_button">Donate\u00A0</string>
     <string name="home_support_url">https://buymeacoffee.com/jojczak</string>
+    <string name="home_support_thanks">Thanks for the support! ❤️</string>
 
     <string name="settings_reset_to_defaults">Reset to defaults</string>
     <string name="settings_s_pen_sensitivity_slider_label">Sensitivity: %s</string>
@@ -60,4 +61,9 @@
     <string name="settings_app_info_author">Jojczak</string>
     <string name="settings_app_info_author_url">https://github.com/jojczak</string>
     <string name="settings_app_info_github">Project on GitHub</string>
+
+    <string name="settings_reset_dialog_title">Reset settings?</string>
+    <string name="settings_reset_dialog_desc">Are you sure you want to reset all settings to their default values?</string>
+    <string name="settings_reset_cancel">Cancel</string>
+    <string name="settings_reset_confirm">Reset</string>
 </resources>

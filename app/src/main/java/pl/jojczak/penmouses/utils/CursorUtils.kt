@@ -7,7 +7,7 @@ import android.util.Log
 import java.io.File
 
 private const val TAG = "CursorUtils"
-const val CURSOR_IMAGE_HEIGHT = 400
+const val CURSOR_IMAGE_WIDTH = 267
 
 fun getCursorBitmap(context: Context, cursorType: CursorType): Bitmap? {
     return try {

@@ -39,6 +39,7 @@ import pl.jojczak.penmouses.utils.SPenManager
 import pl.jojczak.penmouses.utils.getCursorBitmap
 import javax.inject.Inject
 import androidx.core.view.isGone
+import pl.jojczak.penmouses.utils.CursorType
 
 @AndroidEntryPoint
 class MouseService : AccessibilityService() {
@@ -89,7 +90,7 @@ class MouseService : AccessibilityService() {
                     AppToServiceEvent.Event.StopOnDestroy -> stopAirMouse(false)
                     AppToServiceEvent.Event.UpdateSensitivity -> sPenManager.updateSPenSensitivity()
                     AppToServiceEvent.Event.UpdateCursorSize -> mainHandler.post { setupParams() }
-                    AppToServiceEvent.Event.UpdateCursorType -> mainHandler.post { setupCursorImage() }
+                    AppToServiceEvent.Event.UpdateCursorType -> mainHandler.post { setupCursorImage(); setupParams() }
                     AppToServiceEvent.Event.UpdateHideDelay,
                     AppToServiceEvent.Event.UpdateSPenSleepEnabled -> mainHandler.post { updateHideDelay() }
                 }
@@ -164,7 +165,7 @@ class MouseService : AccessibilityService() {
     // Step 4: Setting up cursor image | Updating cursor image when running
     private fun setupCursorImage() {
         val cursorType = preferences.get(PrefKeys.CURSOR_TYPE)
-        cursorImageBitmap = getCursorBitmap(context, cursorType)
+        cursorImageBitmap = getCursorBitmap(context, cursorType) ?: getCursorBitmap(context, CursorType.LIGHT)
         cursorView?.setImageBitmap(cursorImageBitmap)
     }
 

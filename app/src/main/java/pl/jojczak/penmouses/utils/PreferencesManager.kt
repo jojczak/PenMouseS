@@ -65,6 +65,18 @@ class PreferencesManager(
         }
     }
 
+    fun reset() {
+        prefs.edit {
+            put(PrefKeys.SPEN_FEATURES_DISABLED, PrefKeys.SPEN_FEATURES_DISABLED.default)
+            put(PrefKeys.CURSOR_SIZE, PrefKeys.CURSOR_SIZE.default)
+            put(PrefKeys.CURSOR_TYPE, PrefKeys.CURSOR_TYPE.default)
+            put(PrefKeys.CURSOR_HIDE_DELAY, PrefKeys.CURSOR_HIDE_DELAY.default)
+            put(PrefKeys.SPEN_SLEEP_ENABLED, PrefKeys.SPEN_SLEEP_ENABLED.default)
+            this.apply()
+        }
+        Log.d(TAG, "Preferences reset")
+    }
+
     companion object {
         private const val TAG = "PreferencesManager"
     }
@@ -93,5 +105,5 @@ enum class CursorType(
     LIGHT("light.png", R.string.settings_cursor_type_light),
     DARK("dark.png", R.string.settings_cursor_type_dark),
     RETRO("retro.png", R.string.settings_cursor_type_retro),
-    CUSTOM("", R.string.settings_cursor_type_custom)
+    CUSTOM("custom.png", R.string.settings_cursor_type_custom)
 }

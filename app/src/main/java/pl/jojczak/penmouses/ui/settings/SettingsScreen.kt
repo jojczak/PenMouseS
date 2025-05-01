@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +17,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +37,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -47,6 +50,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
@@ -63,7 +67,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -110,7 +114,9 @@ fun SettingsScreen(
         onValueChangeFinished = viewModel::savePreference,
         onSPenSleepEnabledChange = viewModel::onSPenSleepEnabledChange,
         onCursorTypeChange = viewModel::onCursorTypeChange,
-        onCustomCursorFileSelected = viewModel::loadCustomCursorImage
+        onCustomCursorFileSelected = viewModel::loadCustomCursorImage,
+        toggleSettingsResetDialog = viewModel::toggleSettingsResetDialog,
+        resetSettings = viewModel::resetSettings
     )
 }
 
@@ -122,13 +128,11 @@ fun SettingsScreenContent(
     onValueChangeFinished: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
     onSPenSleepEnabledChange: (Boolean) -> Unit = {},
     onCursorTypeChange: (CursorType) -> Unit = {},
-    onCustomCursorFileSelected: (Uri) -> Unit = {}
+    onCustomCursorFileSelected: (Uri) -> Unit = {},
+    toggleSettingsResetDialog: (Boolean) -> Unit = {},
+    resetSettings: () -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .verticalScroll(rememberScrollState())
-    ) {
+    Column {
         TopAppBar(
             title = { Text(text = stringResource(R.string.screen_settings)) },
             colors = TopAppBarDefaults.topAppBarColors().copy(
@@ -136,7 +140,9 @@ fun SettingsScreenContent(
             ),
             actions = {
                 IconButton(
-                    onClick = {}
+                    onClick = {
+                        toggleSettingsResetDialog(true)
+                    }
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.reset_settings_24px),
@@ -145,50 +151,62 @@ fun SettingsScreenContent(
                 }
             }
         )
-        SettingsSlider(
-            text = R.string.settings_s_pen_sensitivity_slider_label,
-            value = state.sPenSensitivity,
-            prefKey = PrefKeys.SPEN_SENSITIVITY,
-            onValueChange = onValueChange,
-            onValueChangeFinished = onValueChangeFinished
-        )
-        HorizontalDivider()
-        SettingsSlider(
-            text = R.string.settings_cursor_hide_delay,
-            textOnLastValue = R.string.settings_cursor_hide_delay_indefinite,
-            value = state.cursorHideDelay,
-            prefKey = PrefKeys.CURSOR_HIDE_DELAY,
-            onValueChange = onValueChange,
-            onValueChangeFinished = onValueChangeFinished
-        )
-        HorizontalDivider()
-        SPenSleepCheckBox(
-            sPenSleepEnabled = state.sPenSleepEnabled,
-            onSPenSleepEnabledChange = onSPenSleepEnabledChange
-        )
-        HorizontalDivider()
-        SettingsSlider(
-            text = R.string.settings_cursor_size_slider_label,
-            value = state.cursorSize,
-            prefKey = PrefKeys.CURSOR_SIZE,
-            onValueChange = onValueChange,
-            onValueChangeFinished = onValueChangeFinished
-        )
-        HorizontalDivider()
-        SettingsChangeCursor(
-            cursorType = state.cursorType,
-            onCursorTypeChange = onCursorTypeChange,
-            onCustomCursorFileSelected = onCustomCursorFileSelected
-        )
-        Spacer(
-            modifier = Modifier.weight(1f)
-        )
-        HorizontalDivider()
-        DonateComponent()
-        HorizontalDivider()
-        BirdHuntBanner()
-        HorizontalDivider()
-        AppVersion()
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
+        ) {
+            SettingsSlider(
+                text = R.string.settings_s_pen_sensitivity_slider_label,
+                value = state.sPenSensitivity,
+                prefKey = PrefKeys.SPEN_SENSITIVITY,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished
+            )
+            HorizontalDivider()
+            SettingsSlider(
+                text = R.string.settings_cursor_hide_delay,
+                textOnLastValue = R.string.settings_cursor_hide_delay_indefinite,
+                value = state.cursorHideDelay,
+                prefKey = PrefKeys.CURSOR_HIDE_DELAY,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished
+            )
+            HorizontalDivider()
+            SPenSleepCheckBox(
+                sPenSleepEnabled = state.sPenSleepEnabled,
+                onSPenSleepEnabledChange = onSPenSleepEnabledChange
+            )
+            HorizontalDivider()
+            SettingsSlider(
+                text = R.string.settings_cursor_size_slider_label,
+                value = state.cursorSize,
+                prefKey = PrefKeys.CURSOR_SIZE,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished
+            )
+            HorizontalDivider()
+            SettingsChangeCursor(
+                cursorType = state.cursorType,
+                onCursorTypeChange = onCursorTypeChange,
+                onCustomCursorFileSelected = onCustomCursorFileSelected
+            )
+            Spacer(
+                modifier = Modifier.weight(1f)
+            )
+            HorizontalDivider()
+            DonateComponent()
+            HorizontalDivider()
+            BirdHuntBanner()
+            HorizontalDivider()
+            AppVersion()
+            if (state.showSettingsResetDialog) {
+                ResetSettingsDialog(
+                    toggleSettingsResetDialog = toggleSettingsResetDialog,
+                    resetSettings = resetSettings
+                )
+            }
+        }
     }
 }
 
@@ -447,8 +465,11 @@ private fun DonateComponent() {
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.weight(1f, fill = false),
         )
-        FilledTonalButton (
-            onClick = { openUrl(context, R.string.home_support_url) },
+        FilledTonalButton(
+            onClick = {
+                Toast.makeText(context, R.string.home_support_thanks, Toast.LENGTH_LONG).show()
+                openUrl(context, R.string.home_support_url)
+            },
         ) {
             Text(text = stringResource(R.string.home_support_button))
             Icon(
@@ -466,8 +487,9 @@ private fun BirdHuntBanner() {
     var bannerHeight by remember { mutableIntStateOf(0) }
 
     val shadowText = Shadow(
-        color = Color.Black,
-        blurRadius = 6f
+        color = MaterialTheme.colorScheme.background,
+        blurRadius = 15f,
+        offset = Offset.Zero
     )
 
     Box (
@@ -486,22 +508,39 @@ private fun BirdHuntBanner() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = pad_l, horizontal = pad_xl)
+                .padding(vertical = pad_m, horizontal = pad_xl)
         ) {
             Row {
                 Text(
                     text = stringResource(R.string.settings_bird_hunt_check),
                     style = MaterialTheme.typography.bodySmall.copy(shadow = shadowText),
-                    modifier = Modifier.padding(top = pad_xs)
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp))
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
+                        .padding(horizontal = pad_xs)
                 )
                 Column {
                     Text(
                         text = stringResource(R.string.settings_bird_hunt),
-                        style = MaterialTheme.typography.titleMedium.copy(shadow = shadowText)
+                        style = MaterialTheme.typography.titleMedium.copy(shadow = shadowText),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(topEnd = 6.dp))
+                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
+                            .padding(horizontal = pad_xs)
                     )
                     Text(
                         text = stringResource(R.string.settings_bird_hunt_desc),
-                        style = MaterialTheme.typography.labelMedium.copy(shadow = shadowText)
+                        style = MaterialTheme.typography.labelMedium.copy(shadow = shadowText),
+                        modifier = Modifier
+                            .clip(
+                                RoundedCornerShape(
+                                    topEnd = 6.dp,
+                                    bottomEnd = 6.dp,
+                                    bottomStart = 6.dp
+                                )
+                            )
+                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
+                            .padding(horizontal = pad_xs)
                     )
                 }
             }
@@ -567,6 +606,45 @@ private fun AppVersion() {
             modifier = Modifier.openUrlClickable(context, R.string.settings_app_info_author_url)
         )
     }
+}
+
+@Composable
+private fun ResetSettingsDialog(
+    toggleSettingsResetDialog: (Boolean) -> Unit = {},
+    resetSettings: () -> Unit = {}
+) {
+    AlertDialog(
+        onDismissRequest = {
+            toggleSettingsResetDialog(false)
+        },
+        title = { Text(stringResource(R.string.settings_reset_dialog_title)) },
+        text = { Text(stringResource(R.string.settings_reset_dialog_desc)) },
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.reset_settings_24px),
+                contentDescription = stringResource(R.string.settings_reset_to_defaults)
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    resetSettings()
+                    toggleSettingsResetDialog(false)
+                }
+            ) {
+                Text(stringResource(R.string.settings_reset_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    toggleSettingsResetDialog(false)
+                }
+            ) {
+                Text(stringResource(R.string.settings_reset_cancel))
+            }
+        }
+    )
 }
 
 @Suppress("unused")

@@ -7,5 +7,6 @@ data class SettingsScreenState(
     val cursorHideDelay: Float = 0f,
     val sPenSleepEnabled: Boolean = false,
     val cursorSize: Float = 0f,
-    val cursorType: CursorType = CursorType.LIGHT
+    val cursorType: CursorType = CursorType.LIGHT,
+    val showSettingsResetDialog: Boolean = false
 )
