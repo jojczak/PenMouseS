@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -69,6 +71,7 @@ private const val STEP_MORE_ALPHA = 0.5f
 
 @Composable
 fun HomeScreen(
+    paddingValues: PaddingValues = PaddingValues(),
     viewModel: HomeScreenViewModel = hiltViewModel()
 ) {
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
@@ -80,6 +83,7 @@ fun HomeScreen(
 
     HomeScreenContent(
         state = state,
+        paddingValues = paddingValues,
         changeDialogState = viewModel::changeDialogState,
         toggleService = viewModel::sendSignalToService
     )
@@ -88,10 +92,12 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     state: HomeScreenState,
+    paddingValues: PaddingValues = PaddingValues(),
     changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
     toggleService: (AppToServiceEvent.Event) -> Unit = { }
 ) {
     HomeScreenContentPlacer(
+        paddingValues = paddingValues,
         modifier = Modifier.padding(
             top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         )
@@ -122,6 +128,7 @@ private fun HomeScreenContent(
 
 @Composable
 private fun HomeScreenContentPlacer(
+    paddingValues: PaddingValues,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -138,6 +145,7 @@ private fun HomeScreenContentPlacer(
             ) {
                 AppLogo()
                 content()
+                Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
         } else {
             Row(
@@ -148,12 +156,13 @@ private fun HomeScreenContentPlacer(
                 Box(modifier = Modifier.weight(0.382f)) {
                     AppLogo()
                 }
-                Box(
+                Column(
                     modifier = Modifier
                         .weight(0.618f)
                         .verticalScroll(rememberScrollState())
                 ) {
                     content()
+                    Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
                 }
             }
         }

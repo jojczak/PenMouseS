@@ -4,8 +4,10 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -30,6 +32,8 @@ private val GRADIENT_HEIGHT = 50.dp
 fun ScrollComponent(
     showDivider: Boolean,
     modifier: Modifier = Modifier,
+    paddingValues: PaddingValues = PaddingValues(),
+    shadowColor: Color = MaterialTheme.colorScheme.surfaceColorAtElevation(DIALOG_ELEVATION),
     content: @Composable () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -55,23 +59,27 @@ fun ScrollComponent(
 
         Crossfade(
             isAtTop,
-            modifier = Modifier.align(Alignment.TopCenter)
+            modifier = Modifier
+                .padding(top = paddingValues.calculateTopPadding())
+                .align(Alignment.TopCenter)
         ) {
             if (!it) {
                 Column {
                     if (showDivider) HorizontalDivider()
-                    GetScrollGradient(top = true)
+                    GetScrollGradient(top = true, shadowColor)
                 }
             }
         }
 
         Crossfade(
             isAtBottom,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier
+                .padding(bottom = paddingValues.calculateBottomPadding())
+                .align(Alignment.BottomCenter)
         ) {
             if (!it) {
                 Column {
-                    GetScrollGradient(top = false)
+                    GetScrollGradient(top = false, shadowColor)
                     if (showDivider) HorizontalDivider()
                 }
             }
@@ -81,10 +89,11 @@ fun ScrollComponent(
 
 @Composable
 private fun GetScrollGradient(
-    top: Boolean
+    top: Boolean,
+    shadowColor: Color
 ) {
     val colorsArray = listOf(
-        MaterialTheme.colorScheme.surfaceColorAtElevation(DIALOG_ELEVATION),
+        shadowColor,
         Color.Transparent
     )
 

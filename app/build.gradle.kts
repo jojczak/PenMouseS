@@ -50,6 +50,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.haze)
+    implementation(libs.haze.materials)
 
     implementation(files("libs/sdk-v1.0.0.jar"))
     implementation(files("libs/spenremote-v1.0.1.jar"))

@@ -3,111 +3,69 @@ package pl.jojczak.penmouses.ui.settings
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.net.Uri
-import android.util.Log
-import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.ui.common.ScrollComponent
-import pl.jojczak.penmouses.ui.theme.LINK_ICON_SIZE
+import pl.jojczak.penmouses.ui.settings.components.AppVersionComponent
+import pl.jojczak.penmouses.ui.settings.components.BirdHuntBanner
+import pl.jojczak.penmouses.ui.settings.components.CursorIconComponent
+import pl.jojczak.penmouses.ui.settings.components.DonateComponent
 import pl.jojczak.penmouses.ui.theme.PenMouseSThemePreview
 import pl.jojczak.penmouses.ui.theme.elevation_1
-import pl.jojczak.penmouses.ui.theme.elevation_2
-import pl.jojczak.penmouses.ui.theme.pad_l
 import pl.jojczak.penmouses.ui.theme.pad_m
 import pl.jojczak.penmouses.ui.theme.pad_s
 import pl.jojczak.penmouses.ui.theme.pad_xl
-import pl.jojczak.penmouses.ui.theme.pad_xs
 import pl.jojczak.penmouses.ui.theme.radius_m
 import pl.jojczak.penmouses.utils.CursorType
 import pl.jojczak.penmouses.utils.PrefKey
 import pl.jojczak.penmouses.utils.PrefKeys
-import pl.jojczak.penmouses.utils.getCursorBitmap
-import pl.jojczak.penmouses.utils.openUrl
-import pl.jojczak.penmouses.utils.openUrlClickable
 import kotlin.math.round
 
 @Composable
 fun SettingsScreen(
+    paddingValues: PaddingValues = PaddingValues(),
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
 
     SettingsScreenContent(
         state = state,
+        paddingValues = paddingValues,
         onValueChange = viewModel::updatePreference,
         onValueChangeFinished = viewModel::savePreference,
         onSPenSleepEnabledChange = viewModel::onSPenSleepEnabledChange,
@@ -122,6 +80,7 @@ fun SettingsScreen(
 @Composable
 fun SettingsScreenContent(
     state: SettingsScreenState,
+    paddingValues: PaddingValues = PaddingValues(),
     onValueChange: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
     onValueChangeFinished: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
     onSPenSleepEnabledChange: (Boolean) -> Unit = {},
@@ -147,10 +106,13 @@ fun SettingsScreenContent(
                         contentDescription = stringResource(R.string.settings_reset_to_defaults)
                     )
                 }
-            }
+            },
         )
         ScrollComponent(
-            showDivider = true
+            showDivider = false,
+            paddingValues = paddingValues,
+            shadowColor = MaterialTheme.colorScheme.background,
+            modifier = Modifier.padding(paddingValues)
         ) {
             Column {
                 SettingsSlider(
@@ -183,7 +145,7 @@ fun SettingsScreenContent(
                     onValueChangeFinished = onValueChangeFinished
                 )
                 HorizontalDivider()
-                SettingsChangeCursor(
+                CursorIconComponent(
                     cursorType = state.cursorType,
                     onCursorTypeChange = onCursorTypeChange,
                     onCustomCursorFileSelected = onCustomCursorFileSelected
@@ -196,10 +158,11 @@ fun SettingsScreenContent(
                 HorizontalDivider()
                 BirdHuntBanner()
                 HorizontalDivider()
-                AppVersion()
+                AppVersionComponent()
             }
         }
     }
+
     if (state.showSettingsResetDialog) {
         ResetSettingsDialog(
             toggleSettingsResetDialog = toggleSettingsResetDialog,
@@ -284,329 +247,6 @@ private fun SPenSleepCheckBox(
 }
 
 @Composable
-private fun SettingsChangeCursor(
-    cursorType: CursorType,
-    onCursorTypeChange: (CursorType) -> Unit = {},
-    onCustomCursorFileSelected: (Uri) -> Unit = {}
-) {
-    val radioButtonsHeight = remember { mutableIntStateOf(0) }
-
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(pad_l),
-        modifier = Modifier
-            .padding(pad_xl)
-            .fillMaxWidth()
-    ) {
-        CursorPreview(
-            cursorType = cursorType,
-            radioButtonsHeight = radioButtonsHeight.intValue,
-            onCustomCursorFileSelected = onCustomCursorFileSelected
-        )
-        CursorTypeSelector(
-            cursorType = cursorType,
-            onCursorTypeChange = onCursorTypeChange,
-            radioButtonsHeight = radioButtonsHeight
-        )
-    }
-}
-
-@Composable
-private fun RowScope.CursorPreview(
-    cursorType: CursorType,
-    radioButtonsHeight: Int,
-    onCustomCursorFileSelected: (Uri) -> Unit = {}
-) {
-    val context = LocalContext.current
-    var cursorBitmap by remember(cursorType) {
-        mutableStateOf(getCursorBitmap(context, cursorType))
-    }
-
-    val pickImage = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri != null) {
-            Log.d("PhotoPicker", "Selected URI: $uri")
-            onCustomCursorFileSelected(uri)
-            cursorBitmap = getCursorBitmap(context, cursorType)
-        } else {
-            Log.d("PhotoPicker", "No media selected")
-        }
-    }
-
-    val previewCorner by animateDpAsState(
-        targetValue = if (cursorType == CursorType.CUSTOM) 0.dp else radius_m,
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
-    )
-
-    Column(
-        modifier = Modifier.weight(1f)
-    ) {
-        Surface(
-            tonalElevation = elevation_2,
-            modifier = Modifier
-                .clip(
-                    RoundedCornerShape(
-                        topStart = radius_m,
-                        topEnd = radius_m,
-                        bottomStart = previewCorner,
-                        bottomEnd = previewCorner,
-                    )
-                )
-                .height(with(LocalDensity.current) { radioButtonsHeight.toDp() })
-
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .padding(pad_l)
-                    .fillMaxSize()
-            ) {
-                cursorBitmap?.let {
-                    Image(
-                        bitmap = it.asImageBitmap(),
-                        contentDescription = stringResource(R.string.settings_cursor_preview),
-                        contentScale = ContentScale.Fit
-                    )
-                }
-            }
-        }
-        CustomCursorButton(
-            cursorType = cursorType,
-            pickImage = pickImage
-        )
-    }
-}
-
-@Composable
-private fun CustomCursorButton(
-    cursorType: CursorType,
-    pickImage: ManagedActivityResultLauncher<String, Uri?>
-) {
-    AnimatedVisibility(
-        visible = cursorType == CursorType.CUSTOM,
-        enter = expandVertically(),
-        exit = shrinkVertically()
-    ) {
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-            FilledTonalButton(
-                onClick = {
-                    pickImage.launch("image/*")
-                },
-                shape = RoundedCornerShape(
-                    topStart = 0.dp,
-                    topEnd = 0.dp,
-                    bottomStart = radius_m,
-                    bottomEnd = radius_m
-                ),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Text(stringResource(R.string.settings_change_cursor_button))
-            }
-        }
-    }
-}
-
-@Composable
-private fun RowScope.CursorTypeSelector(
-    cursorType: CursorType,
-    onCursorTypeChange: (CursorType) -> Unit = {},
-    radioButtonsHeight: MutableIntState
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(pad_xs),
-        modifier = Modifier
-            .selectableGroup()
-            .weight(2f)
-            .onGloballyPositioned { coordinates ->
-                radioButtonsHeight.intValue = coordinates.size.height
-            }
-    ) {
-        CursorType.entries.forEach {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .fillMaxWidth()
-                    .selectable(
-                        selected = cursorType == it,
-                        onClick = { onCursorTypeChange(it) },
-                        role = Role.RadioButton
-                    )
-                    .padding(pad_xs)
-            ) {
-                RadioButton(
-                    selected = cursorType == it,
-                    onClick = null
-                )
-                Text(
-                    text = stringResource(it.label),
-                    modifier = Modifier.padding(start = pad_s)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun DonateComponent() {
-    val context = LocalContext.current
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .padding(vertical = pad_l, horizontal = pad_xl)
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(R.string.home_support_text),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.weight(1f, fill = false),
-        )
-        FilledTonalButton(
-            onClick = {
-                Toast.makeText(context, R.string.home_support_thanks, Toast.LENGTH_LONG).show()
-                openUrl(context, R.string.home_support_url)
-            },
-        ) {
-            Text(text = stringResource(R.string.home_support_button))
-            Icon(
-                painter = painterResource(R.drawable.open_in_new_24px),
-                contentDescription = null,
-                modifier = Modifier.size(LINK_ICON_SIZE)
-            )
-        }
-    }
-}
-
-@Composable
-private fun BirdHuntBanner() {
-    val context = LocalContext.current
-    var bannerHeight by remember { mutableIntStateOf(0) }
-
-    val shadowText = Shadow(
-        color = MaterialTheme.colorScheme.background,
-        blurRadius = 15f,
-        offset = Offset.Zero
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .onGloballyPositioned { bannerHeight = it.size.height }
-    ) {
-        Image(
-            painter = painterResource(R.drawable.birdhunt_banner),
-            contentDescription = null,
-            contentScale = ContentScale.FillHeight,
-            modifier = with(LocalDensity.current) { Modifier.height(bannerHeight.toDp()) }
-        )
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = pad_m, horizontal = pad_xl)
-        ) {
-            Row {
-                Text(
-                    text = stringResource(R.string.settings_bird_hunt_check),
-                    style = MaterialTheme.typography.bodySmall.copy(shadow = shadowText),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp))
-                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
-                        .padding(horizontal = pad_xs)
-                )
-                Column {
-                    Text(
-                        text = stringResource(R.string.settings_bird_hunt),
-                        style = MaterialTheme.typography.titleMedium.copy(shadow = shadowText),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(topEnd = 6.dp))
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
-                            .padding(horizontal = pad_xs)
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_bird_hunt_desc),
-                        style = MaterialTheme.typography.labelMedium.copy(shadow = shadowText),
-                        modifier = Modifier
-                            .clip(
-                                RoundedCornerShape(
-                                    topEnd = 6.dp,
-                                    bottomEnd = 6.dp,
-                                    bottomStart = 6.dp
-                                )
-                            )
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
-                            .padding(horizontal = pad_xs)
-                    )
-                }
-            }
-
-            FilledTonalButton(
-                onClick = { openUrl(context, R.string.settings_bird_hunt_url) },
-            ) {
-                Text(text = stringResource(R.string.settings_bird_hunt_button))
-                Icon(
-                    painter = painterResource(R.drawable.open_in_new_24px),
-                    contentDescription = null,
-                    modifier = Modifier.size(LINK_ICON_SIZE)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AppVersion() {
-    val context = LocalContext.current
-
-    val versionName = if (LocalInspectionMode.current) {
-        stringResource(R.string.settings_app_info_version_unknown)
-    } else {
-        context.packageManager.getPackageInfo(
-            context.packageName,
-            0
-        ).versionName ?: stringResource(R.string.settings_app_info_version_unknown)
-    }
-
-    val appInfoText = stringResource(
-        R.string.settings_app_info,
-        stringResource(R.string.app_name),
-        versionName
-    )
-
-    Column(
-        horizontalAlignment = Alignment.End,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(pad_l)
-    ) {
-        Row {
-            Text(
-                text = appInfoText,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = APP_INFO_TEXT_ALPHA),
-                style = MaterialTheme.typography.bodySmall
-            )
-            Text(
-                text = stringResource(R.string.settings_app_info_author),
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = APP_INFO_TEXT_ALPHA),
-                textDecoration = TextDecoration.Underline,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.openUrlClickable(context, R.string.settings_app_info_author_url)
-            )
-        }
-        Text(
-            text = stringResource(R.string.settings_app_info_github),
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = APP_INFO_TEXT_ALPHA),
-            textDecoration = TextDecoration.Underline,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.openUrlClickable(context, R.string.settings_app_info_author_url)
-        )
-    }
-}
-
-@Composable
 private fun ResetSettingsDialog(
     toggleSettingsResetDialog: (Boolean) -> Unit = {},
     resetSettings: () -> Unit = {}
@@ -647,7 +287,6 @@ private fun ResetSettingsDialog(
 
 @Suppress("unused")
 private const val TAG = "SettingsScreen"
-private const val APP_INFO_TEXT_ALPHA = 0.6f
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL)
 @Composable
@@ -656,7 +295,7 @@ private fun SettingsScreenPreview() {
         SettingsScreenContent(
             state = SettingsScreenState(
                 cursorType = CursorType.LIGHT
-            )
+            ),
         )
     }
 }
