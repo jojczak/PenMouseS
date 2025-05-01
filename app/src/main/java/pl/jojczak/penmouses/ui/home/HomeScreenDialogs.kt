@@ -76,10 +76,8 @@ fun Step2Dialog(
     showDialog: Boolean,
     changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
 ) {
-    val context = LocalContext.current
-
     MoreInfoDialog(
-        titleResId = R.string.home_steps_2_des,
+        titleResId = R.string.home_steps_2_dialog_title,
         showDialog = showDialog,
         dialogId = 2,
         changeDialogState = changeDialogState,
@@ -90,12 +88,41 @@ fun Step2Dialog(
             )
         }
     ) {
+        TextButton(
+            onClick = { changeDialogState(2, false) }
+        ) {
+            Text(
+                text = stringResource(R.string.home_steps_dialog_dismiss)
+            )
+        }
+    }
+}
+
+@Composable
+fun Step3Dialog(
+    showDialog: Boolean,
+    changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
+) {
+    val context = LocalContext.current
+
+    MoreInfoDialog(
+        titleResId = R.string.home_steps_3_des,
+        showDialog = showDialog,
+        dialogId = 2,
+        changeDialogState = changeDialogState,
+        content = {
+            Text(
+                text = stringResource(R.string.home_steps_3_dialog_content),
+                textAlign = TextAlign.Justify
+            )
+        }
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
             TextButton(
-                onClick = { changeDialogState(2, false) }
+                onClick = { changeDialogState(3, false) }
             ) {
                 Text(
                     text = stringResource(R.string.home_steps_dialog_dismiss)
@@ -104,11 +131,11 @@ fun Step2Dialog(
             TextButton(
                 onClick = {
                     openAccessibilitySettings(context)
-                    changeDialogState(2, false)
+                    changeDialogState(3, false)
                 },
             ) {
                 Text(
-                    text = stringResource(R.string.home_steps_2_settings) + " "
+                    text = stringResource(R.string.home_steps_3_settings) + " "
                 )
                 Icon(
                     painter = painterResource(R.drawable.open_in_new_24px),
@@ -127,7 +154,7 @@ private fun Step2DialogPreview() {
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
-            Step2Dialog(
+            Step3Dialog(
                 showDialog = true
             )
         }

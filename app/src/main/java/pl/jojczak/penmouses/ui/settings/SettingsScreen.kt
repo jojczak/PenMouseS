@@ -25,18 +25,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -84,6 +81,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.jojczak.penmouses.R
+import pl.jojczak.penmouses.ui.common.ScrollComponent
 import pl.jojczak.penmouses.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.ui.theme.PenMouseSThemePreview
 import pl.jojczak.penmouses.ui.theme.elevation_1
@@ -151,62 +149,62 @@ fun SettingsScreenContent(
                 }
             }
         )
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState())
+        ScrollComponent(
+            showDivider = true
         ) {
-            SettingsSlider(
-                text = R.string.settings_s_pen_sensitivity_slider_label,
-                value = state.sPenSensitivity,
-                prefKey = PrefKeys.SPEN_SENSITIVITY,
-                onValueChange = onValueChange,
-                onValueChangeFinished = onValueChangeFinished
-            )
-            HorizontalDivider()
-            SettingsSlider(
-                text = R.string.settings_cursor_hide_delay,
-                textOnLastValue = R.string.settings_cursor_hide_delay_indefinite,
-                value = state.cursorHideDelay,
-                prefKey = PrefKeys.CURSOR_HIDE_DELAY,
-                onValueChange = onValueChange,
-                onValueChangeFinished = onValueChangeFinished
-            )
-            HorizontalDivider()
-            SPenSleepCheckBox(
-                sPenSleepEnabled = state.sPenSleepEnabled,
-                onSPenSleepEnabledChange = onSPenSleepEnabledChange
-            )
-            HorizontalDivider()
-            SettingsSlider(
-                text = R.string.settings_cursor_size_slider_label,
-                value = state.cursorSize,
-                prefKey = PrefKeys.CURSOR_SIZE,
-                onValueChange = onValueChange,
-                onValueChangeFinished = onValueChangeFinished
-            )
-            HorizontalDivider()
-            SettingsChangeCursor(
-                cursorType = state.cursorType,
-                onCursorTypeChange = onCursorTypeChange,
-                onCustomCursorFileSelected = onCustomCursorFileSelected
-            )
-            Spacer(
-                modifier = Modifier.weight(1f)
-            )
-            HorizontalDivider()
-            DonateComponent()
-            HorizontalDivider()
-            BirdHuntBanner()
-            HorizontalDivider()
-            AppVersion()
-            if (state.showSettingsResetDialog) {
-                ResetSettingsDialog(
-                    toggleSettingsResetDialog = toggleSettingsResetDialog,
-                    resetSettings = resetSettings
+            Column {
+                SettingsSlider(
+                    text = R.string.settings_s_pen_sensitivity_slider_label,
+                    value = state.sPenSensitivity,
+                    prefKey = PrefKeys.SPEN_SENSITIVITY,
+                    onValueChange = onValueChange,
+                    onValueChangeFinished = onValueChangeFinished
                 )
+                HorizontalDivider()
+                SettingsSlider(
+                    text = R.string.settings_cursor_hide_delay,
+                    textOnLastValue = R.string.settings_cursor_hide_delay_indefinite,
+                    value = state.cursorHideDelay,
+                    prefKey = PrefKeys.CURSOR_HIDE_DELAY,
+                    onValueChange = onValueChange,
+                    onValueChangeFinished = onValueChangeFinished
+                )
+                HorizontalDivider()
+                SPenSleepCheckBox(
+                    sPenSleepEnabled = state.sPenSleepEnabled,
+                    onSPenSleepEnabledChange = onSPenSleepEnabledChange
+                )
+                HorizontalDivider()
+                SettingsSlider(
+                    text = R.string.settings_cursor_size_slider_label,
+                    value = state.cursorSize,
+                    prefKey = PrefKeys.CURSOR_SIZE,
+                    onValueChange = onValueChange,
+                    onValueChangeFinished = onValueChangeFinished
+                )
+                HorizontalDivider()
+                SettingsChangeCursor(
+                    cursorType = state.cursorType,
+                    onCursorTypeChange = onCursorTypeChange,
+                    onCustomCursorFileSelected = onCustomCursorFileSelected
+                )
+                Spacer(
+                    modifier = Modifier.weight(1f)
+                )
+                HorizontalDivider()
+                DonateComponent()
+                HorizontalDivider()
+                BirdHuntBanner()
+                HorizontalDivider()
+                AppVersion()
             }
         }
+    }
+    if (state.showSettingsResetDialog) {
+        ResetSettingsDialog(
+            toggleSettingsResetDialog = toggleSettingsResetDialog,
+            resetSettings = resetSettings
+        )
     }
 }
 
@@ -235,7 +233,7 @@ private fun SettingsSlider(
         Slider(
             value = sliderValue,
             onValueChange = {
-                val roundedValue = (round(it  / prefKey.step)) * prefKey.step
+                val roundedValue = (round(it / prefKey.step)) * prefKey.step
                 sliderValue = roundedValue
                 onValueChange(prefKey, roundedValue)
             },
@@ -453,7 +451,7 @@ private fun RowScope.CursorTypeSelector(
 private fun DonateComponent() {
     val context = LocalContext.current
 
-    Row (
+    Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
@@ -492,7 +490,7 @@ private fun BirdHuntBanner() {
         offset = Offset.Zero
     )
 
-    Box (
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .onGloballyPositioned { bannerHeight = it.size.height }
@@ -578,7 +576,7 @@ private fun AppVersion() {
         versionName
     )
 
-    Column (
+    Column(
         horizontalAlignment = Alignment.End,
         modifier = Modifier
             .fillMaxWidth()

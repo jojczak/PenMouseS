@@ -14,14 +14,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.service.MouseService
-import pl.jojczak.penmouses.utils.PrefKeys
-import pl.jojczak.penmouses.utils.PreferencesManager
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<HomeScreenState> = MutableStateFlow(HomeScreenState())
@@ -29,7 +26,6 @@ class HomeScreenViewModel @Inject constructor(
 
     init {
         checkAccessibilityPermission()
-        checkSPenFeaturesState()
 
         viewModelScope.launch {
             AppToServiceEvent.serviceStatus.collect {
@@ -54,30 +50,15 @@ class HomeScreenViewModel @Inject constructor(
         AppToServiceEvent.event.tryEmit(event)
     }
 
-
-    fun changeSPenFeaturesState(state: Boolean) {
-        _state.update {
-            it.copy(
-                areSPenFeaturesDisabled = state
-            )
-        }
-
-        preferencesManager.put(PrefKeys.SPEN_FEATURES_DISABLED, state)
-    }
-
     fun changeDialogState(step: Int, state: Boolean) {
         _state.update {
             when (step) {
                 1 -> it.copy(showStep1Dialog = state)
                 2 -> it.copy(showStep2Dialog = state)
+                3 -> it.copy(showStep3Dialog = state)
                 else -> it
             }
         }
-    }
-
-    private fun checkSPenFeaturesState() {
-        _state.value =
-            _state.value.copy(areSPenFeaturesDisabled = preferencesManager.get(PrefKeys.SPEN_FEATURES_DISABLED))
     }
 
     private fun checkAccessibilityPermission() {

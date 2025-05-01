@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -26,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -43,10 +43,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import pl.jojczak.penmouses.R
@@ -78,7 +80,6 @@ fun HomeScreen(
 
     HomeScreenContent(
         state = state,
-        changeSPenFeaturesState = viewModel::changeSPenFeaturesState,
         changeDialogState = viewModel::changeDialogState,
         toggleService = viewModel::sendSignalToService
     )
@@ -87,7 +88,6 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     state: HomeScreenState,
-    changeSPenFeaturesState: (Boolean) -> Unit = { },
     changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
     toggleService: (AppToServiceEvent.Event) -> Unit = { }
 ) {
@@ -97,10 +97,8 @@ private fun HomeScreenContent(
         )
     ) {
         StepsContainer(
-            areSPenFeaturesDisabled = state.areSPenFeaturesDisabled,
             isAccessibilityEnabled = state.isAccessibilityEnabled,
             serviceStatus = state.serviceStatus,
-            changeSPenFeaturesState = changeSPenFeaturesState,
             changeDialogState = changeDialogState,
             toggleService = toggleService
         )
@@ -113,6 +111,11 @@ private fun HomeScreenContent(
 
     Step2Dialog(
         showDialog = state.showStep2Dialog,
+        changeDialogState = changeDialogState
+    )
+
+    Step3Dialog(
+        showDialog = state.showStep3Dialog,
         changeDialogState = changeDialogState
     )
 }
@@ -169,10 +172,8 @@ private fun AppLogo() {
 
 @Composable
 private fun StepsContainer(
-    areSPenFeaturesDisabled: Boolean,
     isAccessibilityEnabled: Boolean,
     serviceStatus: AppToServiceEvent.ServiceStatus,
-    changeSPenFeaturesState: (Boolean) -> Unit = { },
     changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
     toggleService: (AppToServiceEvent.Event) -> Unit
 ) {
@@ -180,42 +181,91 @@ private fun StepsContainer(
         verticalArrangement = Arrangement.spacedBy(pad_s),
         modifier = Modifier.padding(vertical = pad_m)
     ) {
+        Step1(
+            onMoreClick = { changeDialogState(1, true) }
+        )
+        Step2(
+            onMoreClick = { changeDialogState(2, true) }
+        )
         StepContainer(
-            stepTextResId = R.string.home_steps_1,
-            stepSettingsResId = R.string.home_steps_1_settings,
+            stepTextResId = R.string.home_steps_3,
+            stepSettingsResId = R.string.home_steps_3_settings,
             blocked = false,
-            onMoreClick = { changeDialogState(1, true) },
-            settingsCallback = { openSettings(it) }
-        ) {
-            StepSwitch(
-                stepDescResId = R.string.home_steps_1_des,
-                checked = areSPenFeaturesDisabled,
-                onCheckedChange = { changeSPenFeaturesState(!areSPenFeaturesDisabled) }
-            )
-        }
-        StepContainer(
-            stepTextResId = R.string.home_steps_2,
-            stepSettingsResId = R.string.home_steps_2_settings,
-            blocked = !areSPenFeaturesDisabled,
-            onMoreClick = { changeDialogState(2, true) },
+            onMoreClick = { changeDialogState(3, true) },
             settingsCallback = { openAccessibilitySettings(it) }
         ) {
             StepSwitch(
-                stepDescResId = R.string.home_steps_2_des,
+                stepDescResId = R.string.home_steps_3_des,
                 checked = isAccessibilityEnabled,
                 enabled = !isAccessibilityEnabled,
                 onCheckedChange = {
-                    if (it) changeDialogState(2, true)
+                    if (it) changeDialogState(3, true)
                 }
             )
         }
         StepContainer(
-            stepTextResId = R.string.home_steps_3,
-            blocked = !areSPenFeaturesDisabled || !isAccessibilityEnabled,
+            stepTextResId = R.string.home_steps_4,
+            blocked = !isAccessibilityEnabled,
         ) {
             StepButton(
                 serviceStatus = serviceStatus,
                 toggleService = toggleService
+            )
+        }
+    }
+}
+
+@Composable
+private fun Step1(
+    onMoreClick: (() -> Unit)
+) {
+    Surface(
+        tonalElevation = elevation_2,
+        shape = RoundedCornerShape(pad_s),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                StepHeader(
+                    stepTextResId = R.string.home_steps_1,
+                    onMoreClick = onMoreClick,
+                )
+                Text(
+                    text = stringResource(R.string.home_steps_1_des),
+                    modifier = Modifier.padding(start = pad_m, bottom = pad_m)
+                )
+            }
+            SettingsLink(
+                stepSettingsResId = R.string.home_steps_1_settings,
+                buttonPadding = pad_m,
+                settingsCallback = { openSettings(it) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun Step2(
+    onMoreClick: (() -> Unit)
+) {
+    Surface(
+        tonalElevation = elevation_2,
+        shape = RoundedCornerShape(pad_s),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column {
+            StepHeader(
+                stepTextResId = R.string.home_steps_2,
+                onMoreClick = onMoreClick,
+            )
+            Text(
+                text = stringResource(R.string.home_steps_2_des),
+                modifier = Modifier.padding(start = pad_m, bottom = pad_m),
+                textAlign = TextAlign.Justify
             )
         }
     }
@@ -300,47 +350,51 @@ private fun StepHeader(
             }
         }
         if (stepSettingsResId != null) {
-            SettingsLink(
-                stepSettingsResId = stepSettingsResId,
-                settingsCallback = settingsCallback
+            Spacer(
+                modifier = Modifier.weight(1f)
             )
+            Box(
+                modifier = Modifier.padding(pad_s)
+            ) {
+                SettingsLink(
+                    stepSettingsResId = stepSettingsResId,
+                    buttonPadding = pad_xs,
+                    style = MaterialTheme.typography.bodySmall,
+                    settingsCallback = settingsCallback
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun RowScope.SettingsLink(
+private fun SettingsLink(
     @StringRes stepSettingsResId: Int,
+    buttonPadding: Dp,
+    style: TextStyle = LocalTextStyle.current,
     settingsCallback: (Context) -> Unit = { },
 ) {
     val context = LocalContext.current
 
-    Spacer(
-        modifier = Modifier.weight(1f)
-    )
-    Box(
-        modifier = Modifier.padding(pad_s)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(pad_xs),
+        modifier = Modifier
+            .clip(RoundedCornerShape(clickable_text_corner))
+            .clickable { settingsCallback(context) }
+            .padding(buttonPadding)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(pad_xs),
-            modifier = Modifier
-                .clip(RoundedCornerShape(clickable_text_corner))
-                .clickable { settingsCallback(context) }
-                .padding(pad_xs)
-        ) {
-            Text(
-                text = stringResource(stepSettingsResId),
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
-                style = MaterialTheme.typography.bodySmall
-            )
-            Icon(
-                painter = painterResource(R.drawable.open_in_new_24px),
-                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_TITLE_ALPHA),
-                contentDescription = null,
-                modifier = Modifier.size(LINK_ICON_SIZE)
-            )
-        }
+        Text(
+            text = stringResource(stepSettingsResId),
+            color = MaterialTheme.colorScheme.primary,
+            style = style
+        )
+        Icon(
+            painter = painterResource(R.drawable.open_in_new_24px),
+            tint = MaterialTheme.colorScheme.primary,
+            contentDescription = null,
+            modifier = Modifier.size(LINK_ICON_SIZE)
+        )
     }
 }
 
@@ -350,7 +404,7 @@ private fun StepButton(
     toggleService: (AppToServiceEvent.Event) -> Unit = { }
 ) {
     Text(
-        text = stringResource(R.string.home_steps_3_more),
+        text = stringResource(R.string.home_steps_4_more),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onBackground.copy(alpha = STEP_MORE_ALPHA),
         fontStyle = FontStyle.Italic,
@@ -370,7 +424,7 @@ private fun StepButton(
                     colors = getRedButtonColors()
                 ) {
                     Text(
-                        text = stringResource(R.string.home_steps_3_turn_off),
+                        text = stringResource(R.string.home_steps_4_turn_off),
                     )
                 }
             }
@@ -380,7 +434,7 @@ private fun StepButton(
                     onClick = { toggleService(AppToServiceEvent.Event.Start) }
                 ) {
                     Text(
-                        text = stringResource(R.string.home_steps_3_turn_on),
+                        text = stringResource(R.string.home_steps_4_turn_on),
                     )
                 }
             }
@@ -414,6 +468,29 @@ private fun StepSwitch(
     }
 }
 
+@Composable
+private fun StepLink(
+    @StringRes stepDescResId: Int,
+    @StringRes stepSettingsResId: Int,
+    settingsCallback: (Context) -> Unit = { }
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(start = pad_m)
+    ) {
+        Text(
+            text = stringResource(stepDescResId),
+            modifier = Modifier.weight(1f)
+        )
+        SettingsLink(
+            stepSettingsResId = stepSettingsResId,
+            buttonPadding = pad_m,
+            style = MaterialTheme.typography.bodyMedium,
+            settingsCallback = settingsCallback
+        )
+    }
+}
+
 @Preview(
     showSystemUi = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
@@ -424,7 +501,6 @@ private fun HomeScreenNightPreview() {
         HomeScreenContent(
             state = HomeScreenState(
                 serviceStatus = AppToServiceEvent.ServiceStatus.ON,
-                areSPenFeaturesDisabled = true,
                 isAccessibilityEnabled = true
             )
         )
@@ -438,7 +514,6 @@ private fun HomeScreenDayPreview() {
         HomeScreenContent(
             state = HomeScreenState(
                 serviceStatus = AppToServiceEvent.ServiceStatus.ON,
-                areSPenFeaturesDisabled = true,
                 isAccessibilityEnabled = true
             )
         )

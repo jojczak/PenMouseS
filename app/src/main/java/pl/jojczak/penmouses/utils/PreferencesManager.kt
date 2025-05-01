@@ -67,7 +67,6 @@ class PreferencesManager(
 
     fun reset() {
         prefs.edit {
-            put(PrefKeys.SPEN_FEATURES_DISABLED, PrefKeys.SPEN_FEATURES_DISABLED.default)
             put(PrefKeys.CURSOR_SIZE, PrefKeys.CURSOR_SIZE.default)
             put(PrefKeys.CURSOR_TYPE, PrefKeys.CURSOR_TYPE.default)
             put(PrefKeys.CURSOR_HIDE_DELAY, PrefKeys.CURSOR_HIDE_DELAY.default)
@@ -83,7 +82,6 @@ class PreferencesManager(
 }
 
 object PrefKeys {
-    val SPEN_FEATURES_DISABLED = PrefKey("spen_features_disabled", false)
     val SPEN_SENSITIVITY = PrefKey("spen_sensitivity", 50f, 1f, 1f..100f)
     val CURSOR_SIZE = PrefKey("cursor_size", 60f, 1f, 20f..250f)
     val CURSOR_TYPE = PrefKey("cursor_type", CursorType.LIGHT)

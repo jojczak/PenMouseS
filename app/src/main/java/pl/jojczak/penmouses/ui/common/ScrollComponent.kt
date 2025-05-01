@@ -3,11 +3,12 @@ package pl.jojczak.penmouses.ui.common
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
@@ -22,12 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import pl.jojczak.penmouses.ui.theme.pad_xl
 
 private val GRADIENT_HEIGHT = 50.dp
 
 @Composable
 fun ScrollComponent(
+    showDivider: Boolean,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -45,7 +47,7 @@ fun ScrollComponent(
                 .verticalScroll(scrollState)
         ) {
             Box(
-                modifier = Modifier.padding(vertical = pad_xl)
+                modifier = modifier
             ) {
                 content()
             }
@@ -55,14 +57,24 @@ fun ScrollComponent(
             isAtTop,
             modifier = Modifier.align(Alignment.TopCenter)
         ) {
-            if (!it) GetScrollGradient(top = true)
+            if (!it) {
+                Column {
+                    if (showDivider) HorizontalDivider()
+                    GetScrollGradient(top = true)
+                }
+            }
         }
 
         Crossfade(
             isAtBottom,
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            if (!it) GetScrollGradient(top = false)
+            if (!it) {
+                Column {
+                    GetScrollGradient(top = false)
+                    if (showDivider) HorizontalDivider()
+                }
+            }
         }
     }
 }
