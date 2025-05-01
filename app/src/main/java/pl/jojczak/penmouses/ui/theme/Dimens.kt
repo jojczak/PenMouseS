@@ -11,8 +11,10 @@ val pad_xxl = 32.dp
 
 val clickable_text_corner = 6.dp
 val radius_m = 8.dp
+val radius_l = 12.dp
 
 val elevation_1 = 2.dp
 val elevation_2 = 4.dp
 
 val LINK_ICON_SIZE = 16.dp
+val PLAYER_HEIGHT = 400.dp

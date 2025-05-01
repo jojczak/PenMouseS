@@ -50,13 +50,17 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
-    ksp(libs.hilt.ksp)
 
     implementation(files("libs/sdk-v1.0.0.jar"))
     implementation(files("libs/spenremote-v1.0.1.jar"))
+
+    implementation(libs.exoplayer)
+    implementation(libs.exoplayer.ui)
+
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    ksp(libs.hilt.ksp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

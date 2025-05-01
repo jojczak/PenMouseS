@@ -18,7 +18,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -39,10 +40,11 @@ fun MoreInfoDialog(
     buttons: @Composable () -> Unit = {}
 ) {
     if (showDialog) {
-        val configuration = LocalConfiguration.current
+        val density = LocalDensity.current
+        val configuration = LocalWindowInfo.current.containerSize
 
-        val screenHeight = configuration.screenHeightDp.dp
-        val screenWidth = configuration.screenWidthDp.dp
+        val screenHeight = with(density) { configuration.height.toDp() }
+        val screenWidth = with(density) { configuration.width.toDp() }
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 

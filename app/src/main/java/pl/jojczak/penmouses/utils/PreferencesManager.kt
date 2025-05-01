@@ -67,6 +67,7 @@ class PreferencesManager(
 
     fun reset() {
         prefs.edit {
+            put(PrefKeys.SPEN_SENSITIVITY, PrefKeys.SPEN_SENSITIVITY.default)
             put(PrefKeys.CURSOR_SIZE, PrefKeys.CURSOR_SIZE.default)
             put(PrefKeys.CURSOR_TYPE, PrefKeys.CURSOR_TYPE.default)
             put(PrefKeys.CURSOR_HIDE_DELAY, PrefKeys.CURSOR_HIDE_DELAY.default)
