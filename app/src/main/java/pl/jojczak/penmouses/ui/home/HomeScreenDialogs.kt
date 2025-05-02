@@ -36,7 +36,7 @@ import pl.jojczak.penmouses.ui.common.MoreInfoDialog
 import pl.jojczak.penmouses.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.ui.theme.PLAYER_HEIGHT
 import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
-import pl.jojczak.penmouses.ui.theme.pad_m
+import pl.jojczak.penmouses.ui.theme.pad_xl
 import pl.jojczak.penmouses.ui.theme.radius_l
 
 @Composable
@@ -53,7 +53,7 @@ fun Step1Dialog(
         changeDialogState = changeDialogState,
         content = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(pad_m)
+                verticalArrangement = Arrangement.spacedBy(pad_xl)
             ) {
                 Text(
                     text = stringResource(R.string.home_steps_1_dialog_content),
@@ -112,7 +112,7 @@ fun Step2Dialog(
         changeDialogState = changeDialogState,
         content = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(pad_m)
+                verticalArrangement = Arrangement.spacedBy(pad_xl)
             ) {
                 Text(
                     text = stringResource(R.string.home_steps_2_dialog_content),
@@ -152,10 +152,14 @@ fun Step3Dialog(
         changeDialogState = changeDialogState,
         content = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(pad_m)
+                verticalArrangement = Arrangement.spacedBy(pad_xl)
             ) {
                 Text(
                     text = stringResource(R.string.home_steps_3_dialog_content),
+                    textAlign = TextAlign.Justify
+                )
+                Text(
+                    text = stringResource(R.string.home_steps_3_dialog_content2),
                     textAlign = TextAlign.Justify
                 )
                 VideoPlayer(

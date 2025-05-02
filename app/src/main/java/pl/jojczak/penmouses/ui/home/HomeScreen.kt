@@ -477,29 +477,6 @@ private fun StepSwitch(
     }
 }
 
-@Composable
-private fun StepLink(
-    @StringRes stepDescResId: Int,
-    @StringRes stepSettingsResId: Int,
-    settingsCallback: (Context) -> Unit = { }
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(start = pad_m)
-    ) {
-        Text(
-            text = stringResource(stepDescResId),
-            modifier = Modifier.weight(1f)
-        )
-        SettingsLink(
-            stepSettingsResId = stepSettingsResId,
-            buttonPadding = pad_m,
-            style = MaterialTheme.typography.bodyMedium,
-            settingsCallback = settingsCallback
-        )
-    }
-}
-
 @Preview(
     showSystemUi = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL

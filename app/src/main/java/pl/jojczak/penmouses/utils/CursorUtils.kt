@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import android.view.Display
+import android.view.Surface
 import java.io.File
 
 private const val TAG = "CursorUtils"
@@ -23,5 +25,26 @@ fun getCursorBitmap(context: Context, cursorType: CursorType): Bitmap? {
     } catch (e: Exception) {
         Log.e(TAG, "Error getting cursor bitmap: $cursorType", e)
         null
+    }
+}
+
+fun getDisplaySize(
+    display: Display?,
+    callback: (width: Int, height: Int) -> Unit
+) {
+    display?.let {
+        val screenWidth =
+            if (it.rotation == Surface.ROTATION_0 || it.rotation == Surface.ROTATION_180) {
+                it.mode.physicalWidth
+            } else {
+                it.mode.physicalHeight
+            }
+        val screenHeight =
+            if (it.rotation == Surface.ROTATION_0 || it.rotation == Surface.ROTATION_180) {
+                it.mode.physicalHeight
+            } else {
+                it.mode.physicalWidth
+            }
+        callback(screenWidth, screenHeight)
     }
 }

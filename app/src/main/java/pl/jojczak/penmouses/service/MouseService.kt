@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.Point
@@ -25,6 +26,7 @@ import android.view.WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
 import android.view.WindowManager.LayoutParams.WRAP_CONTENT
 import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
+import androidx.core.view.isGone
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -33,13 +35,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import pl.jojczak.penmouses.utils.CursorType
 import pl.jojczak.penmouses.utils.PrefKeys
 import pl.jojczak.penmouses.utils.PreferencesManager
 import pl.jojczak.penmouses.utils.SPenManager
 import pl.jojczak.penmouses.utils.getCursorBitmap
+import pl.jojczak.penmouses.utils.getDisplaySize
 import javax.inject.Inject
-import androidx.core.view.isGone
-import pl.jojczak.penmouses.utils.CursorType
 
 @AndroidEntryPoint
 class MouseService : AccessibilityService() {
@@ -121,6 +123,7 @@ class MouseService : AccessibilityService() {
     // Stopping air mouse, clearing all variables
     private fun stopAirMouse(withSPenManager: Boolean) {
         Log.d(TAG, "Stopping AirMouse")
+        isAirMouseRunning = false
         hideHandler.removeCallbacks(hideCursorRunnable)
         gyroSleepHandler.removeCallbacks(gyroSleepRunnable)
         mainHandler.post {
@@ -132,7 +135,6 @@ class MouseService : AccessibilityService() {
             display = null
             cursorImageBitmap?.recycle()
             cursorImageBitmap = null
-            isAirMouseRunning = false
         }
     }
 
@@ -165,7 +167,8 @@ class MouseService : AccessibilityService() {
     // Step 4: Setting up cursor image | Updating cursor image when running
     private fun setupCursorImage() {
         val cursorType = preferences.get(PrefKeys.CURSOR_TYPE)
-        cursorImageBitmap = getCursorBitmap(context, cursorType) ?: getCursorBitmap(context, CursorType.LIGHT)
+        cursorImageBitmap =
+            getCursorBitmap(context, cursorType) ?: getCursorBitmap(context, CursorType.LIGHT)
         cursorView?.setImageBitmap(cursorImageBitmap)
     }
 
@@ -181,8 +184,8 @@ class MouseService : AccessibilityService() {
             params?.width = (cursorSize * ratio).toInt()
             params?.height = cursorSize
 
-            cursorView?.let {
-                windowManager?.updateViewLayout(cursorView, params)
+            cursorView?.let { cV ->
+                windowManager?.updateViewLayout(cV, params)
             }
         }
     }
@@ -192,6 +195,16 @@ class MouseService : AccessibilityService() {
         cursorImageBitmap?.let { imageBitmap ->
             cursorView = ImageView(this).apply {
                 setImageBitmap(imageBitmap)
+
+                getDisplaySize(this@MouseService.display) { screenWidth, screenHeight ->
+                    val startX = (screenWidth - width) / 2
+                    val startY = (screenHeight - height) / 2
+
+                    params?.x = startX
+                    params?.y = startY
+                    sPenManager.currentPos.x = startX
+                    sPenManager.currentPos.y = startY
+                }
             }
             windowManager?.addView(cursorView, params)
         }
@@ -216,8 +229,18 @@ class MouseService : AccessibilityService() {
         }
     }
 
+    //region Gesture
+    private val gestureCallback = object : GestureResultCallback() {
+        override fun onCompleted(gestureDescription: GestureDescription?) {
+            if (isAirMouseRunning) {
+                cursorView?.colorFilter = null
+                cursorView?.scaleY = 1f
+            }
+        }
+    }
+
     // Simulate touch event via AccessibilityService when S-Pen button is clicked
-    private fun performTouch(sPenPath: Path) {
+    private fun performTouch(sPenPath: Path, pressTime: Long) {
         Log.d(TAG, "performTouch")
 
         if (!sPenManager.airMotionEnabled) {
@@ -228,12 +251,16 @@ class MouseService : AccessibilityService() {
             manageCursorHiding()
         }
 
-        val gestureStroke = GestureDescription.StrokeDescription(sPenPath, 0, TOUCH_DURATION)
+        val gestureStroke = GestureDescription.StrokeDescription(sPenPath, 0, pressTime / 2)
         val gestureBuilder = GestureDescription.Builder().apply {
             addStroke(gestureStroke)
         }
-        dispatchGesture(gestureBuilder.build(), null, null)
+
+        cursorView?.setColorFilter(Color.valueOf(0f, 0f, 0f, 0.4f).toArgb())
+        cursorView?.scaleY = 0.85f
+        dispatchGesture(gestureBuilder.build(), gestureCallback, null)
     }
+    //endregion
 
     //region Cursor hiding functions
     private fun updateHideDelay() {

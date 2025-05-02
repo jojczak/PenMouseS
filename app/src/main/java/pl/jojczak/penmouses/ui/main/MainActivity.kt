@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
@@ -19,15 +20,19 @@ class MainActivity : ComponentActivity() {
     lateinit var sPenManager: SPenManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreenHelper = SplashScreenHelper(this, installSplashScreen(), savedInstanceState == null)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent { AppContent() }
+        splashScreenHelper.startExitAnimation()
     }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
-        sPenManager.disconnectFromSPen()
-        AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.StopOnDestroy)
+        if (!isChangingConfigurations) {
+            sPenManager.disconnectFromSPen()
+            AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.StopOnDestroy)
+        }
         super.onDestroy()
     }
 

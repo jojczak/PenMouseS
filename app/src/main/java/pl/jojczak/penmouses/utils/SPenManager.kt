@@ -29,7 +29,7 @@ class SPenManager(
 ) {
     private var sPenUnitManager: SpenUnitManager? = null
     private var display: Display? = null
-    private var performTouch: ((Path) -> Unit)? = null
+    private var performTouch: ((Path, Long) -> Unit)? = null
     private var updateLayout: ((Point) -> Unit)? = null
 
     private var isSPenPressed = false
@@ -45,7 +45,7 @@ class SPenManager(
 
     // Step 1: Getting activity, setting up event listeners and calling other init methods
     fun connectToSPen(
-        performTouch: (Path) -> Unit,
+        performTouch: (Path, Long) -> Unit,
         updateLayout: (Point) -> Unit
     ) {
         Log.i(TAG, "Connecting to S-Pen...")
@@ -135,7 +135,7 @@ class SPenManager(
             if (isSPenPressed && pressedTime < MAX_BUTTON_DOWN_TIME) {
                 handler.postDelayed(this, TICK_TIME)
             } else {
-                performTouch?.invoke(sPenPath)
+                performTouch?.invoke(sPenPath, pressedTime)
             }
         }
     }
@@ -166,14 +166,14 @@ class SPenManager(
 
     private inner class AirMotionEventListener : SpenEventListener {
         override fun onEvent(event: SpenEvent) {
-            display?.let { display ->
+            getDisplaySize(display) { screenWidth, screenHeight ->
                 val mEvent = AirMotionEvent(event)
 
                 currentPos.x += (mEvent.deltaX * (sPenSensitivity * S_PEN_SENSITIVITY_MULTIPLIER)).toInt()
                 currentPos.y -= (mEvent.deltaY * (sPenSensitivity * S_PEN_SENSITIVITY_MULTIPLIER)).toInt()
 
-                currentPos.x = currentPos.x.coerceIn(0, display.mode.physicalWidth)
-                currentPos.y = currentPos.y.coerceIn(0, display.mode.physicalHeight)
+                currentPos.x = currentPos.x.coerceIn(0, screenWidth)
+                currentPos.y = currentPos.y.coerceIn(0, screenHeight)
 
                 updateLayout?.invoke(currentPos)
             }
