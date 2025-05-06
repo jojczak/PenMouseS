@@ -61,6 +61,12 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
+    fun togglePermissionNotification(state: Boolean) {
+        _state.update {
+            it.copy(showNotificationPermission = state)
+        }
+    }
+
     private fun checkAccessibilityPermission() {
         val enabledServices = Settings.Secure.getString(
             context.contentResolver,

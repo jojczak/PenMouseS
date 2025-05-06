@@ -1,7 +1,13 @@
 package pl.jojczak.penmouses.ui.home
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Build
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -51,6 +57,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import pl.jojczak.penmouses.R
@@ -85,7 +92,8 @@ fun HomeScreen(
         state = state,
         paddingValues = paddingValues,
         changeDialogState = viewModel::changeDialogState,
-        toggleService = viewModel::sendSignalToService
+        toggleService = viewModel::sendSignalToService,
+        togglePermissionNotification = viewModel::togglePermissionNotification
     )
 }
 
@@ -94,7 +102,8 @@ private fun HomeScreenContent(
     state: HomeScreenState,
     paddingValues: PaddingValues = PaddingValues(),
     changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
-    toggleService: (AppToServiceEvent.Event) -> Unit = { }
+    toggleService: (AppToServiceEvent.Event) -> Unit = { },
+    togglePermissionNotification: (Boolean) -> Unit = { }
 ) {
     HomeScreenContentPlacer(
         paddingValues = paddingValues,
@@ -105,8 +114,10 @@ private fun HomeScreenContent(
         StepsContainer(
             isAccessibilityEnabled = state.isAccessibilityEnabled,
             serviceStatus = state.serviceStatus,
+            showNotificationPermission = state.showNotificationPermission,
             changeDialogState = changeDialogState,
-            toggleService = toggleService
+            toggleService = toggleService,
+            togglePermissionNotification = togglePermissionNotification
         )
     }
 
@@ -183,8 +194,10 @@ private fun AppLogo() {
 private fun StepsContainer(
     isAccessibilityEnabled: Boolean,
     serviceStatus: AppToServiceEvent.ServiceStatus,
-    changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
-    toggleService: (AppToServiceEvent.Event) -> Unit
+    showNotificationPermission: Boolean,
+    changeDialogState: (Int, Boolean) -> Unit,
+    toggleService: (AppToServiceEvent.Event) -> Unit,
+    togglePermissionNotification: (Boolean) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(pad_s),
@@ -218,7 +231,9 @@ private fun StepsContainer(
         ) {
             StepButton(
                 serviceStatus = serviceStatus,
-                toggleService = toggleService
+                showNotificationPermission = showNotificationPermission,
+                toggleService = toggleService,
+                togglePermissionNotification = togglePermissionNotification
             )
         }
     }
@@ -410,7 +425,9 @@ private fun SettingsLink(
 @Composable
 private fun StepButton(
     serviceStatus: AppToServiceEvent.ServiceStatus,
-    toggleService: (AppToServiceEvent.Event) -> Unit = { }
+    showNotificationPermission: Boolean,
+    toggleService: (AppToServiceEvent.Event) -> Unit,
+    togglePermissionNotification: (Boolean) -> Unit
 ) {
     Text(
         text = stringResource(R.string.home_steps_4_more),
@@ -440,7 +457,9 @@ private fun StepButton(
 
             AppToServiceEvent.ServiceStatus.OFF -> {
                 Button(
-                    onClick = { toggleService(AppToServiceEvent.Event.Start) }
+                    onClick = {
+                        togglePermissionNotification(true)
+                    }
                 ) {
                     Text(
                         text = stringResource(R.string.home_steps_4_turn_on),
@@ -448,6 +467,13 @@ private fun StepButton(
                 }
             }
         }
+    }
+
+    if (showNotificationPermission) {
+        NotificationPermission(
+            togglePermissionNotification = togglePermissionNotification,
+            toggleService = toggleService
+        )
     }
 }
 
@@ -476,6 +502,41 @@ private fun StepSwitch(
         )
     }
 }
+
+@Composable
+private fun NotificationPermission(
+    togglePermissionNotification: (Boolean) -> Unit,
+    toggleService: (AppToServiceEvent.Event) -> Unit
+) {
+    val context = LocalContext.current
+    val afterPermission = {
+        togglePermissionNotification(false)
+        toggleService(AppToServiceEvent.Event.Start)
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        Log.d(TAG, "Notification permission ${if (it) "granted" else "denied"}")
+        afterPermission()
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!granted) {
+                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                return@LaunchedEffect
+            }
+        }
+        afterPermission()
+    }
+}
+
+private const val TAG = "HomeScreen"
 
 @Preview(
     showSystemUi = true,

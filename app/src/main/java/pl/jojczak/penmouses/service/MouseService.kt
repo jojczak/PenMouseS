@@ -35,6 +35,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import pl.jojczak.penmouses.notifications.NotificationsManager
 import pl.jojczak.penmouses.utils.CursorType
 import pl.jojczak.penmouses.utils.PrefKeys
 import pl.jojczak.penmouses.utils.PreferencesManager
@@ -107,6 +108,7 @@ class MouseService : AccessibilityService() {
             return
         }
         isAirMouseRunning = true
+        NotificationsManager.showIdleNotification(this)
 
         Log.d(TAG, "Starting AirMouse")
         mainHandler.post {
@@ -135,6 +137,7 @@ class MouseService : AccessibilityService() {
             display = null
             cursorImageBitmap?.recycle()
             cursorImageBitmap = null
+            NotificationsManager.cancelStatusNotifications(this)
         }
     }
 
@@ -271,6 +274,7 @@ class MouseService : AccessibilityService() {
     }
 
     private fun showCursorIfHidden() {
+        NotificationsManager.showIdleNotification(this)
         cursorView?.apply {
             if (isGone && alpha == 0f) {
                 animate()
@@ -302,6 +306,7 @@ class MouseService : AccessibilityService() {
 
     private val hideCursorRunnable = Runnable {
         Log.d(TAG, "Hiding cursor")
+        NotificationsManager.showMouseHiddenNotification(this)
         tryToEnableGyroSleepTimer()
         cursorView?.apply {
             animate()
@@ -324,6 +329,7 @@ class MouseService : AccessibilityService() {
 
     private val gyroSleepRunnable = Runnable {
         Log.d(TAG, "Unregistering AirMotionEventListener")
+        NotificationsManager.showMouseSleepNotification(this)
         sPenManager.unregisterAirMotionEventListener()
     }
     //endregion
@@ -342,12 +348,16 @@ class MouseService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
-    override fun onInterrupt() = Unit
+
+    override fun onInterrupt() {
+        Log.d(TAG, "onInterrupt")
+        NotificationsManager.showErrorNotification(this)
+        stopAirMouse(true)
+    }
 
     companion object {
         private const val TAG = "MouseService"
 
-        private const val TOUCH_DURATION = 100L
         private const val S_PEN_GYRO_SLEEP_TIME = 60000L
         private const val HIDE_DELAY_INDEFINITELY = 300000L
     }

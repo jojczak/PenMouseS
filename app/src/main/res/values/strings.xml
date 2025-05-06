@@ -68,8 +68,25 @@
     <string name="settings_app_info_author_url">https://github.com/jojczak</string>
     <string name="settings_app_info_github">Project on GitHub</string>
 
+    <string name="settings_notification">Notification settings</string>
+
     <string name="settings_reset_dialog_title">Reset settings?</string>
     <string name="settings_reset_dialog_desc">Are you sure you want to reset all settings to their default values?</string>
     <string name="settings_reset_cancel">Cancel</string>
     <string name="settings_reset_confirm">Reset</string>
+
+    <string name="notification_channel_status">Status</string>
+    <string name="notification_action_stop">Stop</string>
+
+    <string name="notification_idle_title">%s is controlling the mouse</string>
+    <string name="notification_idle_content">Tap here to open the app.</string>
+
+    <string name="notification_hidden_title">Cursor hidden due to inactivity</string>
+    <string name="notification_hidden_content">Move the S Pen to restore the cursor, or tap here to open the app.</string>
+
+    <string name="notification_sleep_title">Cursor has been put to sleep due to inactivity</string>
+    <string name="notification_sleep_content">Click the button on the S Pen to wake up the cursor, or tap here to open the app.</string>
+
+    <string name="notification_interrupted_title">An error occurred!</string>
+    <string name="notification_interrupted_content">The app encountered an unexpected issue. Try restarting %s or reset the accessibility permissions.</string>
 </resources>

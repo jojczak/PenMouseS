@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -45,6 +46,8 @@ import pl.jojczak.penmouses.ui.settings.components.AppVersionComponent
 import pl.jojczak.penmouses.ui.settings.components.BirdHuntBanner
 import pl.jojczak.penmouses.ui.settings.components.CursorIconComponent
 import pl.jojczak.penmouses.ui.settings.components.DonateComponent
+import pl.jojczak.penmouses.ui.settings.components.NotificationsComponent
+import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.ui.theme.PenMouseSThemePreview
 import pl.jojczak.penmouses.ui.theme.elevation_1
 import pl.jojczak.penmouses.ui.theme.pad_m
@@ -150,6 +153,8 @@ fun SettingsScreenContent(
                     onCursorTypeChange = onCursorTypeChange,
                     onCustomCursorFileSelected = onCustomCursorFileSelected
                 )
+                HorizontalDivider()
+                NotificationsComponent()
                 Spacer(
                     modifier = Modifier.weight(1f)
                 )
@@ -288,14 +293,16 @@ private fun ResetSettingsDialog(
 @Suppress("unused")
 private const val TAG = "SettingsScreen"
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL)
+@Preview(device = "spec:width=1080px,height=3000px,dpi=440")
 @Composable
 private fun SettingsScreenPreview() {
-    PenMouseSThemePreview {
-        SettingsScreenContent(
-            state = SettingsScreenState(
-                cursorType = CursorType.LIGHT
-            ),
-        )
+    PenMouseSTheme {
+        Surface {
+            SettingsScreenContent(
+                state = SettingsScreenState(
+                    cursorType = CursorType.LIGHT
+                ),
+            )
+        }
     }
 }

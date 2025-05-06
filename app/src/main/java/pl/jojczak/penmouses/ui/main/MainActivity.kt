@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
+import pl.jojczak.penmouses.notifications.NotificationsManager
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.utils.SPenManager
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent { AppContent() }
         splashScreenHelper.startExitAnimation()
+        NotificationsManager.createNotificationChannels(this)
     }
 
     override fun onDestroy() {

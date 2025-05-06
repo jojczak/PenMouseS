@@ -9,5 +9,7 @@ data class HomeScreenState(
     val showStep2Dialog: Boolean = false,
     val showStep3Dialog: Boolean = false,
 
+    val showNotificationPermission: Boolean = false,
+
     val serviceStatus: AppToServiceEvent.ServiceStatus = AppToServiceEvent.ServiceStatus.OFF
 )
