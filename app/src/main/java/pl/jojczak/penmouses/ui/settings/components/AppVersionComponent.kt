@@ -64,7 +64,7 @@ fun AppVersionComponent() {
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = APP_INFO_TEXT_ALPHA),
             textDecoration = TextDecoration.Underline,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.openUrlClickable(context, R.string.settings_app_info_author_url)
+            modifier = Modifier.openUrlClickable(context, R.string.settings_app_info_github_url)
         )
     }
 }

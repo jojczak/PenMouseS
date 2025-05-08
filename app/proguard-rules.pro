@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-dontwarn com.samsung.android.feature.**
+-keep class com.samsung.android.feature.** { *; }
+
+-dontwarn com.samsung.android.sdk.penremote.**
+-keep class com.samsung.android.sdk.penremote.** { *; }
