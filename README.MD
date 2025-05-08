@@ -12,7 +12,7 @@ The app uses the gyroscope built into the S Pen to track its movements. It then 
 
 One important note: due to limitations of the Accessibility API, all actions are deferred - meaning they are only executed after the S Pen gesture is completed. For example, if you hold the S Pen button and draw a circle in the air, the app will simulate that motion only after you release the button, not while you're drawing it.
 
-## Features
+### Features
 In addition to the mouse control mentioned earlier, the app also allows you to:
 - Adjust the cursor size
 - Change the mouse sensitivity
@@ -23,7 +23,7 @@ In addition to the mouse control mentioned earlier, the app also allows you to:
 The app also includes a detailed setup guide with videos explaining how to prepare your phone for using the S Pen as a mouse. This is especially useful because some of the S Pen’s built-in features need to be disabled to prevent them from interfering with the PenMouse S.
 
 ## Supported devices
-<ins>**This app works ONLY on Samsung phones that have an S Pen with [Air Actions](https://www.samsung.com/us/support/answer/ANS10003221/) functionality.**</ins> Even if your device has a stylus but is not a Samsung device, the game will not work, as it uses Samsung's SDK specifically for S Pen.
+<ins>**This app works ONLY on Samsung phones that have an S Pen with [Air Actions](https://www.samsung.com/us/support/answer/ANS10003221/) functionality.**</ins> Even if your device has a stylus but is not a Samsung device, the PenMouse S will not work, as it uses Samsung's SDK specifically for S Pen.
 - Samsung Galaxy Note Series: **Galaxy Note10**
 - Samsung Galaxy S Ultra Series: **Galaxy S20-S24 Ultra**
 - Samsung Galaxy Tab Series: **Galaxy Tab S6** and newer *(Air Actions depend on the specific S Pen model)*
@@ -53,6 +53,6 @@ You can download Bird Hunt from the [Releases](https://github.com/jojczak/PenMou
 - [S Pen Remote SDK](https://developer.samsung.com/galaxy-spen-remote/s-pen-remote-sdk.html]) - Samsung's SDK for accessing motion and button input from the S Pen
 - Android Accessibility Service API - Used to simulate touch events and show custom overlays
 
-### Legal
+## Legal
 "Samsung" and "S Pen" are registered trademarks of Samsung Electronics Co., Ltd.</br>
 This app is not affiliated with, endorsed, or sponsored by Samsung Electronics Co., Ltd.

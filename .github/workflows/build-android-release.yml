@@ -49,7 +49,7 @@ jobs:
           VERSION_NAME=$(grep '^ *versionName *=' app/build.gradle.kts | sed -E 's/.*versionName *= *"([^"]+)".*/\1/')
           echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
 
-      - name: Create GitHub Release
+      - name: Create GitHub release
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -60,17 +60,17 @@ jobs:
           draft: true
           prerelease: false
 
-      - name: Upload APK to Release
+      - name: Upload APK to github release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: app/build/outputs/apk/release/app-release.apk
-          asset_name: PenMouse_S_v${{ env.VERSION_NAME }}_PGS.apk
+          asset_name: PenMouse_S_v${{ env.VERSION_NAME }}.apk
           asset_content_type: application/vnd.android.package-archive
 
-      - name: Upload ABB to Release
+      - name: Upload ABB to github release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
