@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -128,12 +130,17 @@ fun Step2Dialog(
             }
         }
     ) {
-        TextButton(
-            onClick = { changeDialogState(2, false) }
+        Box(
+            contentAlignment = Alignment.CenterEnd,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = stringResource(R.string.home_steps_dialog_dismiss)
-            )
+            TextButton(
+                onClick = { changeDialogState(2, false) }
+            ) {
+                Text(
+                    text = stringResource(R.string.home_steps_dialog_dismiss)
+                )
+            }
         }
     }
 }
@@ -196,6 +203,41 @@ fun Step3Dialog(
                     painter = painterResource(R.drawable.open_in_new_24px),
                     contentDescription = null,
                     modifier = Modifier.size(LINK_ICON_SIZE)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun UnsupportedDeviceDialog(
+    showDialog: Boolean,
+    changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
+) {
+    MoreInfoDialog(
+        titleResId = R.string.unsupported_device_title,
+        showDialog = showDialog,
+        dialogId = 3,
+        changeDialogState = changeDialogState,
+        content = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(pad_xl)
+            ) {
+                Text(
+                    text = stringResource(R.string.unsupported_device_content),
+                )
+            }
+        }
+    ) {
+        Box(
+            contentAlignment = Alignment.CenterEnd,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            TextButton(
+                onClick = { changeDialogState(4, false) }
+            ) {
+                Text(
+                    text = stringResource(R.string.unsupported_device_button)
                 )
             }
         }

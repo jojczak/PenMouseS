@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,7 +42,7 @@ fun NotificationsComponent() {
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_notification_settings),
-            tint = Color.Black.copy(alpha = 0.6f),
+            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
             contentDescription = null,
             modifier = Modifier.height(LINK_ICON_SIZE)
         )

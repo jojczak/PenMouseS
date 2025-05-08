@@ -165,6 +165,7 @@ class SettingsViewModel @Inject constructor(
         preferencesManager.reset()
         File(context.filesDir, CursorType.CUSTOM.fileName).delete()
         loadInitialSettings()
+        onCursorTypeChange(state.value.cursorType)
     }
 
     companion object {

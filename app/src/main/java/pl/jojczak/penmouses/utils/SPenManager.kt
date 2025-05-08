@@ -71,16 +71,17 @@ class SPenManager(
 
     // Step 3: Set up Connection
     private fun setupConnection(activity: Activity) {
-        val sPenRemote = SpenRemote.getInstance()
+        if (isSPenSupported()) {
+            val sPenRemote = SpenRemote.getInstance()
 
-        if (sPenRemote.isFeatureEnabled(SpenRemote.FEATURE_TYPE_BUTTON) &&
-            sPenRemote.isFeatureEnabled(SpenRemote.FEATURE_TYPE_AIR_MOTION)
-        ) {
             if (!sPenRemote.isConnected) {
                 sPenRemote.connect(activity, ConnectionResultCallback())
             } else {
                 AppToServiceEvent.serviceStatus.update { AppToServiceEvent.ServiceStatus.ON }
             }
+        } else {
+            Log.w(TAG, "S-Pen is not supported, cannot connect")
+            AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.Stop)
         }
     }
 
@@ -220,5 +221,29 @@ class SPenManager(
         private const val MAX_BUTTON_DOWN_TIME = 1000
         private const val TICK_TIME = 25L
         private const val S_PEN_SENSITIVITY_MULTIPLIER = 20
+
+        fun isSPenSupported() = try {
+            val sPenClass = Class.forName("com.samsung.android.sdk.penremote.SpenRemote")
+            val sPenRemote = sPenClass.getMethod("getInstance").invoke(null)
+
+            val isButtonEnabled = sPenClass.getMethod("isFeatureEnabled", Int::class.java)
+                .invoke(sPenRemote, SpenRemote.FEATURE_TYPE_BUTTON) as Boolean
+            val isAirMotionEnabled = sPenClass.getMethod("isFeatureEnabled", Int::class.java)
+                .invoke(sPenRemote, SpenRemote.FEATURE_TYPE_AIR_MOTION) as Boolean
+
+            if (isButtonEnabled && isAirMotionEnabled) {
+                Log.i(TAG, "S-Pen is supported")
+                true
+            } else {
+                Log.w(TAG, "S-Pen is not supported")
+                false
+            }
+        } catch (e: ClassNotFoundException) {
+            Log.e(TAG, "SpenRemote class not found, S-Pen features unavailable", e)
+            false
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking if S-Pen is supported", e)
+            false
+        }
     }
 }

@@ -1,7 +1,6 @@
 package pl.jojczak.penmouses.ui.settings
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.animation.Crossfade
@@ -48,7 +47,6 @@ import pl.jojczak.penmouses.ui.settings.components.CursorIconComponent
 import pl.jojczak.penmouses.ui.settings.components.DonateComponent
 import pl.jojczak.penmouses.ui.settings.components.NotificationsComponent
 import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
-import pl.jojczak.penmouses.ui.theme.PenMouseSThemePreview
 import pl.jojczak.penmouses.ui.theme.elevation_1
 import pl.jojczak.penmouses.ui.theme.pad_m
 import pl.jojczak.penmouses.ui.theme.pad_s

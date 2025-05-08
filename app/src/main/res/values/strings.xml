@@ -89,4 +89,8 @@
 
     <string name="notification_interrupted_title">An error occurred!</string>
     <string name="notification_interrupted_content">The app encountered an unexpected issue. Try restarting %s or reset the accessibility permissions.</string>
+
+    <string name="unsupported_device_title">Looks like your device isn\'t compatible</string>
+    <string name="unsupported_device_content">It may not have an Samsung S Pen or the one you’re using doesn’t support Bluetooth or Air Actions.\n\nYou can still try the app, but it might not work properly.</string>
+    <string name="unsupported_device_button">I understand</string>
 </resources>

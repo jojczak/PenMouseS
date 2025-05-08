@@ -107,6 +107,7 @@ private fun PenMouseSNavBar(
             NavigationBarItem(
                 selected = currentRoute == screen.name,
                 onClick = {
+                    if (currentRoute == screen.name) return@NavigationBarItem
                     navController.navigate(screen.name) {
                         launchSingleTop = true
                         popUpTo(navController.graph.startDestinationId)

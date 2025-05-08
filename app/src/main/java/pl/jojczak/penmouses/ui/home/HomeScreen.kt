@@ -135,6 +135,11 @@ private fun HomeScreenContent(
         showDialog = state.showStep3Dialog,
         changeDialogState = changeDialogState
     )
+
+    UnsupportedDeviceDialog(
+        showDialog = state.showUnsupportedSPenDialog,
+        changeDialogState = changeDialogState
+    )
 }
 
 @Composable
@@ -156,6 +161,7 @@ private fun HomeScreenContentPlacer(
             ) {
                 AppLogo()
                 content()
+                Spacer(modifier = Modifier.height(pad_m))
                 Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
         } else {
@@ -173,6 +179,7 @@ private fun HomeScreenContentPlacer(
                         .verticalScroll(rememberScrollState())
                 ) {
                     content()
+                    Spacer(modifier = Modifier.height(pad_m))
                     Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
                 }
             }
@@ -200,8 +207,7 @@ private fun StepsContainer(
     togglePermissionNotification: (Boolean) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(pad_s),
-        modifier = Modifier.padding(vertical = pad_m)
+        verticalArrangement = Arrangement.spacedBy(pad_s)
     ) {
         Step1(
             onMoreClick = { changeDialogState(1, true) }
@@ -288,7 +294,7 @@ private fun Step2(
             )
             Text(
                 text = stringResource(R.string.home_steps_2_des),
-                modifier = Modifier.padding(start = pad_m, bottom = pad_m),
+                modifier = Modifier.padding(start = pad_m, bottom = pad_m, end = pad_m),
                 textAlign = TextAlign.Justify
             )
         }

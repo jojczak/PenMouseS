@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.service.MouseService
+import pl.jojczak.penmouses.utils.SPenManager
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +27,7 @@ class HomeScreenViewModel @Inject constructor(
 
     init {
         checkAccessibilityPermission()
+        checkIfSPenFeaturesSupported()
 
         viewModelScope.launch {
             AppToServiceEvent.serviceStatus.collect {
@@ -47,7 +49,11 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     fun sendSignalToService(event: AppToServiceEvent.Event) {
-        AppToServiceEvent.event.tryEmit(event)
+        if (SPenManager.isSPenSupported()) {
+            AppToServiceEvent.event.tryEmit(event)
+        } else {
+            changeDialogState(4, true)
+        }
     }
 
     fun changeDialogState(step: Int, state: Boolean) {
@@ -56,6 +62,7 @@ class HomeScreenViewModel @Inject constructor(
                 1 -> it.copy(showStep1Dialog = state)
                 2 -> it.copy(showStep2Dialog = state)
                 3 -> it.copy(showStep3Dialog = state)
+                4 -> it.copy(showUnsupportedSPenDialog = state)
                 else -> it
             }
         }
@@ -80,5 +87,9 @@ class HomeScreenViewModel @Inject constructor(
                 isAccessibilityEnabled = isAccessibilityEnabled
             )
         }
+    }
+
+    private fun checkIfSPenFeaturesSupported() {
+        changeDialogState(4, !SPenManager.isSPenSupported())
     }
 }
