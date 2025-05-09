@@ -9,6 +9,7 @@ import android.hardware.display.DisplayManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.util.TypedValue
 import android.view.Display
 import com.samsung.android.sdk.penremote.AirMotionEvent
 import com.samsung.android.sdk.penremote.ButtonEvent
@@ -22,6 +23,7 @@ import com.samsung.android.sdk.penremote.SpenUnitManager
 import kotlinx.coroutines.flow.update
 import pl.jojczak.penmouses.di.ActivityProvider
 import pl.jojczak.penmouses.service.AppToServiceEvent
+import kotlin.math.hypot
 
 class SPenManager(
     private val activityProvider: ActivityProvider,
@@ -38,6 +40,8 @@ class SPenManager(
     private val handler = Handler(Looper.getMainLooper())
 
     private var sPenSensitivity = 0f
+    private val lastPathPos = Point(0, 0)
+    private var cursorMoveThreshold = 0f
     val currentPos = Point(0, 0)
 
     var airMotionEnabled = false
@@ -45,6 +49,7 @@ class SPenManager(
 
     // Step 1: Getting activity, setting up event listeners and calling other init methods
     fun connectToSPen(
+        context: Context,
         performTouch: (Path, Long) -> Unit,
         updateLayout: (Point) -> Unit
     ) {
@@ -58,7 +63,11 @@ class SPenManager(
         this.performTouch = performTouch
         this.updateLayout = updateLayout
 
-        setupDisplay(activity)
+        cursorMoveThreshold = context.resources?.displayMetrics?.let { dM ->
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CURSOR_MOVE_THRESHOLD, dM)
+        } ?: 0f
+
+        setupDisplay(context)
         setupConnection(activity)
         updateSPenSensitivity()
     }
@@ -130,7 +139,14 @@ class SPenManager(
 
     private val runnable = object : Runnable {
         override fun run() {
-            sPenPath.lineTo(currentPos.x.toFloat(), currentPos.y.toFloat())
+            val dx = currentPos.x.toFloat() - lastPathPos.x
+            val dy = currentPos.y.toFloat() - lastPathPos.y
+            val distance = hypot(dx, dy)
+
+            if (distance >= cursorMoveThreshold) {
+                sPenPath.lineTo(currentPos.x.toFloat(), currentPos.y.toFloat())
+                lastPathPos.set(currentPos.x, currentPos.y)
+            }
             pressedTime += TICK_TIME
 
             if (isSPenPressed && pressedTime < MAX_BUTTON_DOWN_TIME) {
@@ -221,6 +237,7 @@ class SPenManager(
         private const val MAX_BUTTON_DOWN_TIME = 1000
         private const val TICK_TIME = 25L
         private const val S_PEN_SENSITIVITY_MULTIPLIER = 20
+        private const val CURSOR_MOVE_THRESHOLD = 25f
 
         fun isSPenSupported() = try {
             val sPenClass = Class.forName("com.samsung.android.sdk.penremote.SpenRemote")
