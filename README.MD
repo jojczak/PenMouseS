@@ -49,8 +49,8 @@ You can download Bird Hunt from the [Releases](https://github.com/jojczak/PenMou
 ### Used Libraries
 - Jetpack Compose - Declarative UI toolkit for building native Android apps
 - Hilt - Dependency injection framework
-- [Haze](https://github.com/chrisbanes/haze) by @chrisbanes - Real-time blur effects for Jetpack Compose
-- [S Pen Remote SDK](https://developer.samsung.com/galaxy-spen-remote/s-pen-remote-sdk.html]) - Samsung's SDK for accessing motion and button input from the S Pen
+- [Haze](https://github.com/chrisbanes/haze) by [@chrisbanes](https://github.com/chrisbanes) - Real-time blur effects for Jetpack Compose
+- [S Pen Remote SDK](https://developer.samsung.com/galaxy-spen-remote/overview.html) - Samsung's SDK for accessing motion and button input from the S Pen
 - Android Accessibility Service API - Used to simulate touch events and show custom overlays
 
 ## Legal
