@@ -63,6 +63,7 @@ class HomeScreenViewModel @Inject constructor(
                 2 -> it.copy(showStep2Dialog = state)
                 3 -> it.copy(showStep3Dialog = state)
                 4 -> it.copy(showUnsupportedSPenDialog = state)
+                5 -> it.copy(showTroubleshootingDialog = state)
                 else -> it
             }
         }

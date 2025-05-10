@@ -9,6 +9,9 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +35,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -136,6 +140,11 @@ private fun HomeScreenContent(
         changeDialogState = changeDialogState
     )
 
+    TroubleshootingDialog(
+        showDialog = state.showTroubleshootingDialog,
+        changeDialogState = changeDialogState
+    )
+
     UnsupportedDeviceDialog(
         showDialog = state.showUnsupportedSPenDialog,
         changeDialogState = changeDialogState
@@ -190,7 +199,7 @@ private fun HomeScreenContentPlacer(
 @Composable
 private fun AppLogo() {
     Image(
-        painter = painterResource(R.drawable.logo_light),
+        painter = painterResource(R.drawable.logo),
         contentDescription = stringResource(R.string.home_logo_alt),
         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
         modifier = Modifier.padding(pad_xxl)
@@ -207,7 +216,8 @@ private fun StepsContainer(
     togglePermissionNotification: (Boolean) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(pad_s)
+        verticalArrangement = Arrangement.spacedBy(pad_s),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Step1(
             onMoreClick = { changeDialogState(1, true) }
@@ -242,6 +252,10 @@ private fun StepsContainer(
                 togglePermissionNotification = togglePermissionNotification
             )
         }
+        Troubleshooting(
+            onClick = { changeDialogState(5, true) },
+            serviceStatus = serviceStatus
+        )
     }
 }
 
@@ -506,6 +520,26 @@ private fun StepSwitch(
             onCheckedChange = onCheckedChange,
             modifier = Modifier.padding(end = pad_m, bottom = pad_xs)
         )
+    }
+}
+
+@Composable
+private fun Troubleshooting(
+    onClick: () -> Unit,
+    serviceStatus: AppToServiceEvent.ServiceStatus
+) {
+    AnimatedVisibility(
+        visible = serviceStatus == AppToServiceEvent.ServiceStatus.ON,
+        enter = expandVertically(),
+        exit = shrinkVertically()
+    ) {
+        FilledTonalButton(
+            onClick = onClick,
+        ) {
+            Text(
+                text = stringResource(R.string.home_troubleshooting_button),
+            )
+        }
     }
 }
 

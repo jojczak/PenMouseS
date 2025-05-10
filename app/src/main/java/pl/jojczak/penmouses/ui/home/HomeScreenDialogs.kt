@@ -244,6 +244,38 @@ fun UnsupportedDeviceDialog(
     }
 }
 
+@Composable
+fun TroubleshootingDialog(
+    showDialog: Boolean,
+    changeDialogState: (Int, Boolean) -> Unit = { _, _ -> },
+) {
+    MoreInfoDialog(
+        titleResId = R.string.home_troubleshooting_button,
+        showDialog = showDialog,
+        dialogId = 5,
+        changeDialogState = changeDialogState,
+        content = {
+            Text(
+                text = stringResource(R.string.home_troubleshooting_content),
+                textAlign = TextAlign.Justify
+            )
+        }
+    ) {
+        Box(
+            contentAlignment = Alignment.CenterEnd,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            TextButton(
+                onClick = { changeDialogState(5, false) }
+            ) {
+                Text(
+                    text = stringResource(R.string.home_steps_dialog_dismiss)
+                )
+            }
+        }
+    }
+}
+
 @OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
 private fun VideoPlayer(uri: Uri, modifier: Modifier = Modifier) {

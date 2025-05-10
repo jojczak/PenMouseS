@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-private val GRADIENT_HEIGHT = 50.dp
+private val GRADIENT_HEIGHT = 30.dp
 
 @Composable
 fun ScrollComponent(

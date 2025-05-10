@@ -26,7 +26,7 @@
     <string name="home_steps_3_dialog_content2">You can see how to enable the accessibility service in the video below:</string>
 
     <string name="home_steps_4">Step 4</string>
-    <string name="home_steps_4_more">Remember to REMOVE the S Pen from the phone BEFORE turning on Air Mouse</string>
+    <string name="home_steps_4_more">Remember to REMOVE the S Pen from the phone and WAIT for a successful connection BEFORE turning on Air Mouse.</string>
     <string name="home_steps_4_turn_on">START AIR MOUSE</string>
     <string name="home_steps_4_turn_off">STOP AIR MOUSE</string>
 
@@ -94,4 +94,7 @@
     <string name="unsupported_device_title">Looks like your device isn\'t compatible</string>
     <string name="unsupported_device_content">It may not have an Samsung S Pen or the one you’re using doesn’t support Bluetooth or Air Actions.\n\nYou can still try the app, but it might not work properly.</string>
     <string name="unsupported_device_button">I understand</string>
+    
+    <string name="home_troubleshooting_button">Troubleshooting</string>
+    <string name="home_troubleshooting_content">If the cursor doesn\'t move after activating Air Mouse, first make sure that:\n- You removed the S Pen from the phone and waited for it to connect before launching the mouse feature\n- You\'re using a compatible S Pen that supports Air Actions\n- The S Pen battery is charged\n- You\'re using a compatible device:\nGalaxy Note10 / S20 Ultra – S24 Ultra phones\nGalaxy Tab tablets with S Pen support\n\nPlease Note: The S25 Ultra no longer supports Bluetooth in the S Pen.\n\nIf the mouse feature used to work on this device but suddenly stopped, try the following:\n- Go to Accessibility settings and toggle PenMouse S off and back on\n- Restart your device\n\nIf the mouse has never worked and you\'ve followed all the steps above, then unfortunately this app most likely won\'t work on your device 😕\nPen Mouse S relies on an old, long-abandoned Samsung API called S Pen Remote, which hasn’t been updated in over 5 years. It has many limitations and bugs, and sadly there’s nothing I can do about that. Whether this app works or not is somewhat random and depends on your specific device. Sorry about that!</string>
 </resources>
