@@ -112,13 +112,13 @@ class MouseService : AccessibilityService() {
 
         Log.d(TAG, "Starting AirMouse")
         mainHandler.post {
+            updateHideDelay()
             setupWindowManagerAndDisplay()
             setupOverlayParams()
             setupCursorImage()
             setupParams()
             setupCursorView()
             setupSPen()
-            updateHideDelay()
         }
     }
 
@@ -216,6 +216,7 @@ class MouseService : AccessibilityService() {
     // Step 7: Set up S-Pen event listeners
     private fun setupSPen() {
         cursorView?.let { view ->
+            sPenManager.updateSPenSensitivity()
             sPenManager.connectToSPen(
                 context = view.context,
                 performTouch = ::performTouch,
