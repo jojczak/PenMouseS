@@ -12,18 +12,14 @@
     <string name="home_steps_1">Step 1</string>
     <string name="home_steps_1_settings">Settings</string>
     <string name="home_steps_1_des">Disable system S Pen gestures</string>
-    <string name="home_steps_1_dialog_content">By default, the S Pen has several built-in system functions that allow it to act as a remote control for your phone. For example, holding down the button on the stylus typically launches the camera.\n\nNormally, system actions of the S Pen are not triggered in apps that actively use the stylus (e.g., in games like Bird Hunt). However, when using the S Pen as an Air Mouse, the pen does not recognize that it\'s inside an app, meaning all of its default system functions, gestures, and shortcuts remain active.\n\nTo ensure the best performance of the Air Mouse mode, we recommend disabling the following S Pen features in the settings:\n\n\u00A0•\u00A0Pointer command icon display\n\u00A0•\u00A0Long press on the stylus button\n\u00A0•\u00A0All available gesture actions:\n\u00A0\u00A0\u00A0Back, Home, Recent apps, etc.\n\nHow to find these setting?\nSettings → Advanced Features → S Pen\n\nLeaving these functions enabled may cause unintended behavior while using the Air Mouse. Unfortunately, PenMouse S cannot detect whether you\'ve turned these settings off, so we\'ll have to take your word for it! 😊\n\nIf you\'re having trouble finding the S Pen settings, check out this tutorial video:</string>
-
     <string name="home_steps_2">Step 2</string>
     <string name="home_steps_2_des">Pin the app in the recents screen to prevent system from closing it in the background.</string>
     <string name="home_steps_2_dialog_title">Pin the app</string>
-    <string name="home_steps_2_dialog_content">Pin the app in the recents screen to prevent the system from closing it while it\'s running in the background. S Pen AirActions require the "parent" app to stay active - without it, the mouse functionality will stop working.\n\nYou can see how to do it in the video below:</string>
 
     <string name="home_steps_3">Step 3</string>
     <string name="home_steps_3_settings">Accessibility settings</string>
     <string name="home_steps_3_des">Enable PenMouse S accessibility service</string>
     <string name="home_steps_3_dialog_content">Pen Mouse S requires its accessibility service to be enabled for proper functionality.\n\nAccessibility services are needed to:\n\n- Display the cursor above other apps, including the notification panel and the lock screen\n- Simulate touch input on the screen, mirroring S Pen movements\n\nPen Mouse S does not read your screen content.</string>
-    <string name="home_steps_3_dialog_content2">You can see how to enable the accessibility service in the video below:</string>
 
     <string name="home_steps_4">Step 4</string>
     <string name="home_steps_4_more">Remember to REMOVE the S Pen from the phone and WAIT for a successful connection BEFORE turning on Air Mouse.</string>
@@ -92,9 +88,7 @@
     <string name="notification_interrupted_content">The app encountered an unexpected issue. Try restarting %s or reset the accessibility permissions.</string>
 
     <string name="unsupported_device_title">Looks like your device isn\'t compatible</string>
-    <string name="unsupported_device_content">It may not have an Samsung S Pen or the one you’re using doesn’t support Bluetooth or Air Actions.\n\nYou can still try the app, but it might not work properly.</string>
     <string name="unsupported_device_button">I understand</string>
     
     <string name="home_troubleshooting_button">Troubleshooting</string>
-    <string name="home_troubleshooting_content">If the cursor doesn\'t move after activating Air Mouse, first make sure that:\n- You removed the S Pen from the phone and waited for it to connect before launching the mouse feature\n- You\'re using a compatible S Pen that supports Air Actions\n- The S Pen battery is charged\n- You\'re using a compatible device:\nGalaxy Note10 / S20 Ultra – S24 Ultra phones\nGalaxy Tab tablets with S Pen support\n\nPlease Note: The S25 Ultra no longer supports Bluetooth in the S Pen.\n\nIf the mouse feature used to work on this device but suddenly stopped, try the following:\n- Go to Accessibility settings and toggle PenMouse S off and back on\n- Restart your device\n\nIf the mouse has never worked and you\'ve followed all the steps above, then unfortunately this app most likely won\'t work on your device 😕\nPen Mouse S relies on an old, long-abandoned Samsung API called S Pen Remote, which hasn’t been updated in over 5 years. It has many limitations and bugs, and sadly there’s nothing I can do about that. Whether this app works or not is somewhat random and depends on your specific device. Sorry about that!</string>
 </resources>

@@ -10,6 +10,7 @@ data class HomeScreenState(
     val showStep3Dialog: Boolean = false,
     val showUnsupportedSPenDialog: Boolean = false,
     val showTroubleshootingDialog: Boolean = false,
+    val showFirstRunDialog: Boolean = false,
 
     val showNotificationPermission: Boolean = false,
 

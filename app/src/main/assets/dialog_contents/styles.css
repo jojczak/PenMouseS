@@ -1,0 +1,16 @@
+body {
+    margin: 0;
+    text-align: justify
+}
+
+body p:first-of-type {
+    margin-top: 0;
+}
+
+body p:last-of-type {
+    margin-bottom: 0;
+}
+
+ul {
+    padding-left: 20px;
+}
