@@ -13,10 +13,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +42,7 @@ import dev.chrisbanes.haze.rememberHazeState
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
+import pl.jojczak.penmouses.ui.theme.pad_l
 import pl.jojczak.penmouses.ui.theme.pad_m
 import pl.jojczak.penmouses.ui.theme.pad_s
 import pl.jojczak.penmouses.ui.theme.pad_xl
@@ -71,7 +74,7 @@ fun BirdHuntBanner() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = pad_m, horizontal = pad_xl)
+                .padding(horizontal = pad_xl)
         ) {
             Row(
                 modifier = Modifier
@@ -103,16 +106,21 @@ fun BirdHuntBanner() {
                     )
                 }
             }
-
-            FilledTonalButton(
-                onClick = { openUrl(context, R.string.settings_bird_hunt_url) },
+            Box(
+                modifier = Modifier.padding(start = pad_m, top = pad_l, bottom = pad_l)
             ) {
-                Text(text = stringResource(R.string.settings_bird_hunt_button))
-                Icon(
-                    painter = painterResource(R.drawable.open_in_new_24px),
-                    contentDescription = null,
-                    modifier = Modifier.size(LINK_ICON_SIZE)
-                )
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                    FilledTonalButton(
+                        onClick = { openUrl(context, R.string.settings_bird_hunt_url) },
+                    ) {
+                        Text(text = stringResource(R.string.settings_bird_hunt_button))
+                        Icon(
+                            painter = painterResource(R.drawable.open_in_new_24px),
+                            contentDescription = null,
+                            modifier = Modifier.size(LINK_ICON_SIZE)
+                        )
+                    }
+                }
             }
         }
     }
