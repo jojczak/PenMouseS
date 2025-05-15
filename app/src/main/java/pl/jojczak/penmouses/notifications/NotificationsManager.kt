@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
@@ -18,7 +19,9 @@ import pl.jojczak.penmouses.ui.main.MainActivity
 
 object NotificationsManager {
     fun showIdleNotification(context: Context) {
+        Log.d(TAG, "Showing idle notification")
         createNotificationChannels(context)
+
         val notification = NotificationCompat.Builder(context, NotificationChannels.STATUS.channelId)
             .setSmallIcon(Notifications.IDLE.smallIcon)
             .setContentTitle(context.getString(Notifications.IDLE.title, context.getString(R.string.app_name)))
@@ -35,6 +38,7 @@ object NotificationsManager {
     }
 
     fun showMouseHiddenNotification(context: Context) {
+        Log.d(TAG, "Showing mouse hidden notification")
         createNotificationChannels(context)
 
         val notification = NotificationCompat.Builder(context, NotificationChannels.STATUS.channelId)
@@ -53,6 +57,7 @@ object NotificationsManager {
     }
 
     fun showMouseSleepNotification(context: Context) {
+        Log.d(TAG, "Showing mouse sleep notification")
         createNotificationChannels(context)
 
         val notification = NotificationCompat.Builder(context, NotificationChannels.STATUS.channelId)
@@ -71,6 +76,7 @@ object NotificationsManager {
     }
 
     fun showErrorNotification(context: Context) {
+        Log.d(TAG, "Showing error notification")
         createNotificationChannels(context)
 
         val notification = NotificationCompat.Builder(context, NotificationChannels.STATUS.channelId)
@@ -88,12 +94,14 @@ object NotificationsManager {
     }
 
     fun cancelStatusNotifications(context: Context) {
+        Log.d(TAG, "Cancelling status notifications")
         with(NotificationManagerCompat.from(context)) {
             cancel(NotificationChannels.STATUS.notificationId)
         }
     }
 
     fun createNotificationChannels(context: Context) {
+        Log.d(TAG, "Creating notification channels")
         if (ContextCompat.checkSelfPermission(context, POST_NOTIFICATIONS) == PERMISSION_GRANTED) {
             NotificationChannels.entries.forEach {
                 val channel = NotificationChannel(
@@ -114,6 +122,7 @@ object NotificationsManager {
     }
 
     private fun showNotification(context: Context, id: Int, notification: Notification) {
+        Log.d(TAG, "Showing notification with id $id")
         if (ContextCompat.checkSelfPermission(context, POST_NOTIFICATIONS) == PERMISSION_GRANTED) {
             with(NotificationManagerCompat.from(context)) {
                 notify(id, notification)
@@ -188,4 +197,6 @@ object NotificationsManager {
             content = R.string.notification_interrupted_content
         )
     }
+
+    private const val TAG = "NotificationsManager"
 }

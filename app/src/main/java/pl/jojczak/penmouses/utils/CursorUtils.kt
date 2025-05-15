@@ -32,6 +32,7 @@ fun getDisplaySize(
     display: Display?,
     callback: (width: Int, height: Int) -> Unit
 ) {
+    Log.d(TAG, "Getting display size: ${display?.rotation}")
     display?.let {
         val screenWidth =
             if (it.rotation == Surface.ROTATION_0 || it.rotation == Surface.ROTATION_180) {

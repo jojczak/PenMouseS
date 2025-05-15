@@ -112,13 +112,13 @@ class MouseService : AccessibilityService() {
 
         Log.d(TAG, "Starting AirMouse")
         mainHandler.post {
+            updateHideDelay()
             setupWindowManagerAndDisplay()
             setupOverlayParams()
             setupCursorImage()
             setupParams()
             setupCursorView()
             setupSPen()
-            updateHideDelay()
         }
     }
 
@@ -215,10 +215,14 @@ class MouseService : AccessibilityService() {
 
     // Step 7: Set up S-Pen event listeners
     private fun setupSPen() {
-        sPenManager.connectToSPen(
-            performTouch = ::performTouch,
-            updateLayout = ::updateLayout
-        )
+        cursorView?.let { view ->
+            sPenManager.updateSPenSensitivity()
+            sPenManager.connectToSPen(
+                context = view.context,
+                performTouch = ::performTouch,
+                updateLayout = ::updateLayout
+            )
+        }
     }
 
     // Layout update when S-Pen moves
@@ -244,7 +248,7 @@ class MouseService : AccessibilityService() {
 
     // Simulate touch event via AccessibilityService when S-Pen button is clicked
     private fun performTouch(sPenPath: Path, pressTime: Long) {
-        Log.d(TAG, "performTouch")
+        Log.d(TAG, "performTouch: $pressTime")
 
         if (!sPenManager.airMotionEnabled) {
             Log.d(TAG, "Air motion not enabled, registering and ignoring path")
@@ -274,9 +278,9 @@ class MouseService : AccessibilityService() {
     }
 
     private fun showCursorIfHidden() {
-        NotificationsManager.showIdleNotification(this)
         cursorView?.apply {
             if (isGone && alpha == 0f) {
+                NotificationsManager.showIdleNotification(this@MouseService)
                 animate()
                     .alpha(1f)
                     .setDuration(100)

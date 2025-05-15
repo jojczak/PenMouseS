@@ -4,5 +4,7 @@
     android:canPerformGestures="true"
     android:canRetrieveWindowContent="false"
     android:description="@string/home_steps_3_dialog_content"
+    android:isAccessibilityTool="true"
     android:notificationTimeout="100"
-    android:packageNames="pl.jojczak.penmouses" />
+    android:packageNames="pl.jojczak.penmouses"
+    android:settingsActivity="pl.jojczak.penmouses.ui.main.MainActivity" />

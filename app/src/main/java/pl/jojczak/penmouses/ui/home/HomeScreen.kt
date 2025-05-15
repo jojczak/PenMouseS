@@ -9,6 +9,9 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +35,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -62,6 +66,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.service.AppToServiceEvent
+import pl.jojczak.penmouses.ui.home.dialogs.FirstRunDialog
+import pl.jojczak.penmouses.ui.home.dialogs.Step1SystemGesturesDialog
+import pl.jojczak.penmouses.ui.home.dialogs.Step2PinDialog
+import pl.jojczak.penmouses.ui.home.dialogs.Step3AccessibilityServicesDialog
+import pl.jojczak.penmouses.ui.home.dialogs.TroubleshootingDialog
+import pl.jojczak.penmouses.ui.home.dialogs.UnsupportedDeviceDialog
 import pl.jojczak.penmouses.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.ui.theme.PenMouseSThemePreview
 import pl.jojczak.penmouses.ui.theme.clickable_text_corner
@@ -71,7 +81,7 @@ import pl.jojczak.penmouses.ui.theme.pad_l
 import pl.jojczak.penmouses.ui.theme.pad_m
 import pl.jojczak.penmouses.ui.theme.pad_s
 import pl.jojczak.penmouses.ui.theme.pad_xs
-import pl.jojczak.penmouses.ui.theme.pad_xxl
+import pl.jojczak.penmouses.ui.theme.radius_l
 
 private const val STEP_TITLE_ALPHA = 0.7f
 private const val STEP_MORE_ALPHA = 0.5f
@@ -107,6 +117,7 @@ private fun HomeScreenContent(
 ) {
     HomeScreenContentPlacer(
         paddingValues = paddingValues,
+        changeDialogState = changeDialogState,
         modifier = Modifier.padding(
             top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         )
@@ -121,18 +132,28 @@ private fun HomeScreenContent(
         )
     }
 
-    Step1Dialog(
+    Step1SystemGesturesDialog(
         showDialog = state.showStep1Dialog,
         changeDialogState = changeDialogState
     )
 
-    Step2Dialog(
+    Step2PinDialog(
         showDialog = state.showStep2Dialog,
         changeDialogState = changeDialogState
     )
 
-    Step3Dialog(
+    Step3AccessibilityServicesDialog(
         showDialog = state.showStep3Dialog,
+        changeDialogState = changeDialogState
+    )
+
+    TroubleshootingDialog(
+        showDialog = state.showTroubleshootingDialog,
+        changeDialogState = changeDialogState
+    )
+
+    FirstRunDialog(
+        showDialog = state.showFirstRunDialog,
         changeDialogState = changeDialogState
     )
 
@@ -145,6 +166,7 @@ private fun HomeScreenContent(
 @Composable
 private fun HomeScreenContentPlacer(
     paddingValues: PaddingValues,
+    changeDialogState: (Int, Boolean) -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -159,7 +181,7 @@ private fun HomeScreenContentPlacer(
                     .padding(horizontal = pad_l)
                     .verticalScroll(rememberScrollState())
             ) {
-                AppLogo()
+                AppLogo(changeDialogState = changeDialogState)
                 content()
                 Spacer(modifier = Modifier.height(pad_m))
                 Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
@@ -171,7 +193,7 @@ private fun HomeScreenContentPlacer(
                     .padding(horizontal = pad_l),
             ) {
                 Box(modifier = Modifier.weight(0.382f)) {
-                    AppLogo()
+                    AppLogo(changeDialogState = changeDialogState)
                 }
                 Column(
                     modifier = Modifier
@@ -188,12 +210,20 @@ private fun HomeScreenContentPlacer(
 }
 
 @Composable
-private fun AppLogo() {
+private fun AppLogo(
+    changeDialogState: (Int, Boolean) -> Unit
+) {
     Image(
-        painter = painterResource(R.drawable.logo_light),
+        painter = painterResource(R.drawable.logo),
         contentDescription = stringResource(R.string.home_logo_alt),
         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
-        modifier = Modifier.padding(pad_xxl)
+        modifier = Modifier
+            .padding(pad_l)
+            .clip(RoundedCornerShape(radius_l))
+            .clickable {
+                changeDialogState(6, true)
+            }
+            .padding(pad_l)
     )
 }
 
@@ -207,7 +237,8 @@ private fun StepsContainer(
     togglePermissionNotification: (Boolean) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(pad_s)
+        verticalArrangement = Arrangement.spacedBy(pad_s),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Step1(
             onMoreClick = { changeDialogState(1, true) }
@@ -242,6 +273,10 @@ private fun StepsContainer(
                 togglePermissionNotification = togglePermissionNotification
             )
         }
+        Troubleshooting(
+            onClick = { changeDialogState(5, true) },
+            serviceStatus = serviceStatus
+        )
     }
 }
 
@@ -506,6 +541,26 @@ private fun StepSwitch(
             onCheckedChange = onCheckedChange,
             modifier = Modifier.padding(end = pad_m, bottom = pad_xs)
         )
+    }
+}
+
+@Composable
+private fun Troubleshooting(
+    onClick: () -> Unit,
+    serviceStatus: AppToServiceEvent.ServiceStatus
+) {
+    AnimatedVisibility(
+        visible = serviceStatus == AppToServiceEvent.ServiceStatus.ON,
+        enter = expandVertically(),
+        exit = shrinkVertically()
+    ) {
+        FilledTonalButton(
+            onClick = onClick,
+        ) {
+            Text(
+                text = stringResource(R.string.home_troubleshooting_button),
+            )
+        }
     }
 }
 
