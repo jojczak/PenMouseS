@@ -22,6 +22,9 @@ In addition to the mouse control mentioned earlier, the app also allows you to:
 
 The app also includes a detailed setup guide with videos explaining how to prepare your phone for using the S Pen as a mouse. This is especially useful because some of the S Pen’s built-in features need to be disabled to prevent them from interfering with the PenMouse S.
 
+You can see a demonstration of the app in this video:</br>
+[<img src="gimp/yt_thumb.png" alt="PenMouse S YouTube video" height="250"/>](https://youtu.be/SMZjguBtFQQ)
+
 ## Supported devices
 <ins>**This app works ONLY on Samsung phones that have an S Pen with [Air Actions](https://www.samsung.com/us/support/answer/ANS10003221/) functionality.**</ins> Even if your device has a stylus but is not a Samsung device, the PenMouse S will not work, as it uses Samsung's SDK specifically for S Pen.
 - Samsung Galaxy Note Series: **Galaxy Note10**
@@ -33,7 +36,9 @@ It also requires Android 12 or newer.
 The S Pen SDK is quite a niche tool and has long been forgotten by Samsung. In fact, in their latest flagship phone, the S25 Ultra, they removed both Bluetooth connectivity and the gyroscope from the S Pen. So keep in mind that the app might work poorly, have bugs, or not work at all. Unfortunately, it's a bit random and depends on both the pen and the phone - don’t say I didn’t warn you!
 
 ## Download
-You can download Bird Hunt from the [Releases](https://github.com/jojczak/PenMouseS/releases) section here on GitHub or in future from Google Play
+You can download PenMouse S from the [Releases](https://github.com/jojczak/PenMouseS/releases) section here on GitHub or from Google Play:
+
+[<img src="gimp/google_play_badge.png" height="50">](https://play.google.com/store/apps/details?id=pl.jojczak.penmouses)
 
 ## Screenshots
 <img src="gimp/screenshots/Screenshot_20250508_154807.png" width="256"> <img src="gimp/screenshots/Screenshot_20250508_154901.png" width="256"> <img src="gimp/screenshots/Screenshot_20250508_155011.png" width="256"> <img src="gimp/screenshots/Screenshot_20250508_155050.png" width="256">
