@@ -13,6 +13,7 @@ data class HomeScreenState(
     val showFirstRunDialog: Boolean = false,
 
     val showNotificationPermission: Boolean = false,
+    val isFirstMouseLaunch: Boolean = true,
 
     val serviceStatus: AppToServiceEvent.ServiceStatus = AppToServiceEvent.ServiceStatus.OFF
 )

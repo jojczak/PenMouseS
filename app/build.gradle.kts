@@ -74,6 +74,9 @@ dependencies {
     implementation(libs.exoplayer)
     implementation(libs.exoplayer.ui)
 
+    implementation(libs.review)
+    implementation(libs.review.ktx)
+
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
