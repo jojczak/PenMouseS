@@ -1,11 +1,13 @@
 package pl.jojczak.penmouses.ui.home
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -64,6 +66,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.ui.home.dialogs.FirstRunDialog
@@ -126,6 +130,7 @@ private fun HomeScreenContent(
             isAccessibilityEnabled = state.isAccessibilityEnabled,
             serviceStatus = state.serviceStatus,
             showNotificationPermission = state.showNotificationPermission,
+            isFirstMouseLaunch = state.isFirstMouseLaunch,
             changeDialogState = changeDialogState,
             toggleService = toggleService,
             togglePermissionNotification = togglePermissionNotification
@@ -232,6 +237,7 @@ private fun StepsContainer(
     isAccessibilityEnabled: Boolean,
     serviceStatus: AppToServiceEvent.ServiceStatus,
     showNotificationPermission: Boolean,
+    isFirstMouseLaunch: Boolean,
     changeDialogState: (Int, Boolean) -> Unit,
     toggleService: (AppToServiceEvent.Event) -> Unit,
     togglePermissionNotification: (Boolean) -> Unit
@@ -269,6 +275,7 @@ private fun StepsContainer(
             StepButton(
                 serviceStatus = serviceStatus,
                 showNotificationPermission = showNotificationPermission,
+                isFirstMouseLaunch = isFirstMouseLaunch,
                 toggleService = toggleService,
                 togglePermissionNotification = togglePermissionNotification
             )
@@ -467,9 +474,14 @@ private fun SettingsLink(
 private fun StepButton(
     serviceStatus: AppToServiceEvent.ServiceStatus,
     showNotificationPermission: Boolean,
+    isFirstMouseLaunch: Boolean,
     toggleService: (AppToServiceEvent.Event) -> Unit,
     togglePermissionNotification: (Boolean) -> Unit
 ) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current
+    val reviewManager = remember { ReviewManagerFactory.create(context) }
+
     Text(
         text = stringResource(R.string.home_steps_4_more),
         style = MaterialTheme.typography.bodyMedium,
@@ -487,7 +499,10 @@ private fun StepButton(
         when (serviceStatus) {
             AppToServiceEvent.ServiceStatus.ON -> {
                 Button(
-                    onClick = { toggleService(AppToServiceEvent.Event.Stop) },
+                    onClick = {
+                        toggleService(AppToServiceEvent.Event.Stop)
+                        if (!isFirstMouseLaunch) tryToLaunchReview(activity, reviewManager)
+                    },
                     colors = getRedButtonColors()
                 ) {
                     Text(
@@ -594,6 +609,18 @@ private fun NotificationPermission(
             }
         }
         afterPermission()
+    }
+}
+
+private fun tryToLaunchReview(activity: Activity?, reviewManager: ReviewManager) {
+    activity?.let {
+        Log.d(TAG, "Requesting review")
+        reviewManager.requestReviewFlow().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val reviewInfo = task.result
+                reviewManager.launchReviewFlow(it, reviewInfo)
+            }
+        }
     }
 }
 

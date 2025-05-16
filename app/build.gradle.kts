@@ -14,8 +14,8 @@ android {
         applicationId = "pl.jojczak.penmouses"
         minSdk = 31
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -73,6 +73,9 @@ dependencies {
 
     implementation(libs.exoplayer)
     implementation(libs.exoplayer.ui)
+
+    implementation(libs.review)
+    implementation(libs.review.ktx)
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)

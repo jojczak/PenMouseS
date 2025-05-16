@@ -89,6 +89,7 @@ object PrefKeys {
     val CURSOR_HIDE_DELAY = PrefKey("time_to_hide_cursor", 10f, 5f, 5f..305f)
     val SPEN_SLEEP_ENABLED = PrefKey("spen_sleep_enabled", true)
     val FIRST_RUN = PrefKey("first_run", true)
+    val FIRST_MOUSE_LAUNCH = PrefKey("first_mouse_launch", true)
 }
 
 data class PrefKey<T>(

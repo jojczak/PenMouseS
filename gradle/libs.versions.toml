@@ -15,6 +15,7 @@ ksp = "2.1.20-2.0.1"
 exoplayer = "1.6.1"
 haze = "1.6.0-beta02"
 splashscreen = "1.2.0-beta02"
+playReview = "2.0.2"
 
 [libraries]
 #core
@@ -43,6 +44,9 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 #exoplayer
 exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "exoplayer" }
 exoplayer-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "exoplayer" }
+
+review = { group = "com.google.android.play", name = "review", version.ref = "playReview" }
+review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "playReview" }
 
 #tests
 junit = { group = "junit", name = "junit", version.ref = "junit" }

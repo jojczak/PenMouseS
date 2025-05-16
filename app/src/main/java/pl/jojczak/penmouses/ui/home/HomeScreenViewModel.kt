@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.service.MouseService
-import pl.jojczak.penmouses.utils.PrefKey
 import pl.jojczak.penmouses.utils.PrefKeys
 import pl.jojczak.penmouses.utils.PreferencesManager
 import pl.jojczak.penmouses.utils.SPenManager
@@ -38,6 +37,10 @@ class HomeScreenViewModel @Inject constructor(
             preferencesManager.put(PrefKeys.FIRST_RUN, false)
         }
 
+        _state.update {
+            it.copy(isFirstMouseLaunch = preferencesManager.get(PrefKeys.FIRST_MOUSE_LAUNCH))
+        }
+
         viewModelScope.launch {
             AppToServiceEvent.serviceStatus.collect {
                 _state.update { state ->
@@ -59,6 +62,10 @@ class HomeScreenViewModel @Inject constructor(
 
     fun sendSignalToService(event: AppToServiceEvent.Event) {
         if (SPenManager.isSPenSupported()) {
+            if (event == AppToServiceEvent.Event.Stop) {
+                preferencesManager.put(PrefKeys.FIRST_MOUSE_LAUNCH, false)
+                _state.update { it.copy(isFirstMouseLaunch = false) }
+            }
             AppToServiceEvent.event.tryEmit(event)
         } else {
             changeDialogState(4, true)
