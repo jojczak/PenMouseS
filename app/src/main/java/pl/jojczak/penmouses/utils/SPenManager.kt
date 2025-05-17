@@ -234,7 +234,7 @@ class SPenManager(
         private const val TAG = "SPenManager"
 
         private const val DELAY_TO_EVENT_REGISTER = 750L
-        private const val MAX_BUTTON_DOWN_TIME = 1000
+        private const val MAX_BUTTON_DOWN_TIME = 1501
         private const val TICK_TIME = 25L
         private const val S_PEN_SENSITIVITY_MULTIPLIER = 20
         private const val CURSOR_MOVE_THRESHOLD = 25f
