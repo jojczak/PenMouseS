@@ -88,7 +88,7 @@ object NotificationsManager {
 
         showNotification(
             context = context,
-            id = NotificationChannels.STATUS.notificationId,
+            id = ERROR_NOTIFICATION_ID,
             notification = notification
         )
     }
@@ -199,4 +199,5 @@ object NotificationsManager {
     }
 
     private const val TAG = "NotificationsManager"
+    private const val ERROR_NOTIFICATION_ID = 1002
 }

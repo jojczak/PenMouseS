@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.Point
+import android.graphics.drawable.BitmapDrawable
 import android.hardware.display.DisplayManager
 import android.os.Handler
 import android.os.Looper
@@ -129,6 +130,9 @@ class MouseService : AccessibilityService() {
         hideHandler.removeCallbacks(hideCursorRunnable)
         gyroSleepHandler.removeCallbacks(gyroSleepRunnable)
         mainHandler.post {
+            cursorView?.animate()?.setListener(null)
+            cursorView?.animate()?.cancel()
+            cursorView?.setImageDrawable(null)
             windowManager?.removeView(cursorView)
             sPenManager.disconnectFromSPen()
             windowManager = null
@@ -170,8 +174,12 @@ class MouseService : AccessibilityService() {
     // Step 4: Setting up cursor image | Updating cursor image when running
     private fun setupCursorImage() {
         val cursorType = preferences.get(PrefKeys.CURSOR_TYPE)
-        cursorImageBitmap =
-            getCursorBitmap(context, cursorType) ?: getCursorBitmap(context, CursorType.LIGHT)
+        cursorImageBitmap = getCursorBitmap(context, cursorType)
+            ?: getCursorBitmap(context, CursorType.LIGHT) ?: run {
+                Log.e(TAG, "Error getting cursor bitmap")
+                onInterrupt()
+                return
+            }
         cursorView?.setImageBitmap(cursorImageBitmap)
     }
 
@@ -207,6 +215,14 @@ class MouseService : AccessibilityService() {
                     params?.y = startY
                     sPenManager.currentPos.x = startX
                     sPenManager.currentPos.y = startY
+                }
+
+                viewTreeObserver.addOnPreDrawListener {
+                    if (width <= 0 || height <= 0 || (drawable as? BitmapDrawable)?.bitmap?.isRecycled == true) {
+                        Log.e(TAG, "Error with cursor view in preDraw")
+                        onInterrupt()
+                        return@addOnPreDrawListener false
+                    } else return@addOnPreDrawListener true
                 }
             }
             windowManager?.addView(cursorView, params)
