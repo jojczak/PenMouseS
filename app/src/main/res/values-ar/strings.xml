@@ -1,0 +1,94 @@
+<resources>
+    <string name="app_name">PenMouse S</string>
+
+    <string name="screen_home">الرئيسية</string>
+    <string name="screen_settings">الإعدادات</string>
+
+    <string name="home_logo_alt">شعار Pen Mouse S</string>
+    <string name="home_steps_bullet">\u00A0•</string>
+    <string name="home_steps_more">مزيد من المعلومات</string>
+    <string name="home_steps_dialog_dismiss">إغلاق</string>
+
+    <string name="home_steps_1">الخطوة 1</string>
+    <string name="home_steps_1_settings">الإعدادات</string>
+    <string name="home_steps_1_des">تعطيل إيماءات قلم S النظامية</string>
+    <string name="home_steps_2">الخطوة 2</string>
+    <string name="home_steps_2_des">قم بتثبيت التطبيق في شاشة التطبيقات الحديثة لمنع النظام من إغلاقه في الخلفية.</string>
+    <string name="home_steps_2_dialog_title">تثبيت التطبيق</string>
+
+    <string name="home_steps_3">الخطوة 3</string>
+    <string name="home_steps_3_settings">إعدادات الوصول</string>
+    <string name="home_steps_3_des">تفعيل خدمة الوصول لـ PenMouse S</string>
+    <string name="home_steps_3_dialog_content">يتطلب Pen Mouse S تفعيل خدمة الوصول لضمان عمله بشكل صحيح.\n\nتحتاج خدمات الوصول إلى:\n\n- عرض المؤشر فوق التطبيقات الأخرى، بما في ذلك لوحة الإشعارات وشاشة القفل\n- محاكاة إدخال اللمس على الشاشة، مما يعكس حركات قلم S\n\nPen Mouse S لا يقرأ محتوى شاشتك.</string>
+
+    <string name="home_steps_4">الخطوة 4</string>
+    <string name="home_steps_4_more">تذكر إزالة قلم S من الهاتف وانتظر حتى يتم الاتصال بنجاح قبل تشغيل الماوس الهوائي.</string>
+    <string name="home_steps_4_turn_on">ابدأ الماوس الهوائي</string>
+    <string name="home_steps_4_turn_off">أوقف الماوس الهوائي</string>
+
+    <string name="home_support_text">إذا أعجبك هذا التطبيق، يمكنك شراء قهوة لي\u00A0:)\u00A0☕️</string>
+    <string name="home_support_button">تبرع\u00A0</string>
+    <string name="home_support_url">https://buymeacoffee.com/jojczak</string>
+    <string name="home_support_thanks">شكرًا على الدعم! ❤️</string>
+
+    <string name="settings_reset_to_defaults">إعادة تعيين إلى الإعدادات الافتراضية</string>
+    <string name="settings_s_pen_sensitivity_slider_label">الحساسية: %s</string>
+    <string name="settings_cursor_size_slider_label">حجم المؤشر: %s dp</string>
+
+    <string name="settings_cursor_preview">معاينة المؤشر</string>
+    <string name="settings_cursor_type_light">فاتح</string>
+    <string name="settings_cursor_type_dark">داكن</string>
+    <string name="settings_cursor_type_retro">رجعي</string>
+    <string name="settings_cursor_type_custom">مخصص</string>
+
+    <string name="settings_change_cursor_button">تغيير</string>
+    <string name="settings_change_cursor_file_type_error">عذرًا! الملف المحدد ليس بتنسيق صورة مدعوم.</string>
+    <string name="settings_change_cursor_file_load_error">عذرًا! لم نتمكن من تحميل الصورة. يرجى المحاولة مرة أخرى.</string>
+
+    <string name="settings_cursor_hide_delay">إخفاء المؤشر بعد %ss من عدم النشاط</string>
+    <string name="settings_cursor_hide_delay_indefinite">ابقِ المؤشر مرئيًا</string>
+
+    <string name="settings_s_pen_sleep_info">تعطيل جيروسكوب القلم بعد دقيقة من إخفاء المؤشر</string>
+    <string name="settings_s_pen_sleep_enabled_info">اضغط على زر قلم S وانتظر لحظة لإعادة تفعيل الجيروسكوب بعد عدم النشاط. إذا تم تعطيل إخفاء المؤشر أعلاه، سيتوقف الجيروسكوب بعد 5 دقائق.</string>
+    <string name="settings_s_pen_sleep_disabled_warning">تحذير: الاستخدام المستمر لجيروسكوب قلم S قد يستنزف بطارية القلم بسرعة.</string>
+
+    <string name="settings_bird_hunt_check">تحقق أيضًا:\u00A0</string>
+    <string name="settings_bird_hunt">صيد الطيور</string>
+    <string name="settings_bird_hunt_desc">لعبة حركة لقلم S</string>
+    <string name="settings_bird_hunt_button">العب\u00A0</string>
+    <string name="settings_bird_hunt_url">https://play.google.com/store/apps/details?id=pl.jojczak.birdhunt</string>
+
+    <string name="settings_app_info">%s v%s أنشأ بواسطة\u00A0</string>
+    <string name="settings_app_info_version_unknown">.\u00A0غير معروف</string>
+    <string name="settings_app_info_author">Jojczak</string>
+    <string name="settings_app_info_author_url">https://github.com/jojczak</string>
+    <string name="settings_app_info_github">المشروع على GitHub</string>
+    <string name="settings_app_info_github_url">https://github.com/jojczak/PenMouseS</string>
+
+    <string name="settings_notification">إعدادات الإشعارات</string>
+
+    <string name="settings_reset_dialog_title">إعادة تعيين الإعدادات؟</string>
+    <string name="settings_reset_dialog_desc">هل أنت متأكد أنك تريد إعادة تعيين جميع الإعدادات إلى قيمها الافتراضية؟</string>
+    <string name="settings_reset_cancel">إلغاء</string>
+    <string name="settings_reset_confirm">إعادة تعيين</string>
+
+    <string name="notification_channel_status">الحالة</string>
+    <string name="notification_action_stop">إيقاف</string>
+
+    <string name="notification_idle_title">%s يتحكم في الماوس</string>
+    <string name="notification_idle_content">اضغط هنا لفتح التطبيق.</string>
+
+    <string name="notification_hidden_title">تم إخفاء المؤشر بسبب عدم النشاط</string>
+    <string name="notification_hidden_content">حرّك قلم S لاستعادة المؤشر، أو اضغط هنا لفتح التطبيق.</string>
+
+    <string name="notification_sleep_title">تم وضع المؤشر في وضع السكون بسبب عدم النشاط</string>
+    <string name="notification_sleep_content">اضغط على الزر الموجود في قلم S لإيقاظ المؤشر، أو اضغط هنا لفتح التطبيق.</string>
+
+    <string name="notification_interrupted_title">حدث خطأ!</string>
+    <string name="notification_interrupted_content">واجه التطبيق مشكلة غير متوقعة. حاول إعادة تشغيل %s أو إعادة تعيين أذونات الوصول.</string>
+
+    <string name="unsupported_device_title">يبدو أن جهازك غير متوافق</string>
+    <string name="unsupported_device_button">أفهم</string>
+    
+    <string name="home_troubleshooting_button">استكشاف الأخطاء وإصلاحها</string>
+</resources>
