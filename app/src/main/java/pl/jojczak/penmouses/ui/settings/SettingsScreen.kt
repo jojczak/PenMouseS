@@ -25,8 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -34,11 +34,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.ui.common.ScrollComponent
 import pl.jojczak.penmouses.ui.settings.components.AppVersionComponent
@@ -47,7 +51,7 @@ import pl.jojczak.penmouses.ui.settings.components.CursorIconComponent
 import pl.jojczak.penmouses.ui.settings.components.DonateComponent
 import pl.jojczak.penmouses.ui.settings.components.NotificationsComponent
 import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
-import pl.jojczak.penmouses.ui.theme.elevation_1
+import pl.jojczak.penmouses.ui.theme.hazeUltraThinSurface
 import pl.jojczak.penmouses.ui.theme.pad_m
 import pl.jojczak.penmouses.ui.theme.pad_s
 import pl.jojczak.penmouses.ui.theme.pad_xl
@@ -60,9 +64,19 @@ import kotlin.math.round
 @Composable
 fun SettingsScreen(
     paddingValues: PaddingValues = PaddingValues(),
+    setTopBar: ((@Composable (HazeState) -> Unit)?) -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        setTopBar { hazeState ->
+            SettingsTopBar(
+                hazeState = hazeState,
+                toggleSettingsResetDialog = viewModel::toggleSettingsResetDialog
+            )
+        }
+    }
 
     SettingsScreenContent(
         state = state,
@@ -90,79 +104,59 @@ fun SettingsScreenContent(
     toggleSettingsResetDialog: (Boolean) -> Unit = {},
     resetSettings: () -> Unit = {}
 ) {
-    Column {
-        TopAppBar(
-            title = { Text(text = stringResource(R.string.screen_settings)) },
-            colors = TopAppBarDefaults.topAppBarColors().copy(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(elevation_1)
-            ),
-            actions = {
-                IconButton(
-                    onClick = {
-                        toggleSettingsResetDialog(true)
-                    }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.reset_settings_24px),
-                        contentDescription = stringResource(R.string.settings_reset_to_defaults)
-                    )
-                }
-            },
-        )
-        ScrollComponent(
-            showDivider = false,
-            paddingValues = paddingValues,
-            shadowColor = MaterialTheme.colorScheme.background,
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            Column {
-                SettingsSlider(
-                    text = R.string.settings_s_pen_sensitivity_slider_label,
-                    value = state.sPenSensitivity,
-                    prefKey = PrefKeys.SPEN_SENSITIVITY,
-                    onValueChange = onValueChange,
-                    onValueChangeFinished = onValueChangeFinished
-                )
-                HorizontalDivider()
-                SettingsSlider(
-                    text = R.string.settings_cursor_hide_delay,
-                    textOnLastValue = R.string.settings_cursor_hide_delay_indefinite,
-                    value = state.cursorHideDelay,
-                    prefKey = PrefKeys.CURSOR_HIDE_DELAY,
-                    onValueChange = onValueChange,
-                    onValueChangeFinished = onValueChangeFinished
-                )
-                HorizontalDivider()
-                SPenSleepCheckBox(
-                    sPenSleepEnabled = state.sPenSleepEnabled,
-                    onSPenSleepEnabledChange = onSPenSleepEnabledChange
-                )
-                HorizontalDivider()
-                SettingsSlider(
-                    text = R.string.settings_cursor_size_slider_label,
-                    value = state.cursorSize,
-                    prefKey = PrefKeys.CURSOR_SIZE,
-                    onValueChange = onValueChange,
-                    onValueChangeFinished = onValueChangeFinished
-                )
-                HorizontalDivider()
-                CursorIconComponent(
-                    cursorType = state.cursorType,
-                    onCursorTypeChange = onCursorTypeChange,
-                    onCustomCursorFileSelected = onCustomCursorFileSelected
-                )
-                HorizontalDivider()
-                NotificationsComponent()
-                Spacer(
-                    modifier = Modifier.weight(1f)
-                )
-                HorizontalDivider()
-                DonateComponent()
-                HorizontalDivider()
-                BirdHuntBanner()
-                HorizontalDivider()
-                AppVersionComponent()
-            }
+    ScrollComponent(
+        showDivider = false,
+        paddingValues = paddingValues,
+        shadowColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.padding(paddingValues)
+    ) {
+        Column {
+            SettingsSlider(
+                text = R.string.settings_s_pen_sensitivity_slider_label,
+                value = state.sPenSensitivity,
+                prefKey = PrefKeys.SPEN_SENSITIVITY,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished
+            )
+            HorizontalDivider()
+            SettingsSlider(
+                text = R.string.settings_cursor_hide_delay,
+                textOnLastValue = R.string.settings_cursor_hide_delay_indefinite,
+                value = state.cursorHideDelay,
+                prefKey = PrefKeys.CURSOR_HIDE_DELAY,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished
+            )
+            HorizontalDivider()
+            SPenSleepCheckBox(
+                sPenSleepEnabled = state.sPenSleepEnabled,
+                onSPenSleepEnabledChange = onSPenSleepEnabledChange
+            )
+            HorizontalDivider()
+            SettingsSlider(
+                text = R.string.settings_cursor_size_slider_label,
+                value = state.cursorSize,
+                prefKey = PrefKeys.CURSOR_SIZE,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished
+            )
+            HorizontalDivider()
+            CursorIconComponent(
+                cursorType = state.cursorType,
+                onCursorTypeChange = onCursorTypeChange,
+                onCustomCursorFileSelected = onCustomCursorFileSelected
+            )
+            HorizontalDivider()
+            NotificationsComponent()
+            Spacer(
+                modifier = Modifier.weight(1f)
+            )
+            HorizontalDivider()
+            DonateComponent()
+            HorizontalDivider()
+            BirdHuntBanner()
+            HorizontalDivider()
+            AppVersionComponent()
         }
     }
 
@@ -172,6 +166,36 @@ fun SettingsScreenContent(
             resetSettings = resetSettings
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
+@Composable
+private fun SettingsTopBar(
+    hazeState: HazeState,
+    toggleSettingsResetDialog: (Boolean) -> Unit = {}
+) {
+    TopAppBar(
+        title = { Text(text = stringResource(R.string.screen_settings)) },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent
+        ),
+        actions = {
+            IconButton(
+                onClick = {
+                    toggleSettingsResetDialog(true)
+                }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.reset_settings_24px),
+                    contentDescription = stringResource(R.string.settings_reset_to_defaults)
+                )
+            }
+        },
+        modifier = Modifier.hazeEffect(
+            state = hazeState,
+            style = hazeUltraThinSurface()
+        ),
+    )
 }
 
 @SuppressLint("UnrememberedMutableState")

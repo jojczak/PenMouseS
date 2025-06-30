@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">PenMouse S</string>
+    <string name="app_name_debug">[D] PenMouse S</string>"
 
     <string name="screen_home">Home</string>
+    <string name="screen_manual">Manual</string>"
     <string name="screen_settings">Settings</string>
 
     <string name="home_logo_alt">Pen Mouse S Logo</string>
