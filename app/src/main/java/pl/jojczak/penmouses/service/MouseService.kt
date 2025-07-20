@@ -57,8 +57,9 @@ class MouseService : AccessibilityService() {
     private var windowManager: WindowManager? = null
     private var cursorView: ImageView? = null
     private var display: Display? = null
-    private var params: WindowManager.LayoutParams? = null
     private var cursorImageBitmap: Bitmap? = null
+    private var params: WindowManager.LayoutParams? = null
+    // This flag will now accurately reflect the internal running state
     private var isAirMouseRunning = false
 
     private var hideCursorDelay = PrefKeys.CURSOR_HIDE_DELAY.default.toLong()
@@ -77,11 +78,23 @@ class MouseService : AccessibilityService() {
     @ApplicationContext
     lateinit var context: Context
 
+    companion object {
+        private const val TAG = "MouseService"
+
+        private const val S_PEN_GYRO_SLEEP_TIME = 60000L
+        private const val HIDE_DELAY_INDEFINITELY = 300000L
+
+        @Volatile
+        var isServiceInternallyRunning: Boolean = false
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         val userManager = getSystemService(Context.USER_SERVICE) as UserManager
         userManager.isUserAGoat
         registerReceiver()
+        isServiceInternallyRunning = true // Set to true when service is connected by system
+        Log.d(TAG, "onServiceConnected: MouseService is now active.")
     }
 
     private fun registerReceiver() {
@@ -102,16 +115,16 @@ class MouseService : AccessibilityService() {
         }
     }
 
-    // Step 1: Check if AirMouse is already running, if not, start it
     private fun startAirMouse() {
         if (isAirMouseRunning) {
-            Log.w(TAG, "AirMouse is already running")
+            Log.w(TAG, "AirMouse is already running (internally).")
             return
         }
         isAirMouseRunning = true
+        isServiceInternallyRunning = true // Update static flag
         NotificationsManager.showIdleNotification(this)
 
-        Log.d(TAG, "Starting AirMouse")
+        Log.d(TAG, "Starting AirMouse (internally).")
         mainHandler.post {
             updateHideDelay()
             setupWindowManagerAndDisplay()
@@ -119,14 +132,14 @@ class MouseService : AccessibilityService() {
             setupCursorImage()
             setupParams()
             setupCursorView()
-            setupSPen()
+            setupSPen() // This function is defined below
         }
     }
 
-    // Stopping air mouse, clearing all variables
     private fun stopAirMouse(withSPenManager: Boolean) {
-        Log.d(TAG, "Stopping AirMouse")
+        Log.d(TAG, "Stopping AirMouse (internally).")
         isAirMouseRunning = false
+        isServiceInternallyRunning = false // Update static flag
         hideHandler.removeCallbacks(hideCursorRunnable)
         gyroSleepHandler.removeCallbacks(gyroSleepRunnable)
         mainHandler.post {
@@ -142,7 +155,34 @@ class MouseService : AccessibilityService() {
             cursorImageBitmap?.recycle()
             cursorImageBitmap = null
             NotificationsManager.cancelStatusNotifications(this)
+            // No disableSelf() here
         }
+    }
+
+    // THIS IS THE REQUIRED ABSTRACT METHOD
+    override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        // Leave empty if not needed, but must be implemented
+    }
+
+    override fun onInterrupt() {
+        Log.d(TAG, "onInterrupt")
+        NotificationsManager.showErrorNotification(this)
+        stopAirMouse(true) // Still call internal stop
+        // No disableSelf() here
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy")
+        stopAirMouse(true) // Still call internal stop
+        cancelAppToServiceEventObserver()
+        serviceScope.cancel()
+        isServiceInternallyRunning = false // Update static flag
+        super.onDestroy()
+    }
+
+    private fun cancelAppToServiceEventObserver() {
+        appToServiceEventObserver?.cancel()
+        appToServiceEventObserver = null
     }
 
     // Step 2: Set up WindowManager and Display
@@ -262,7 +302,6 @@ class MouseService : AccessibilityService() {
         }
     }
 
-    // Simulate touch event via AccessibilityService when S-Pen button is clicked
     private fun performTouch(sPenPath: Path, pressTime: Long) {
         Log.d(TAG, "performTouch: $pressTime")
 
@@ -353,32 +392,4 @@ class MouseService : AccessibilityService() {
         sPenManager.unregisterAirMotionEventListener()
     }
     //endregion
-
-    private fun cancelAppToServiceEventObserver() {
-        appToServiceEventObserver?.cancel()
-        appToServiceEventObserver = null
-    }
-
-    override fun onDestroy() {
-        Log.d(TAG, "onDestroy")
-        stopAirMouse(true)
-        cancelAppToServiceEventObserver()
-        serviceScope.cancel()
-        super.onDestroy()
-    }
-
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
-
-    override fun onInterrupt() {
-        Log.d(TAG, "onInterrupt")
-        NotificationsManager.showErrorNotification(this)
-        stopAirMouse(true)
-    }
-
-    companion object {
-        private const val TAG = "MouseService"
-
-        private const val S_PEN_GYRO_SLEEP_TIME = 60000L
-        private const val HIDE_DELAY_INDEFINITELY = 300000L
-    }
 }
