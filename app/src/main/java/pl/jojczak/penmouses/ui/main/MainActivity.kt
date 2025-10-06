@@ -10,8 +10,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import pl.jojczak.penmouses.notifications.NotificationsManager
 import pl.jojczak.penmouses.service.AppToServiceEvent
+import pl.jojczak.penmouses.service.SPenManager
 import pl.jojczak.penmouses.ui.theme.PenMouseSTheme
-import pl.jojczak.penmouses.utils.SPenManager
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,8 +32,8 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
         if (!isChangingConfigurations) {
-            sPenManager.disconnectFromSPen()
-            AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.StopOnDestroy)
+            sPenManager.disconnect()
+            AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.Stop)
         }
         super.onDestroy()
     }

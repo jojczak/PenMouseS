@@ -28,12 +28,9 @@ fun getCursorBitmap(context: Context, cursorType: CursorType): Bitmap? {
     }
 }
 
-fun getDisplaySize(
-    display: Display?,
-    callback: (width: Int, height: Int) -> Unit
-) {
-    Log.d(TAG, "Getting display size: ${display?.rotation}")
-    display?.let {
+fun getDisplaySize(display: Display?): Pair<Int, Int> {
+    Log.d(TAG, "Getting display size. Rotation: ${display?.rotation}")
+    return display?.let {
         val screenWidth =
             if (it.rotation == Surface.ROTATION_0 || it.rotation == Surface.ROTATION_180) {
                 it.mode.physicalWidth
@@ -46,6 +43,6 @@ fun getDisplaySize(
             } else {
                 it.mode.physicalWidth
             }
-        callback(screenWidth, screenHeight)
-    }
+        screenWidth to screenHeight
+    } ?: (0 to 0)
 }

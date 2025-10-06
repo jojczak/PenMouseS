@@ -20,10 +20,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +31,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import pl.jojczak.penmouses.R
+import pl.jojczak.penmouses.service.AppToServiceEvent.Event
+import pl.jojczak.penmouses.service.penmodes.PointMode
+import pl.jojczak.penmouses.service.penmodes.ScrollMode
+import pl.jojczak.penmouses.service.penmodes.base.PenMode
+import pl.jojczak.penmouses.service.penmodes.mouse.MouseMode
 import pl.jojczak.penmouses.ui.common.TextButton
 import pl.jojczak.penmouses.ui.home.openAccessibilitySettings
 import pl.jojczak.penmouses.ui.home.openSettings
@@ -47,11 +48,14 @@ import pl.jojczak.penmouses.ui.theme.pad_s
 import pl.jojczak.penmouses.ui.theme.pad_xs
 import pl.jojczak.penmouses.ui.theme.pad_xxs
 import pl.jojczak.penmouses.ui.theme.radius_m
+import kotlin.reflect.KClass
 
 @Composable
 fun StepsContainer(
+    serviceStatus: KClass<out PenMode>?,
+    toggleService: (event: Event) -> Unit,
+    changeDialogState: (step: Int, show: Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    changeDialogState: (step: Int, show: Boolean) -> Unit = { _, _ -> },
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(pad_s),
@@ -60,7 +64,11 @@ fun StepsContainer(
         Step1(changeDialogState = changeDialogState)
         Step2(changeDialogState = changeDialogState)
         Step3(changeDialogState = changeDialogState)
-        Step4(changeDialogState = changeDialogState)
+        Step4(
+            serviceStatus = serviceStatus,
+            toggleService = toggleService,
+            changeDialogState = changeDialogState
+        )
     }
 }
 
@@ -133,7 +141,7 @@ private fun Step3(
                 )
                 StepHeaderLink(
                     linkText = R.string.home_steps_3_settings,
-                    linkCallback = { openSettings(context) }
+                    linkCallback = { openAccessibilitySettings(context) }
                 )
             }
             Row(
@@ -161,10 +169,16 @@ private fun Step3(
 
 @Composable
 private fun Step4(
+    serviceStatus: KClass<out PenMode>?,
+    toggleService: (event: Event) -> Unit,
     changeDialogState: (step: Int, show: Boolean) -> Unit,
 ) {
-    val options = listOf("Off", "Mouse", "Scroll", "Point")
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    val options = listOf(
+        null,
+        MouseMode::class,
+        ScrollMode::class,
+        PointMode::class
+    )
 
     StepSurface(
         shape = RoundedCornerShape(
@@ -197,13 +211,15 @@ private fun Step4(
                 Text("Select mode:")
                 CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                     SingleChoiceSegmentedButtonRow {
-                        options.forEachIndexed { index, label ->
+                        options.forEachIndexed { index, mode ->
                             SegmentedButton(
                                 shape = SegmentedButtonDefaults.itemShape(index, options.size),
-                                onClick = { selectedIndex = index },
-                                selected = index == selectedIndex,
+                                onClick = {
+                                    toggleService(Event.Start(mode))
+                                },
+                                selected = mode == serviceStatus,
                             ) {
-                                Text(label)
+                                Text(mode?.simpleName ?: "Off")
                             }
                         }
                     }
@@ -279,7 +295,11 @@ private fun StepHeaderLink(
 @Preview
 private fun StepsPreview() {
     PenMouseSPreview {
-        StepsContainer()
+        StepsContainer(
+            serviceStatus = null,
+            changeDialogState = { _, _ -> },
+            toggleService = {}
+        )
     }
 }
 
@@ -287,6 +307,10 @@ private fun StepsPreview() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL)
 private fun StepsPreviewDark() {
     PenMouseSPreview {
-        StepsContainer()
+        StepsContainer(
+            serviceStatus = MouseMode::class,
+            changeDialogState = { _, _ -> },
+            toggleService = {}
+        )
     }
 }

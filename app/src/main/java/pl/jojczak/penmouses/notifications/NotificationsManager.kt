@@ -162,7 +162,7 @@ object NotificationsManager {
     private enum class NotificationChannels(
         val notificationId: Int,
         val channelId: String,
-        @StringRes val channelName: Int
+        @param:StringRes val channelName: Int
     ) {
         STATUS(
             notificationId = 1001,
@@ -172,26 +172,26 @@ object NotificationsManager {
     }
 
     private enum class Notifications(
-        @DrawableRes val smallIcon: Int,
-        @StringRes val title: Int,
-        @StringRes val content: Int
+        @param:DrawableRes val smallIcon: Int,
+        @param:StringRes val title: Int,
+        @param:StringRes val content: Int
     ) {
         IDLE(
             smallIcon = R.drawable.ic_notification_stylus_default,
             title = R.string.notification_idle_title,
             content = R.string.notification_idle_content
         ),
-        HIDDEN (
+        HIDDEN(
             smallIcon = R.drawable.ic_notification_stylus_hide,
             title = R.string.notification_hidden_title,
             content = R.string.notification_hidden_content
         ),
-        SLEEP (
+        SLEEP(
             smallIcon = R.drawable.ic_notification_stylus_sleep,
             title = R.string.notification_sleep_title,
             content = R.string.notification_sleep_content
         ),
-        ERROR (
+        ERROR(
             smallIcon = R.drawable.ic_notification_stop,
             title = R.string.notification_interrupted_title,
             content = R.string.notification_interrupted_content

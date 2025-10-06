@@ -1,6 +1,7 @@
 package pl.jojczak.penmouses.ui.home
 
-import pl.jojczak.penmouses.service.AppToServiceEvent
+import pl.jojczak.penmouses.service.penmodes.base.PenMode
+import kotlin.reflect.KClass
 
 data class HomeScreenState(
     val isAccessibilityEnabled: Boolean = false,
@@ -15,5 +16,5 @@ data class HomeScreenState(
     val showNotificationPermission: Boolean = false,
     val isFirstMouseLaunch: Boolean = true,
 
-    val serviceStatus: AppToServiceEvent.ServiceStatus = AppToServiceEvent.ServiceStatus.OFF
+    val serviceStatus: KClass<out PenMode>? = null
 )

@@ -101,7 +101,7 @@ data class PrefKey<T>(
 
 enum class CursorType(
     val fileName: String,
-    @StringRes val label: Int
+    @param:StringRes val label: Int
 ) {
     LIGHT("light.png", R.string.settings_cursor_type_light),
     DARK("dark.png", R.string.settings_cursor_type_dark),

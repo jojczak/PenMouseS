@@ -4,8 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import pl.jojczak.penmouses.utils.PreferencesManager
-import pl.jojczak.penmouses.utils.SPenManager
+import pl.jojczak.penmouses.service.SPenManager
 import javax.inject.Singleton
 
 @Module
@@ -19,10 +18,7 @@ object SPenModule {
 
     @Provides
     @Singleton
-    fun provideSPenManager(
-        activityProvider: ActivityProvider,
-        preferencesManager: PreferencesManager
-    ): SPenManager {
-        return SPenManager(activityProvider, preferencesManager)
+    fun provideSPenManager2(activityProvider: ActivityProvider): SPenManager {
+        return SPenManager(activityProvider)
     }
 }

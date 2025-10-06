@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val preferencesManager: PreferencesManager,
 ) : ViewModel() {
 
@@ -71,7 +71,7 @@ class SettingsViewModel @Inject constructor(
     fun <T> savePreference(key: PrefKey<T>, value: T) {
         preferencesManager.put(key, value)
 
-        if (AppToServiceEvent.serviceStatus.value != AppToServiceEvent.ServiceStatus.ON) return
+        if (AppToServiceEvent.serviceStatus.value == null) return
         when (key) {
             PrefKeys.SPEN_SENSITIVITY -> {
                 AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateSensitivity)
@@ -91,7 +91,7 @@ class SettingsViewModel @Inject constructor(
         _state.update { it.copy(sPenSleepEnabled = sPenSleepEnabled) }
         preferencesManager.put(PrefKeys.SPEN_SLEEP_ENABLED, sPenSleepEnabled)
 
-        if (AppToServiceEvent.serviceStatus.value != AppToServiceEvent.ServiceStatus.ON) return
+        if (AppToServiceEvent.serviceStatus.value == null) return
         AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateSPenSleepEnabled)
     }
 
@@ -99,8 +99,8 @@ class SettingsViewModel @Inject constructor(
         _state.update { it.copy(cursorType = cursorType) }
         preferencesManager.put(PrefKeys.CURSOR_TYPE, cursorType)
 
-        if (AppToServiceEvent.serviceStatus.value != AppToServiceEvent.ServiceStatus.ON) return
-        AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateCursorType)
+        if (AppToServiceEvent.serviceStatus.value == null) return
+        AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateCursorBitmap)
     }
 
     fun loadCustomCursorImage(uri: Uri) {
@@ -151,8 +151,8 @@ class SettingsViewModel @Inject constructor(
 
             Log.d(TAG, "Custom cursor image loaded successfully")
 
-            if (AppToServiceEvent.serviceStatus.value != AppToServiceEvent.ServiceStatus.ON) return
-            AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateCursorType)
+            if (AppToServiceEvent.serviceStatus.value == null) return
+            AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.UpdateCursorBitmap)
         } catch (e: IOException) {
             Log.e(TAG, "Error loading custom cursor image", e)
             Toast.makeText(

@@ -14,14 +14,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.service.AppToServiceEvent
 import pl.jojczak.penmouses.service.MouseService
+import pl.jojczak.penmouses.service.SPenManager
 import pl.jojczak.penmouses.utils.PrefKeys
 import pl.jojczak.penmouses.utils.PreferencesManager
-import pl.jojczak.penmouses.utils.SPenManager
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val preferencesManager: PreferencesManager,
 ) : ViewModel() {
 

@@ -26,10 +26,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import dev.chrisbanes.haze.HazeState
 import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.service.AppToServiceEvent
+import pl.jojczak.penmouses.service.penmodes.base.PenMode
 import pl.jojczak.penmouses.ui.home.components.StepsContainer
 import pl.jojczak.penmouses.ui.theme.PenMouseSDevicePreview
 import pl.jojczak.penmouses.ui.theme.pad_l
 import pl.jojczak.penmouses.ui.theme.radius_l
+import kotlin.reflect.KClass
 
 @Composable
 fun HomeScreen(
@@ -73,10 +75,14 @@ private fun HomeScreenContent(
     ) {
         if (maxHeight > maxWidth) {
             PortraitLayout(
+                serviceStatus = state.serviceStatus,
+                toggleService = toggleService,
                 changeDialogState = changeDialogState
             )
         } else {
             LandscapeLayout(
+                serviceStatus = state.serviceStatus,
+                toggleService = toggleService,
                 changeDialogState = changeDialogState
             )
         }
@@ -85,11 +91,15 @@ private fun HomeScreenContent(
 
 @Composable
 private fun PortraitLayout(
+    serviceStatus: KClass<out PenMode>?,
     changeDialogState: (step: Int, show: Boolean) -> Unit,
+    toggleService: (event: AppToServiceEvent.Event) -> Unit,
 ) {
     Column {
         AppLogo(changeDialogState = changeDialogState)
         StepsContainer(
+            serviceStatus = serviceStatus,
+            toggleService = toggleService,
             changeDialogState = changeDialogState,
             modifier = Modifier.padding(horizontal = pad_l)
         )
@@ -98,11 +108,17 @@ private fun PortraitLayout(
 
 @Composable
 private fun LandscapeLayout(
+    serviceStatus: KClass<out PenMode>?,
     changeDialogState: (step: Int, show: Boolean) -> Unit,
+    toggleService: (event: AppToServiceEvent.Event) -> Unit,
 ) {
     Row {
         AppLogo(changeDialogState = changeDialogState)
-        StepsContainer(changeDialogState = changeDialogState)
+        StepsContainer(
+            serviceStatus = serviceStatus,
+            toggleService = toggleService,
+            changeDialogState = changeDialogState,
+        )
     }
 }
 
