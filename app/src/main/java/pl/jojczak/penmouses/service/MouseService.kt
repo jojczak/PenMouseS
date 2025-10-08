@@ -11,6 +11,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.service.AppToServiceEvent.Event
+import pl.jojczak.penmouses.service.penmodes.PointMode
 import pl.jojczak.penmouses.service.penmodes.base.PenMode
 import pl.jojczak.penmouses.service.penmodes.mouse.MouseMode
 import pl.jojczak.penmouses.utils.PreferencesManager
@@ -57,14 +58,23 @@ class MouseService : AccessibilityService() {
 
     private fun stopCurrentStartNew(newMode: KClass<out PenMode>?) = serviceScope.launch {
         stopMode()
+        if (newMode == null) return@launch
+
         delay(DELAY_BETWEEN_MODES)
         penMode = getNewMode(newMode)
         penMode?.start()
         AppToServiceEvent.serviceStatus.tryEmit(newMode)
     }
 
-    private fun getNewMode(newMode: KClass<out PenMode>?) = when (newMode) {
+    private fun getNewMode(newMode: KClass<out PenMode>) = when (newMode) {
         MouseMode::class -> MouseMode(
+            dispatchGesture = ::dispatchGesture,
+            sPenManager = sPenManager,
+            context = this,
+            preferences = preferences
+        )
+
+        PointMode::class -> PointMode(
             dispatchGesture = ::dispatchGesture,
             sPenManager = sPenManager,
             context = this,

@@ -13,6 +13,7 @@ import pl.jojczak.penmouses.notifications.NotificationsManager
 import pl.jojczak.penmouses.service.SPenManager
 import pl.jojczak.penmouses.service.listeners.ButtonAction
 import pl.jojczak.penmouses.service.listeners.ConnectionResultCallback
+import pl.jojczak.penmouses.service.penmodes.base.PenConst
 import pl.jojczak.penmouses.service.penmodes.base.PenRunnable
 import pl.jojczak.penmouses.service.penmodes.base.cursor.CursorMode
 import pl.jojczak.penmouses.utils.PreferencesManager
@@ -38,7 +39,7 @@ class MouseMode(
     private var pathStartTime: Long = 0
     private var cursorStartPos = Point()
 
-    private val mouseAnimator = MouseAnimator(
+    override val cursorAnimator = MouseAnimator(
         cursorState = cursorState,
         mainHandler = mainHandler,
         windowManager = windowManager,
@@ -57,9 +58,7 @@ class MouseMode(
                 mainHandler.postDelayed({
                     sPenManager.registerButtonEventListener(::onButtonEvent)
                     sPenManager.registerAirMotionEventListener(::onAirMotionEvent)
-                }, DELAY_TO_EVENT_REGISTER_MS)
-
-                mainHandler.post(mouseAnimator.updateCursorViewPosition)
+                }, PenConst.DELAY_TO_EVENT_REGISTER_MS)
             }
         })
     }
@@ -70,40 +69,38 @@ class MouseMode(
     }
 
     private fun onButtonEvent(@ButtonAction type: Int, timeStamp: Long) {
-        mouseAnimator.showCursor(hideDelay)
+        cursorAnimator.showCursor(hideDelay)
 
         if (type == ButtonEvent.ACTION_DOWN) {
+            val cursorPosition = getCursorPos()
             pathStartTime = timeStamp
-            cursorStartPos = Point(cursorState.position)
-            mouseAnimator.clickCursor()
+            cursorStartPos = Point(cursorPosition)
+            cursorAnimator.clickCursor()
 
             path = Path()
-            path.moveTo(cursorState.position.x.toFloat(), cursorState.position.y.toFloat())
+            path.moveTo(cursorPosition.x.toFloat(), cursorPosition.y.toFloat())
 
             mainHandler.post(updateStrokePathJob)
         } else if (type == ButtonEvent.ACTION_UP) {
-            mouseAnimator.releaseCursor()
+            cursorAnimator.releaseCursor()
 
             mainHandler.removeCallbacks(updateStrokePathJob)
 
-            val duration = timeStamp - pathStartTime
-            performGesture(duration)
+            performGesture(duration = timeStamp - pathStartTime)
         }
     }
 
     private fun onAirMotionEvent(deltaX: Float, deltaY: Float, timeStamp: Long) {
         Log.d(tagName, "Motion event: X: $deltaX, Y: $deltaY")
 
-        mouseAnimator.showCursor(hideDelay)
+        cursorAnimator.showCursor(hideDelay)
 
         val (screenWidth, screenHeight) = getDisplaySize(getDisplay())
 
-        cursorState.position.x =
-            (cursorState.position.x + (deltaX * sensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt())
-                .coerceIn(0, screenWidth)
-        cursorState.position.y =
-            (cursorState.position.y + (-deltaY * sensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt())
-                .coerceIn(0, screenHeight)
+        updateCursorLayoutParams {
+            x = (x + (deltaX * sensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt()).coerceIn(0, screenWidth)
+            y = (y + (-deltaY * sensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt()).coerceIn(0, screenHeight)
+        }
     }
 
     private val updateStrokePathJob = object : PenRunnable(canStartJobs) {
@@ -111,26 +108,28 @@ class MouseMode(
             if (!sPenManager.isSPenButtonDown) return
 
             val duration = SystemClock.elapsedRealtime() - pathStartTime
-            if (duration > MAX_DOWN_TIME_MS) {
+            if (duration >= PenConst.MAX_CLICK_TIME_MS) {
                 sPenManager.isSPenButtonDown = false
-                mouseAnimator.releaseCursor()
-                performGesture(MAX_DOWN_TIME_MS)
+                cursorAnimator.releaseCursor()
+                performGesture( PenConst.MAX_CLICK_TIME_MS)
                 return
             }
 
-            path.lineTo(cursorState.position.x.toFloat(), cursorState.position.y.toFloat())
-            mainHandler.postDelayed(this, PATH_UPDATE_INTERVAL_MS)
+            val cursorPosition = getCursorPos()
+            path.lineTo(cursorPosition.x.toFloat(), cursorPosition.y.toFloat())
+            mainHandler.postDelayed(this,  PenConst.CLICK_PEN_UPDATE_INTERVAL_MS)
         }
     }
 
     private fun performGesture(duration: Long) {
-        val dx = (cursorState.position.x - cursorStartPos.x).toFloat()
-        val dy = (cursorState.position.y - cursorStartPos.y).toFloat()
+        val cursorPosition = getCursorPos()
+        val dx = (cursorPosition.x - cursorStartPos.x).toFloat()
+        val dy = (cursorPosition.y - cursorStartPos.y).toFloat()
         val distance = sqrt(dx.pow(2) + dy.pow(2))
 
         val (mDuration, mPath) = if (distance < CURSOR_MOVE_THRESHOLD_PX) {
             val staticPath = Path()
-            staticPath.moveTo(cursorState.position.x.toFloat(), cursorState.position.y.toFloat())
+            staticPath.moveTo(cursorPosition.x.toFloat(), cursorPosition.y.toFloat())
 
             duration to staticPath
         } else {
@@ -174,9 +173,6 @@ class MouseMode(
 
     companion object {
         private const val S_PEN_SENSITIVITY_MULTIPLIER = 20
-        private const val DELAY_TO_EVENT_REGISTER_MS = 1000L
-        private const val PATH_UPDATE_INTERVAL_MS = 35L
-        private const val MAX_DOWN_TIME_MS = 1000L
         private const val CURSOR_MOVE_THRESHOLD_PX = 50
     }
 }

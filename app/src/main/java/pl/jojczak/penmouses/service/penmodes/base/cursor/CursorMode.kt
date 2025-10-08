@@ -14,16 +14,12 @@ import android.view.Display
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
-import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-import android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-import android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
 import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
 import android.view.WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
 import android.widget.ImageView
-import androidx.core.view.updateLayoutParams
 import pl.jojczak.penmouses.notifications.NotificationsManager
 import pl.jojczak.penmouses.service.SPenManager
+import pl.jojczak.penmouses.service.penmodes.base.PenConst
 import pl.jojczak.penmouses.service.penmodes.base.PenMode
 import pl.jojczak.penmouses.utils.PreferencesManager
 import pl.jojczak.penmouses.utils.getDisplaySize
@@ -40,7 +36,6 @@ abstract class CursorMode(
 ) {
     protected val cursorState = CursorState(
         view = null,
-        position = Point(),
         isSleeping = false
     )
 
@@ -54,6 +49,10 @@ abstract class CursorMode(
         preferences = preferences,
     )
 
+    protected open val cursorAnimator = CursorAnimator(
+        cursorState = cursorState,
+    )
+
     override fun start() {
         super.start()
         cursorPreferences.getBitmap()?.let { bitmap ->
@@ -65,11 +64,9 @@ abstract class CursorMode(
             cursorState.view = createCursorView(context, bitmap)
 
             val (screenWidth, screenHeight) = getDisplaySize(getDisplay())
-            cursorState.position.x = (screenWidth - width) / 2
-            cursorState.position.y = (screenHeight - height) / 2
 
-            layoutParams.x = cursorState.position.x
-            layoutParams.y = cursorState.position.y
+            layoutParams.x = (screenWidth - width) / 2
+            layoutParams.y = (screenHeight - height) / 2
             layoutParams.width = width
             layoutParams.height = height
 
@@ -110,12 +107,9 @@ abstract class CursorMode(
             (cursor.drawable as? BitmapDrawable)?.bitmap?.let { bitmap ->
                 val (newWidth, newHeight) = cursorPreferences.getSize(bitmap)
 
-                cursor.post {
-                    cursor.updateLayoutParams {
-                        width = newWidth
-                        height = newHeight
-                    }
-                    windowManager.updateViewLayout(cursor, cursor.layoutParams)
+                updateCursorLayoutParams {
+                    width = newWidth
+                    height = newHeight
                 }
             }
         }
@@ -146,11 +140,21 @@ abstract class CursorMode(
         WRAP_CONTENT,
         WRAP_CONTENT,
         TYPE_ACCESSIBILITY_OVERLAY,
-        OVERLAY_FLAGS,
+        PenConst.OVERLAY_FLAGS,
         PixelFormat.TRANSLUCENT
     ).apply {
         layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
         gravity = Gravity.TOP or Gravity.START
+    }
+
+    protected fun updateCursorLayoutParams(block: WindowManager.LayoutParams.() -> Unit) {
+        cursorState.view?.let {
+            val lp = it.layoutParams as WindowManager.LayoutParams
+            lp.block()
+            it.post {
+                windowManager.updateViewLayout(it, lp)
+            }
+        }
     }
 
     private fun ImageView.setPreDrawObserver() {
@@ -162,12 +166,10 @@ abstract class CursorMode(
         }
     }
 
-    protected fun getDisplay(): Display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)
-
-    companion object {
-        private const val OVERLAY_FLAGS = FLAG_NOT_FOCUSABLE or
-                FLAG_LAYOUT_IN_SCREEN or
-                FLAG_NOT_TOUCHABLE or
-                FLAG_LAYOUT_NO_LIMITS
+    protected fun getCursorPos(): Point {
+        val lp = cursorState.view?.layoutParams as WindowManager.LayoutParams
+        return Point(lp.x, lp.y)
     }
+
+    protected fun getDisplay(): Display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)
 }
