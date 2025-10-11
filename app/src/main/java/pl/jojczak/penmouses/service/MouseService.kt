@@ -10,26 +10,31 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import pl.jojczak.penmouses.service.AppToServiceEvent.Event
-import pl.jojczak.penmouses.service.penmodes.PointMode
-import pl.jojczak.penmouses.service.penmodes.base.PenMode
-import pl.jojczak.penmouses.service.penmodes.mouse.MouseMode
-import pl.jojczak.penmouses.utils.PreferencesManager
+import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.Event
+import pl.jojczak.penmouses.core.common.utils.PreferencesManager
+import pl.jojczak.penmouses.core.common.spen.SPenManager
+import pl.jojczak.penmouses.mousemode.base.BaseMode
+import pl.jojczak.penmouses.mousemode.mouse.MouseMode
+import pl.jojczak.penmouses.mousemode.point.PointMode
 import javax.inject.Inject
-import kotlin.reflect.KClass
 
 @AndroidEntryPoint
 class MouseService : AccessibilityService() {
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var eventCollectorJob: Job? = null
-    private var penMode: PenMode? = null
+    private var baseMode: BaseMode? = null
 
     @Inject
     lateinit var preferences: PreferencesManager
 
     @Inject
     lateinit var sPenManager: SPenManager
+
+    @Inject
+    lateinit var notificationsManager: NotificationsManager
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -47,35 +52,35 @@ class MouseService : AccessibilityService() {
         Log.d(TAG, "Received event: $event")
         when (event) {
             is Event.Start -> stopCurrentStartNew(newMode = event.mode)
-            is Event.UpdateCursorSize -> penMode?.updateSize()
-            is Event.UpdateCursorBitmap -> penMode?.updateBitmap()
-            is Event.UpdateSensitivity -> penMode?.updateSensitivity()
-            is Event.UpdateHideDelay -> penMode?.updateHideDelay()
-            is Event.UpdateSPenSleepEnabled -> penMode?.updateSleepEnabled()
+            is Event.UpdateCursorSize -> baseMode?.updateSize()
+            is Event.UpdateCursorBitmap -> baseMode?.updateBitmap()
+            is Event.UpdateSensitivity -> baseMode?.updateSensitivity()
+            is Event.UpdateHideDelay -> baseMode?.updateHideDelay()
+            is Event.UpdateSPenSleepEnabled -> baseMode?.updateSleepEnabled()
             is Event.Stop -> stopMode()
         }
     }
 
-    private fun stopCurrentStartNew(newMode: KClass<out PenMode>?) = serviceScope.launch {
+    private fun stopCurrentStartNew(newMode: AppToServiceEvent.PenMode) = serviceScope.launch {
         stopMode()
-        if (newMode == null) return@launch
-
         delay(DELAY_BETWEEN_MODES)
-        penMode = getNewMode(newMode)
-        penMode?.start()
+        baseMode = getNewMode(newMode)
+        baseMode?.start()
         AppToServiceEvent.serviceStatus.tryEmit(newMode)
     }
 
-    private fun getNewMode(newMode: KClass<out PenMode>) = when (newMode) {
-        MouseMode::class -> MouseMode(
+    private fun getNewMode(newMode: AppToServiceEvent.PenMode) = when (newMode) {
+        AppToServiceEvent.PenMode.Mouse -> MouseMode(
             dispatchGesture = ::dispatchGesture,
+            notificationsManager = notificationsManager,
             sPenManager = sPenManager,
             context = this,
             preferences = preferences
         )
 
-        PointMode::class -> PointMode(
+        AppToServiceEvent.PenMode.Point -> PointMode(
             dispatchGesture = ::dispatchGesture,
+            notificationsManager = notificationsManager,
             sPenManager = sPenManager,
             context = this,
             preferences = preferences
@@ -85,11 +90,11 @@ class MouseService : AccessibilityService() {
     }
 
     private fun stopMode() {
-        val currentModeName = penMode?.let { it::class.simpleName } ?: "null"
+        val currentModeName = baseMode?.let { it::class.simpleName } ?: "null"
         Log.d(TAG, "Stopping current mode ($currentModeName)")
-        penMode?.stop()
-        penMode = null
-        AppToServiceEvent.serviceStatus.tryEmit(null)
+        baseMode?.stop()
+        baseMode = null
+        AppToServiceEvent.serviceStatus.tryEmit(AppToServiceEvent.PenMode.Off)
     }
 
     private fun cancelAppToServiceEventObserver() {

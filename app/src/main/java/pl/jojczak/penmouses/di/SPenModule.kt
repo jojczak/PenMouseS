@@ -4,7 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import pl.jojczak.penmouses.service.SPenManager
+import pl.jojczak.penmouses.core.common.di.ActivityProvider
+import pl.jojczak.penmouses.core.common.spen.SPenManager
 import javax.inject.Singleton
 
 @Module

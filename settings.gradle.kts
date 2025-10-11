@@ -23,5 +23,18 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "PenMouse S"
+
 include(":app")
- 
+
+include(":core:ui")
+include(":core:common")
+
+include(":screen:home")
+include(":screen:manual")
+include(":screen:settings")
+
+include(":mousemode:base")
+include(":mousemode:basecursor")
+include(":mousemode:mouse")
+include(":mousemode:point")
+include(":mousemode:scroll")

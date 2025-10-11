@@ -1,0 +1,115 @@
+package pl.jojczak.penmouses.screen.home
+
+import android.content.Context
+import android.provider.Settings
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.SPenManager
+import pl.jojczak.penmouses.core.common.utils.PrefKeys
+import pl.jojczak.penmouses.core.common.utils.PreferencesManager
+import javax.inject.Inject
+
+@HiltViewModel
+class HomeScreenViewModel @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val preferencesManager: PreferencesManager,
+) : ViewModel() {
+
+    private val _state: MutableStateFlow<HomeScreenState> = MutableStateFlow(HomeScreenState())
+    val state: StateFlow<HomeScreenState> = _state.asStateFlow()
+
+    init {
+        checkAccessibilityPermission()
+        checkIfSPenFeaturesSupported()
+
+        preferencesManager.get(PrefKeys.FIRST_RUN).takeIf { it }?.let {
+            _state.update { it.copy(showFirstRunDialog = true) }
+            preferencesManager.put(PrefKeys.FIRST_RUN, false)
+        }
+
+        _state.update {
+            it.copy(isFirstMouseLaunch = preferencesManager.get(PrefKeys.FIRST_MOUSE_LAUNCH))
+        }
+
+        viewModelScope.launch {
+            AppToServiceEvent.serviceStatus.collect {
+                _state.update { state ->
+                    state.copy(serviceStatus = it)
+                }
+            }
+        }
+    }
+
+    fun onLifecycleEvent(lifecycleState: Lifecycle.State) {
+        when (lifecycleState) {
+            Lifecycle.State.RESUMED -> {
+                checkAccessibilityPermission()
+            }
+
+            else -> {}
+        }
+    }
+
+    fun sendSignalToService(event: AppToServiceEvent.Event) {
+        if (SPenManager.isSPenSupported()) {
+            if (event == AppToServiceEvent.Event.Stop) {
+                preferencesManager.put(PrefKeys.FIRST_MOUSE_LAUNCH, false)
+                _state.update { it.copy(isFirstMouseLaunch = false) }
+            }
+            AppToServiceEvent.event.tryEmit(event)
+        } else {
+            changeDialogState(4, true)
+        }
+    }
+
+    fun changeDialogState(step: Int, state: Boolean) {
+        _state.update {
+            when (step) {
+                1 -> it.copy(showStep1Dialog = state)
+                2 -> it.copy(showStep2Dialog = state)
+                3 -> it.copy(showStep3Dialog = state)
+                4 -> it.copy(showUnsupportedSPenDialog = state)
+                5 -> it.copy(showTroubleshootingDialog = state)
+                6 -> it.copy(showFirstRunDialog = state)
+                else -> it
+            }
+        }
+    }
+
+    fun togglePermissionNotification(state: Boolean) {
+        _state.update {
+            it.copy(showNotificationPermission = state)
+        }
+    }
+
+    private fun checkAccessibilityPermission() {
+        val enabledServices = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        val isAccessibilityEnabled = enabledServices?.contains(MOUSE_SERVICE_NAME) == true
+
+        _state.update {
+            it.copy(
+                isAccessibilityEnabled = isAccessibilityEnabled
+            )
+        }
+    }
+
+    private fun checkIfSPenFeaturesSupported() {
+        changeDialogState(4, !SPenManager.isSPenSupported())
+    }
+
+    companion object {
+        private const val MOUSE_SERVICE_NAME = "pl.jojczak.penmouses.service.MouseService"
+    }
+}

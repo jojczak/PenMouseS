@@ -13,6 +13,8 @@
 /.idea/deviceManager.xml
 .DS_Store
 /build
+/*/build
+/*/*/build
 /captures
 .externalNativeBuild
 .cxx

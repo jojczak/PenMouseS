@@ -63,6 +63,19 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:ui"))
+    implementation(project(":core:common"))
+
+    implementation(project(":screen:home"))
+    implementation(project(":screen:manual"))
+    implementation(project(":screen:settings"))
+
+    implementation(project(":mousemode:base"))
+    implementation(project(":mousemode:basecursor"))
+    implementation(project(":mousemode:point"))
+    implementation(project(":mousemode:scroll"))
+    implementation(project(":mousemode:mouse"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -72,17 +85,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.splashscreen)
+
     implementation(libs.haze)
     implementation(libs.haze.materials)
-
-    implementation(files("libs/sdk-v1.0.0.jar"))
-    implementation(files("libs/spenremote-v1.0.1.jar"))
-
-    implementation(libs.exoplayer)
-    implementation(libs.exoplayer.ui)
-
-    implementation(libs.review)
-    implementation(libs.review.ktx)
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)

@@ -6,7 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import pl.jojczak.penmouses.utils.PreferencesManager
+import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 
 @Module
 @InstallIn(SingletonComponent::class)
