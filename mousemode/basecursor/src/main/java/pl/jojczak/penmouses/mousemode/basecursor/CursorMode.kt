@@ -3,7 +3,6 @@ package pl.jojczak.penmouses.mousemode.basecursor
 import android.accessibilityservice.AccessibilityService.GestureResultCallback
 import android.accessibilityservice.GestureDescription
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.drawable.BitmapDrawable
@@ -21,25 +20,23 @@ import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 import pl.jojczak.penmouses.core.common.utils.getDisplaySize
-import pl.jojczak.penmouses.mousemode.base.PenConst
 import pl.jojczak.penmouses.mousemode.base.BaseMode
+import pl.jojczak.penmouses.mousemode.base.PenConst
 
-abstract class CursorMode(
+abstract class CursorMode<T : CursorAnimator>(
     dispatchGesture: (GestureDescription, GestureResultCallback?, Handler?) -> Unit,
     notificationsManager: NotificationsManager,
+    preferences: PreferencesManager,
     sPenManager: SPenManager,
     context: Context,
-    protected val preferences: PreferencesManager,
+    val animatorFactory: (ImageView) -> T
 ) : BaseMode(
-    dispatchGesture = dispatchGesture,
     notificationsManager = notificationsManager,
+    dispatchGesture = dispatchGesture,
     sPenManager = sPenManager,
+    preferences = preferences,
     context = context,
 ) {
-    protected val cursorState = CursorState(
-        view = null,
-        isSleeping = false
-    )
 
     protected var windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -51,9 +48,9 @@ abstract class CursorMode(
         preferences = preferences,
     )
 
-    protected open val cursorAnimator = CursorAnimator(
-        cursorState = cursorState,
-    )
+    protected val view = ImageView(context)
+
+    protected val cursorAnimator: T by lazy { animatorFactory(view) }
 
     override fun start() {
         super.start()
@@ -63,7 +60,8 @@ abstract class CursorMode(
             val layoutParams = getDefaultLayoutParams()
             val (width, height) = cursorPreferences.getSize(bitmap)
 
-            cursorState.view = createCursorView(context, bitmap)
+            view.setImageBitmap(bitmap)
+            view.setPreDrawObserver()
 
             val (screenWidth, screenHeight) = getDisplaySize(getDisplay())
 
@@ -80,7 +78,7 @@ abstract class CursorMode(
             )
 
             mainHandler.post {
-                windowManager.addView(cursorState.view, layoutParams)
+                windowManager.addView(view, layoutParams)
                 Log.d(tagName, "Cursor view added to window manager")
             }
 
@@ -93,11 +91,11 @@ abstract class CursorMode(
     override fun stop() {
         super.stop()
         mainHandler.post {
-            cursorState.view?.animate()?.setListener(null)
-            cursorState.view?.animate()?.cancel()
-            cursorState.view?.setImageDrawable(null)
-            if (cursorState.view?.isAttachedToWindow == true) {
-                windowManager.removeView(cursorState.view)
+            view.animate().setListener(null)
+            view.animate().cancel()
+            view.setImageDrawable(null)
+            if (view.isAttachedToWindow) {
+                windowManager.removeView(view)
             }
         }
     }
@@ -105,14 +103,12 @@ abstract class CursorMode(
     override fun updateSize() {
         Log.d(tagName, "Updating cursor size")
 
-        cursorState.view?.let { cursor ->
-            (cursor.drawable as? BitmapDrawable)?.bitmap?.let { bitmap ->
-                val (newWidth, newHeight) = cursorPreferences.getSize(bitmap)
+        (view.drawable as? BitmapDrawable)?.bitmap?.let { bitmap ->
+            val (newWidth, newHeight) = cursorPreferences.getSize(bitmap)
 
-                updateCursorLayoutParams {
-                    width = newWidth
-                    height = newHeight
-                }
+            updateCursorLayoutParams {
+                width = newWidth
+                height = newHeight
             }
         }
     }
@@ -120,22 +116,12 @@ abstract class CursorMode(
     override fun updateBitmap() {
         Log.d(tagName, "Updating cursor image")
 
-        cursorState.view?.apply {
-            cursorPreferences.getBitmap()?.let { bitmap ->
-                post {
-                    setImageBitmap(bitmap)
-                    updateSize()
-                }
+        cursorPreferences.getBitmap()?.let { bitmap ->
+            view.post {
+                view.setImageBitmap(bitmap)
+                updateSize()
             }
         }
-    }
-
-    private fun createCursorView(
-        context: Context,
-        bitmap: Bitmap
-    ) = ImageView(context).apply {
-        setImageBitmap(bitmap)
-        setPreDrawObserver()
     }
 
     private fun getDefaultLayoutParams() = WindowManager.LayoutParams(
@@ -150,12 +136,10 @@ abstract class CursorMode(
     }
 
     protected fun updateCursorLayoutParams(block: WindowManager.LayoutParams.() -> Unit) {
-        cursorState.view?.let {
-            val lp = it.layoutParams as WindowManager.LayoutParams
-            lp.block()
-            it.post {
-                windowManager.updateViewLayout(it, lp)
-            }
+        val lp = view.layoutParams as WindowManager.LayoutParams
+        lp.block()
+        view.post {
+            windowManager.updateViewLayout(view, lp)
         }
     }
 
@@ -169,7 +153,7 @@ abstract class CursorMode(
     }
 
     protected fun getCursorPos(): Point {
-        val lp = cursorState.view?.layoutParams as WindowManager.LayoutParams
+        val lp = view.layoutParams as WindowManager.LayoutParams
         return Point(lp.x, lp.y)
     }
 

@@ -8,14 +8,17 @@ import android.os.Looper
 import android.util.Log
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.SPenManager
+import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 
 abstract class BaseMode(
-    protected val dispatchGesture: (GestureDescription, GestureResultCallback?, Handler?) -> Unit,
     protected val notificationsManager: NotificationsManager,
+    protected val dispatchGesture: (GestureDescription, GestureResultCallback?, Handler?) -> Unit,
+    protected val preferences: PreferencesManager,
     protected val sPenManager: SPenManager,
-    protected val context: Context
+    protected val context: Context,
 ) {
     protected val mainHandler = Handler(Looper.getMainLooper())
+
     protected var canStartJobs = true
 
     open fun start() = Unit

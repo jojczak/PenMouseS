@@ -11,7 +11,6 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
@@ -44,7 +43,6 @@ fun hazeUltraThinSurface(): HazeStyle {
     )
 }
 
-@Preview
 @Composable
 fun PenMouseSPreview(
     content: @Composable () -> Unit
@@ -56,7 +54,6 @@ fun PenMouseSPreview(
     }
 }
 
-@Preview
 @Composable
 fun PenMouseSDevicePreview(
     content: @Composable () -> Unit

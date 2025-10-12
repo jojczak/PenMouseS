@@ -13,11 +13,12 @@ import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.Event
-import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 import pl.jojczak.penmouses.core.common.spen.SPenManager
+import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 import pl.jojczak.penmouses.mousemode.base.BaseMode
 import pl.jojczak.penmouses.mousemode.mouse.MouseMode
 import pl.jojczak.penmouses.mousemode.point.PointMode
+import pl.jojczak.penmouses.mousemode.scroll.ScrollMode
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -25,7 +26,7 @@ class MouseService : AccessibilityService() {
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var eventCollectorJob: Job? = null
-    private var baseMode: BaseMode? = null
+    private var currentMode: BaseMode? = null
 
     @Inject
     lateinit var preferences: PreferencesManager
@@ -52,11 +53,11 @@ class MouseService : AccessibilityService() {
         Log.d(TAG, "Received event: $event")
         when (event) {
             is Event.Start -> stopCurrentStartNew(newMode = event.mode)
-            is Event.UpdateCursorSize -> baseMode?.updateSize()
-            is Event.UpdateCursorBitmap -> baseMode?.updateBitmap()
-            is Event.UpdateSensitivity -> baseMode?.updateSensitivity()
-            is Event.UpdateHideDelay -> baseMode?.updateHideDelay()
-            is Event.UpdateSPenSleepEnabled -> baseMode?.updateSleepEnabled()
+            is Event.UpdateCursorSize -> currentMode?.updateSize()
+            is Event.UpdateCursorBitmap -> currentMode?.updateBitmap()
+            is Event.UpdateSensitivity -> currentMode?.updateSensitivity()
+            is Event.UpdateHideDelay -> currentMode?.updateHideDelay()
+            is Event.UpdateSPenSleepEnabled -> currentMode?.updateSleepEnabled()
             is Event.Stop -> stopMode()
         }
     }
@@ -64,36 +65,44 @@ class MouseService : AccessibilityService() {
     private fun stopCurrentStartNew(newMode: AppToServiceEvent.PenMode) = serviceScope.launch {
         stopMode()
         delay(DELAY_BETWEEN_MODES)
-        baseMode = getNewMode(newMode)
-        baseMode?.start()
+        currentMode = getNewMode(newMode)
+        currentMode?.start()
         AppToServiceEvent.serviceStatus.tryEmit(newMode)
     }
 
     private fun getNewMode(newMode: AppToServiceEvent.PenMode) = when (newMode) {
         AppToServiceEvent.PenMode.Mouse -> MouseMode(
-            dispatchGesture = ::dispatchGesture,
             notificationsManager = notificationsManager,
+            dispatchGesture = ::dispatchGesture,
+            preferences = preferences,
             sPenManager = sPenManager,
             context = this,
-            preferences = preferences
         )
 
         AppToServiceEvent.PenMode.Point -> PointMode(
-            dispatchGesture = ::dispatchGesture,
             notificationsManager = notificationsManager,
+            dispatchGesture = ::dispatchGesture,
+            preferences = preferences,
             sPenManager = sPenManager,
             context = this,
-            preferences = preferences
+        )
+
+        AppToServiceEvent.PenMode.Scroll -> ScrollMode(
+            notificationsManager = notificationsManager,
+            dispatchGesture = ::dispatchGesture,
+            preferences = preferences,
+            sPenManager = sPenManager,
+            context = this,
         )
 
         else -> null
     }
 
     private fun stopMode() {
-        val currentModeName = baseMode?.let { it::class.simpleName } ?: "null"
+        val currentModeName = currentMode?.let { it::class.simpleName } ?: "null"
         Log.d(TAG, "Stopping current mode ($currentModeName)")
-        baseMode?.stop()
-        baseMode = null
+        currentMode?.stop()
+        currentMode = null
         AppToServiceEvent.serviceStatus.tryEmit(AppToServiceEvent.PenMode.Off)
     }
 

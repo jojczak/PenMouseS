@@ -6,17 +6,19 @@ import android.content.Context
 import android.os.Handler
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.SPenManager
+import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 import pl.jojczak.penmouses.mousemode.base.BaseMode
 
 class ScrollMode(
     dispatchGesture: (GestureDescription, AccessibilityService.GestureResultCallback?, Handler?) -> Unit,
     notificationsManager: NotificationsManager,
+    preferences: PreferencesManager,
     sPenManager: SPenManager,
-    context: Context
+    context: Context,
 ) : BaseMode(
-    dispatchGesture = dispatchGesture,
     notificationsManager = notificationsManager,
+    dispatchGesture = dispatchGesture,
+    preferences = preferences,
     sPenManager = sPenManager,
-    context = context
-) {
-}
+    context = context,
+)

@@ -1,8 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.module.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.plugin)
     alias(libs.plugins.ksp)
@@ -10,15 +7,9 @@ plugins {
 
 android {
     namespace = "pl.jojczak.penmouses"
-    compileSdk = 36
 
     defaultConfig {
         applicationId = "pl.jojczak.penmouses"
-        minSdk = 31
-        targetSdk = 36
-        versionCode = 6
-        versionName = "1.0.3"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -48,15 +39,7 @@ android {
             applicationIdSuffix = ".debug"
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_21)
-        }
-    }
+
     buildFeatures {
         compose = true
     }

@@ -24,22 +24,23 @@ import pl.jojczak.penmouses.mousemode.basecursor.CursorMode
 class PointMode(
     dispatchGesture: (GestureDescription, AccessibilityService.GestureResultCallback?, Handler?) -> Unit,
     notificationsManager: NotificationsManager,
+    preferences: PreferencesManager,
     sPenManager: SPenManager,
     context: Context,
-    preferences: PreferencesManager
-) : CursorMode(
-    dispatchGesture = dispatchGesture,
+) : CursorMode<PointAnimator>(
     notificationsManager = notificationsManager,
+    dispatchGesture = dispatchGesture,
+    preferences = preferences,
     sPenManager = sPenManager,
     context = context,
-    preferences = preferences
+    animatorFactory = { view -> PointAnimator(view) }
 ) {
     private var clickStartTime: Long = 0
 
     override fun start() {
         super.start()
 
-        cursorState.view?.setupDraggableCursor()
+        view.setupDraggableCursor()
 
         sPenManager.connect(object : ConnectionResultCallback() {
             override fun onSuccess() {

@@ -13,6 +13,7 @@ import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.common.spen.listener.ButtonAction
 import pl.jojczak.penmouses.core.common.spen.listener.ConnectionResultCallback
+import pl.jojczak.penmouses.core.common.utils.PrefKeys
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 import pl.jojczak.penmouses.core.common.utils.getDisplaySize
 import pl.jojczak.penmouses.mousemode.base.PenConst
@@ -24,33 +25,28 @@ import kotlin.math.sqrt
 class MouseMode(
     dispatchGesture: (GestureDescription, AccessibilityService.GestureResultCallback?, Handler?) -> Unit,
     notificationsManager: NotificationsManager,
+    preferences: PreferencesManager,
     sPenManager: SPenManager,
     context: Context,
-    preferences: PreferencesManager
-) : CursorMode(
-    dispatchGesture = dispatchGesture,
+) : CursorMode<MouseAnimator>(
     notificationsManager = notificationsManager,
+    dispatchGesture = dispatchGesture,
+    preferences = preferences,
     sPenManager = sPenManager,
     context = context,
-    preferences = preferences
+    animatorFactory = { view -> MouseAnimator(view) }
 ) {
-    private var sensitivity = cursorPreferences.getSensitivity()
-    private var hideDelay = cursorPreferences.getHideDelay()
-    private var isSleepEnabled = cursorPreferences.isSleepEnabled()
+    private var prefSensitivity = cursorPreferences.getSensitivity()
+    private var prefHideDelay = cursorPreferences.getHideDelay()
+    private var prefIsSleepEnabled = cursorPreferences.isSleepEnabled()
+
     private var path = Path()
     private var pathStartTime: Long = 0
     private var cursorStartPos = Point()
 
-    override val cursorAnimator = MouseAnimator(
-        cursorState = cursorState,
-        mainHandler = mainHandler,
-        windowManager = windowManager,
-        onCursorHidden = ::onCursorHidden,
-        onCursorShown = ::onCursorShown,
-        onCursorSleep = ::onCursorSleep,
-        onCursorWakeup = ::onCursorWakeup,
-        getCanStartJobs = { canStartJobs }
-    )
+    private var isHidden = false
+    private var isSleeping = false
+
 
     override fun start() {
         super.start()
@@ -71,9 +67,8 @@ class MouseMode(
     }
 
     private fun onButtonEvent(@ButtonAction type: Int, timeStamp: Long) {
-        cursorAnimator.showCursor(hideDelay)
-
         if (type == ButtonEvent.ACTION_DOWN) {
+            showCursor()
             val cursorPosition = getCursorPos()
             pathStartTime = timeStamp
             cursorStartPos = Point(cursorPosition)
@@ -84,6 +79,7 @@ class MouseMode(
 
             mainHandler.post(updateStrokePathJob)
         } else if (type == ButtonEvent.ACTION_UP) {
+            hideCursor()
             cursorAnimator.releaseCursor()
 
             mainHandler.removeCallbacks(updateStrokePathJob)
@@ -94,14 +90,13 @@ class MouseMode(
 
     private fun onAirMotionEvent(deltaX: Float, deltaY: Float, timeStamp: Long) {
         Log.d(tagName, "Motion event: X: $deltaX, Y: $deltaY")
-
-        cursorAnimator.showCursor(hideDelay)
+        pingCursor()
 
         val (screenWidth, screenHeight) = getDisplaySize(getDisplay())
 
         updateCursorLayoutParams {
-            x = (x + (deltaX * sensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt()).coerceIn(0, screenWidth)
-            y = (y + (-deltaY * sensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt()).coerceIn(0, screenHeight)
+            x = (x + (deltaX * prefSensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt()).coerceIn(0, screenWidth)
+            y = (y + (-deltaY * prefSensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt()).coerceIn(0, screenHeight)
         }
     }
 
@@ -143,38 +138,81 @@ class MouseMode(
         dispatchGesture(gesture, null, null)
     }
 
-    override fun updateSensitivity() {
-        sensitivity = cursorPreferences.getSensitivity()
+    private fun pingCursor() {
+        showCursor()
+        hideCursor()
     }
 
-    override fun updateHideDelay() {
-        hideDelay = cursorPreferences.getHideDelay()
+    private fun showCursor() {
+        mainHandler.removeCallbacks(fadeOutCursorJob)
+        mainHandler.removeCallbacks(sleepJob)
+        if (isHidden || isSleeping) {
+            isHidden = false
+            notificationsManager.showIdleNotification(context)
+            cursorAnimator.fadeInCursor()
+        }
+        if (isSleeping) {
+            isSleeping = false
+            sPenManager.registerAirMotionEventListener(::onAirMotionEvent)
+            return
+        }
     }
 
-    override fun updateSleepEnabled() {
-        isSleepEnabled = cursorPreferences.isSleepEnabled()
+    private fun hideCursor() {
+        if (prefHideDelay == PrefKeys.CURSOR_HIDE_DELAY.range.endInclusive.toLong()) {
+            if (prefIsSleepEnabled) {
+                mainHandler.postDelayed(sleepJob, prefHideDelay + SLEEP_DELAY_MS_HIDING_DISABLED)
+            }
+        } else {
+            mainHandler.postDelayed(fadeOutCursorJob, prefHideDelay)
+            if (prefIsSleepEnabled) {
+                mainHandler.postDelayed(sleepJob, prefHideDelay + SLEEP_DELAY_MS)
+            }
+        }
     }
 
-    fun onCursorHidden() {
+    private val fadeOutCursorJob = PenRunnable.create(canStartJobs) {
+        isHidden = true
+        cursorAnimator.fadeOutCursor()
         notificationsManager.showMouseHiddenNotification(context)
     }
 
-    fun onCursorShown() {
-        notificationsManager.showIdleNotification(context)
-    }
-
-    fun onCursorSleep() {
-        notificationsManager.showMouseSleepNotification(context)
+    private val sleepJob = PenRunnable.create(canStartJobs) {
+        isSleeping = true
+        cursorAnimator.fadeOutCursor()
         sPenManager.unregisterAirMotionEventListener()
+        notificationsManager.showMouseSleepNotification(context)
     }
 
-    fun onCursorWakeup() {
-        notificationsManager.showIdleNotification(context)
-        sPenManager.registerAirMotionEventListener(::onAirMotionEvent)
+    override fun updateBitmap() {
+        super.updateBitmap()
+        pingCursor()
+    }
+
+    override fun updateSize(){
+        super.updateSize()
+        pingCursor()
+    }
+
+    override fun updateHideDelay() {
+        prefHideDelay = cursorPreferences.getHideDelay()
+        pingCursor()
+    }
+
+    override fun updateSensitivity() {
+        prefSensitivity = cursorPreferences.getSensitivity()
+        pingCursor()
+    }
+
+    override fun updateSleepEnabled() {
+        prefIsSleepEnabled = cursorPreferences.isSleepEnabled()
+        pingCursor()
     }
 
     companion object {
         private const val S_PEN_SENSITIVITY_MULTIPLIER = 20
         private const val CURSOR_MOVE_THRESHOLD_PX = 50
+        private const val SLEEP_DELAY_MS = 60000L // 60s
+        private const val SLEEP_DELAY_MS_HIDING_DISABLED = 300000L // 5min
     }
 }
