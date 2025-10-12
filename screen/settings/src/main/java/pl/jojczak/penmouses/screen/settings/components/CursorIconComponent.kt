@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
@@ -50,7 +52,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pl.jojczak.penmouses.core.ui.R as coreR
+import pl.jojczak.penmouses.core.common.utils.CursorType
+import pl.jojczak.penmouses.core.common.utils.getCursorBitmap
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.elevation_2
 import pl.jojczak.penmouses.core.ui.theme.pad_l
@@ -58,15 +61,13 @@ import pl.jojczak.penmouses.core.ui.theme.pad_s
 import pl.jojczak.penmouses.core.ui.theme.pad_xl
 import pl.jojczak.penmouses.core.ui.theme.pad_xs
 import pl.jojczak.penmouses.core.ui.theme.radius_m
-import pl.jojczak.penmouses.core.common.utils.CursorType
-import pl.jojczak.penmouses.core.common.utils.getCursorBitmap
+import pl.jojczak.penmouses.core.ui.R as coreR
 
-@Composable
-fun CursorIconComponent(
+internal fun LazyListScope.cursorIconComponent(
     cursorType: CursorType,
     onCursorTypeChange: (CursorType) -> Unit = {},
     onCustomCursorFileSelected: (Uri) -> Unit = {}
-) {
+) = item {
     val radioButtonsHeight = remember { mutableIntStateOf(0) }
 
     Row(
@@ -230,7 +231,9 @@ private fun RowScope.CursorTypeSelector(
 private fun PreviewCursorIconComponent() {
     PenMouseSTheme {
         Surface {
-            CursorIconComponent(CursorType.LIGHT)
+            LazyColumn {
+                cursorIconComponent(CursorType.LIGHT)
+            }
         }
     }
 }

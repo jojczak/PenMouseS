@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -21,16 +23,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pl.jojczak.penmouses.core.ui.R as coreR
 import pl.jojczak.penmouses.core.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_m
 import pl.jojczak.penmouses.core.ui.theme.pad_xl
 import pl.jojczak.penmouses.core.ui.utils.openUrl
+import pl.jojczak.penmouses.core.ui.R as coreR
 
-@Composable
-fun DonateComponent() {
+internal fun LazyListScope.donateComponent() = item {
     val context = LocalContext.current
 
     Row(
@@ -72,7 +73,9 @@ fun DonateComponent() {
 private fun PreviewDonateComponent() {
     PenMouseSTheme {
         Surface {
-            DonateComponent()
+            LazyColumn {
+                donateComponent()
+            }
         }
     }
 }

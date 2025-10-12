@@ -12,6 +12,7 @@ import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
+import pl.jojczak.penmouses.navigation.PenMouseSContent
 import javax.inject.Inject
 
 @AndroidEntryPoint

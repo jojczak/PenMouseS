@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,15 +20,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import pl.jojczak.penmouses.core.ui.R as coreR
 import pl.jojczak.penmouses.core.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_m
 import pl.jojczak.penmouses.core.ui.theme.pad_xl
+import pl.jojczak.penmouses.core.ui.R as coreR
 
-@Composable
-fun NotificationsComponent() {
+internal fun LazyListScope.notificationsComponent() = item {
     val context = LocalContext.current
 
     Row(
@@ -74,7 +75,9 @@ private fun openNotificationSettings(context: Context) {
 private fun NotificationsComponentPreview() {
     PenMouseSTheme {
         Surface {
-            NotificationsComponent()
+            LazyColumn {
+                notificationsComponent()
+            }
         }
     }
 }

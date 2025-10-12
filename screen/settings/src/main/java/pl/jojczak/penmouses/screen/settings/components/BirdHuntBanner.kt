@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -39,7 +41,6 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
-import pl.jojczak.penmouses.core.ui.R as coreR
 import pl.jojczak.penmouses.core.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.pad_l
@@ -49,9 +50,9 @@ import pl.jojczak.penmouses.core.ui.theme.pad_xl
 import pl.jojczak.penmouses.core.ui.theme.pad_xs
 import pl.jojczak.penmouses.core.ui.theme.radius_m
 import pl.jojczak.penmouses.core.ui.utils.openUrl
+import pl.jojczak.penmouses.core.ui.R as coreR
 
-@Composable
-fun BirdHuntBanner() {
+internal fun LazyListScope.birdHuntBanner() = item {
     val context = LocalContext.current
     var bannerHeight by remember { mutableIntStateOf(0) }
     val hazeState = rememberHazeState()
@@ -131,7 +132,9 @@ fun BirdHuntBanner() {
 private fun BirdHuntBannerPreviewLight() {
     PenMouseSTheme {
         Surface {
-            BirdHuntBanner()
+            LazyColumn {
+                birdHuntBanner()
+            }
         }
     }
 }
@@ -141,7 +144,9 @@ private fun BirdHuntBannerPreviewLight() {
 private fun BirdHuntBannerPreviewNight() {
     PenMouseSTheme {
         Surface {
-            BirdHuntBanner()
+            LazyColumn {
+                birdHuntBanner()
+            }
         }
     }
 }

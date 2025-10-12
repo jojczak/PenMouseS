@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,8 +22,7 @@ import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.utils.openUrlClickable
 
-@Composable
-fun AppVersionComponent() {
+internal fun LazyListScope.appVersionComponent() = item {
     val context = LocalContext.current
 
     val versionName = if (LocalInspectionMode.current) {
@@ -76,7 +77,9 @@ private const val APP_INFO_TEXT_ALPHA = 0.6f
 private fun PreviewAppVersionComponent() {
     PenMouseSTheme {
         Surface {
-            AppVersionComponent()
+            LazyColumn {
+                appVersionComponent()
+            }
         }
     }
 }

@@ -3,12 +3,15 @@ package pl.jojczak.penmouses.screen.home
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -18,24 +21,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.PenMode
-import pl.jojczak.penmouses.core.ui.R as coreR
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSDevicePreview
 import pl.jojczak.penmouses.core.ui.theme.pad_l
+import pl.jojczak.penmouses.core.ui.theme.pad_s
 import pl.jojczak.penmouses.core.ui.theme.radius_l
-import pl.jojczak.penmouses.screen.home.components.StepsContainer
+import pl.jojczak.penmouses.screen.home.components.stepsContainer
+import pl.jojczak.penmouses.core.ui.R as coreR
 
 @Composable
 fun HomeScreen(
     paddingValues: PaddingValues = PaddingValues(),
-    setTopBar: ((@Composable (HazeState) -> Unit)?) -> Unit = {},
+    hazeState: HazeState,
     viewModel: HomeScreenViewModel = hiltViewModel()
 ) {
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
@@ -45,12 +52,9 @@ fun HomeScreen(
         viewModel.onLifecycleEvent(lifecycleState)
     }
 
-    LaunchedEffect(Unit) {
-        setTopBar(null)
-    }
-
     HomeScreenContent(
         state = state,
+        hazeState = hazeState,
         paddingValues = paddingValues,
         changeDialogState = viewModel::changeDialogState,
         toggleService = viewModel::sendSignalToService,
@@ -62,6 +66,7 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     state: HomeScreenState,
+    hazeState: HazeState,
     paddingValues: PaddingValues,
     changeDialogState: (step: Int, show: Boolean) -> Unit = { _, _ -> },
     toggleService: (event: AppToServiceEvent.Event) -> Unit = {},
@@ -69,18 +74,20 @@ private fun HomeScreenContent(
 ) {
     BoxWithConstraints(
         modifier = Modifier
+            .hazeSource(hazeState)
             .fillMaxSize()
-            .padding(paddingValues)
     ) {
         if (maxHeight > maxWidth) {
             PortraitLayout(
                 serviceStatus = state.serviceStatus,
+                paddingValues = paddingValues,
                 toggleService = toggleService,
                 changeDialogState = changeDialogState
             )
         } else {
             LandscapeLayout(
                 serviceStatus = state.serviceStatus,
+                paddingValues = paddingValues,
                 toggleService = toggleService,
                 changeDialogState = changeDialogState
             )
@@ -91,16 +98,30 @@ private fun HomeScreenContent(
 @Composable
 private fun PortraitLayout(
     serviceStatus: PenMode,
+    paddingValues: PaddingValues,
     changeDialogState: (step: Int, show: Boolean) -> Unit,
     toggleService: (event: AppToServiceEvent.Event) -> Unit,
 ) {
-    Column {
-        AppLogo(changeDialogState = changeDialogState)
-        StepsContainer(
+    LazyColumn(
+        contentPadding = PaddingValues(
+            start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + pad_l,
+            top = paddingValues.calculateTopPadding() + pad_l,
+            end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + pad_l,
+            bottom = paddingValues.calculateBottomPadding() + pad_l
+        ),
+        verticalArrangement = Arrangement.spacedBy(pad_s)
+    ) {
+        item {
+            AppLogo(
+                changeDialogState = changeDialogState,
+                modifier = Modifier.padding(bottom = pad_s)
+            )
+        }
+
+        stepsContainer(
             serviceStatus = serviceStatus,
             toggleService = toggleService,
             changeDialogState = changeDialogState,
-            modifier = Modifier.padding(horizontal = pad_l)
         )
     }
 }
@@ -108,29 +129,50 @@ private fun PortraitLayout(
 @Composable
 private fun LandscapeLayout(
     serviceStatus: PenMode,
+    paddingValues: PaddingValues,
     changeDialogState: (step: Int, show: Boolean) -> Unit,
     toggleService: (event: AppToServiceEvent.Event) -> Unit,
 ) {
-    Row {
-        AppLogo(changeDialogState = changeDialogState)
-        StepsContainer(
-            serviceStatus = serviceStatus,
-            toggleService = toggleService,
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(pad_l)
+    ) {
+        AppLogo(
             changeDialogState = changeDialogState,
+            modifier = Modifier
+                .padding(
+                    start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + pad_l,
+                    top = paddingValues.calculateTopPadding() + pad_l
+                )
+                .weight(1f)
         )
+        LazyColumn(
+            contentPadding = PaddingValues(
+                top = paddingValues.calculateTopPadding() + pad_l,
+                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + pad_l,
+                bottom = paddingValues.calculateBottomPadding() + pad_l
+            ),
+            verticalArrangement = Arrangement.spacedBy(pad_s),
+            modifier = Modifier.weight(2f)
+        ) {
+            stepsContainer(
+                serviceStatus = serviceStatus,
+                toggleService = toggleService,
+                changeDialogState = changeDialogState,
+            )
+        }
     }
 }
 
 @Composable
 private fun AppLogo(
-    changeDialogState: (step: Int, show: Boolean) -> Unit
+    changeDialogState: (step: Int, show: Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Image(
         painter = painterResource(coreR.drawable.logo),
         contentDescription = stringResource(coreR.string.home_logo_alt),
         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
-        modifier = Modifier
-            .padding(pad_l)
+        modifier = modifier
             .clip(RoundedCornerShape(radius_l))
             .clickable {
                 changeDialogState(6, true)
@@ -145,6 +187,7 @@ private fun HomeScreenPreview() {
     PenMouseSDevicePreview {
         HomeScreenContent(
             state = HomeScreenState(),
+            hazeState = rememberHazeState(),
             paddingValues = PaddingValues()
         )
     }

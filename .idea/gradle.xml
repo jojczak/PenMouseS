@@ -4,6 +4,17 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/build-logic" name="build-logic">
+                <projects>
+                  <project path="$PROJECT_DIR$/build-logic" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
         <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleJvm" value="jbr-21" />
@@ -11,6 +22,20 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/build-logic" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core/common" />
+            <option value="$PROJECT_DIR$/core/ui" />
+            <option value="$PROJECT_DIR$/mousemode" />
+            <option value="$PROJECT_DIR$/mousemode/base" />
+            <option value="$PROJECT_DIR$/mousemode/basecursor" />
+            <option value="$PROJECT_DIR$/mousemode/mouse" />
+            <option value="$PROJECT_DIR$/mousemode/point" />
+            <option value="$PROJECT_DIR$/mousemode/scroll" />
+            <option value="$PROJECT_DIR$/screen" />
+            <option value="$PROJECT_DIR$/screen/home" />
+            <option value="$PROJECT_DIR$/screen/manual" />
+            <option value="$PROJECT_DIR$/screen/settings" />
           </set>
         </option>
       </GradleProjectSettings>

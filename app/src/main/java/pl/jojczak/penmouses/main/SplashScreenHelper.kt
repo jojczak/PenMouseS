@@ -1,6 +1,5 @@
 package pl.jojczak.penmouses.main
 
-import android.R
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
@@ -19,7 +18,7 @@ import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreenViewProvider
 import androidx.core.view.children
 
-class SplashScreenHelper(
+internal class SplashScreenHelper(
     private val context: Context,
     splashScreen: SplashScreen,
     animate: Boolean
@@ -49,9 +48,14 @@ class SplashScreenHelper(
 
         val holeRadius = maxOf(scrWidth / 2, scrHeight / 2) * 1.15f
         ValueAnimator.ofFloat(1f, holeRadius).apply {
-            setDuration(HOLE_ANIM_DURATION)
+            duration = HOLE_ANIM_DURATION
             addUpdateListener { update ->
-                canvas.paint = getHolePunchPaint(scrWidth, scrHeight, update.animatedValue as Float, backgroundColor)
+                canvas.paint = getHolePunchPaint(
+                    scrWidth,
+                    scrHeight,
+                    update.animatedValue as Float,
+                    backgroundColor
+                )
             }
             doOnEnd {
                 Log.d(TAG, "Splash exit animation finished")
@@ -62,14 +66,14 @@ class SplashScreenHelper(
 
         root.apply {
             addView(canvas, 0)
-            setBackgroundColor(context.getColor(R.color.transparent))
+            setBackgroundColor(context.getColor(android.R.color.transparent))
         }
     }
 
     private fun FrameLayout.fadeOutIconAndBranding() {
         children.forEach { splashImage ->
             ObjectAnimator.ofFloat(splashImage, "alpha", 1f, 0f).apply {
-                setDuration(ICON_ALPHA_ANIM_DURATION)
+                duration = ICON_ALPHA_ANIM_DURATION
                 start()
             }
         }
