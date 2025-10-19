@@ -189,7 +189,9 @@ private fun LazyListScope.step4(
                 )
                 Text("Select mode:")
                 CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                    SingleChoiceSegmentedButtonRow {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         PenMode.entries.forEachIndexed { index, mode ->
                             SegmentedButton(
                                 shape = SegmentedButtonDefaults.itemShape(

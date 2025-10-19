@@ -12,7 +12,7 @@ import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
-import pl.jojczak.penmouses.navigation.PenMouseSContent
+import pl.jojczak.penmouses.navigation.PenMouseSContentWithManualDrawer
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -50,6 +50,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppContent() {
     PenMouseSTheme {
-        PenMouseSContent()
+        PenMouseSContentWithManualDrawer()
     }
 }

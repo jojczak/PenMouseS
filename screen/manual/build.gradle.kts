@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.compose.markdown)
 
     implementation(libs.exoplayer)
     implementation(libs.exoplayer.ui)

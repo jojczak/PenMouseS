@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.WindowManager
+import android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
 import android.widget.ImageView
 import com.samsung.android.sdk.penremote.ButtonEvent
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
@@ -100,7 +101,7 @@ class PointMode(
         val initialTouch = Point()
 
         updateCursorLayoutParams {
-            flags = PenConst.OVERLAY_FLAGS and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+            flags = PenConst.OVERLAY_FLAGS and FLAG_NOT_TOUCHABLE.inv()
         }
 
         setOnTouchListener { view, event ->
