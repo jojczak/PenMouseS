@@ -6,18 +6,23 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.Display
 import android.view.Surface
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import java.io.File
 
 private const val TAG = "CursorUtils"
 const val CURSOR_IMAGE_WIDTH = 267
 
-fun getCursorBitmap(context: Context, cursorType: CursorType): Bitmap? {
+fun getCursorBitmap(
+    context: Context,
+    cursorType: CursorType,
+    penMode: AppToServiceEvent.PenMode
+): Bitmap? {
     return try {
-        if (cursorType == CursorType.CUSTOM) {
-            val cursorFile = File(context.filesDir, cursorType.fileName)
+        if (cursorType == CursorType.Custom) {
+            val cursorFile = File(context.filesDir, CursorType.Custom.getFileName(penMode))
             BitmapFactory.decodeFile(cursorFile.absolutePath)
         } else {
-            val inputStream = context.assets.open(cursorType.fileName)
+            val inputStream = context.assets.open(cursorType.getFileName())
             BitmapFactory.decodeStream(inputStream).also {
                 inputStream.close()
             }

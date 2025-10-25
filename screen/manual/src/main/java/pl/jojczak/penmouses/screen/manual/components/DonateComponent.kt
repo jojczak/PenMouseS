@@ -1,4 +1,4 @@
-package pl.jojczak.penmouses.screen.settings.components
+package pl.jojczak.penmouses.screen.manual.components
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -27,8 +27,8 @@ import pl.jojczak.penmouses.core.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_m
-import pl.jojczak.penmouses.core.ui.theme.pad_xl
 import pl.jojczak.penmouses.core.ui.utils.openUrl
+import pl.jojczak.penmouses.screen.manual.R
 import pl.jojczak.penmouses.core.ui.R as coreR
 
 internal fun LazyListScope.donateComponent() = item {
@@ -38,11 +38,11 @@ internal fun LazyListScope.donateComponent() = item {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
-            .padding(horizontal = pad_xl)
+            .padding(horizontal = pad_l)
             .fillMaxWidth()
     ) {
         Text(
-            text = stringResource(coreR.string.home_support_text),
+            text = stringResource(R.string.manual_support_text),
             modifier = Modifier.weight(1f, fill = false),
         )
         Box(
@@ -51,12 +51,12 @@ internal fun LazyListScope.donateComponent() = item {
             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                 FilledTonalButton(
                     onClick = {
-                        Toast.makeText(context, coreR.string.home_support_thanks, Toast.LENGTH_LONG)
+                        Toast.makeText(context, R.string.manual_support_thanks, Toast.LENGTH_LONG)
                             .show()
-                        openUrl(context, coreR.string.home_support_url)
+                        openUrl(context, R.string.manual_support_url)
                     },
                 ) {
-                    Text(text = stringResource(coreR.string.home_support_button))
+                    Text(text = stringResource(R.string.manual_support_button))
                     Icon(
                         painter = painterResource(coreR.drawable.open_in_new_24px),
                         contentDescription = null,

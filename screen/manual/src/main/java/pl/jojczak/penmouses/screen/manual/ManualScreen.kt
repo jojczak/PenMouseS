@@ -3,8 +3,6 @@ package pl.jojczak.penmouses.screen.manual
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -21,10 +19,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
@@ -35,7 +34,9 @@ import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSDevicePreview
 import pl.jojczak.penmouses.core.ui.theme.hazeUltraThinSurface
 import pl.jojczak.penmouses.core.ui.theme.pad_l
+import pl.jojczak.penmouses.core.ui.utils.copy
 import pl.jojczak.penmouses.screen.manual.components.ManualTopAppBar
+import pl.jojczak.penmouses.screen.manual.components.aboutComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +46,7 @@ fun ManualScreen(
     manualDrawerState: DrawerState,
     viewState: ManualViewState
 ) {
+    val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val localDensity = LocalDensity.current
     var topAppBarHeight by remember { mutableStateOf(TopAppBarExpandedHeight) }
@@ -55,16 +57,16 @@ fun ManualScreen(
 
     Box {
         LazyColumn(
-            contentPadding = PaddingValues(
-                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
-                top = topAppBarHeight,
-                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
-                bottom = paddingValues.calculateBottomPadding()
-            ),
+            contentPadding = paddingValues.copy(top = topAppBarHeight),
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.hazeSource(state = hazeState)
         ) {
+            if (viewState.page == ManualPageType.AboutPenMouseS) {
+                aboutComponent(ctx)
+            }
             manualPage(markdown = viewState.markdownContent)
         }
+
         ManualTopAppBar(
             onMenuIconClicked = {
                 scope.launch {
@@ -101,7 +103,7 @@ private fun ManualScreenPreview() {
     PenMouseSDevicePreview {
         ManualScreen(
             hazeState = rememberHazeState(),
-            paddingValues = PaddingValues(),
+            paddingValues = it,
             manualDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
             viewState = ManualViewState()
         )

@@ -3,6 +3,7 @@ package pl.jojczak.penmouses.mousemode.basecursor
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.common.utils.CursorType
 import pl.jojczak.penmouses.core.common.utils.PrefKeys
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
@@ -13,18 +14,24 @@ class CursorPreferences(
     private val preferences: PreferencesManager,
 ) {
 
-    fun getBitmap(): Bitmap? {
+    fun getBitmap(penMode: AppToServiceEvent.PenMode): Bitmap? {
         Log.d(TAG, "Getting cursor image")
 
-        val cursorType = preferences.get(PrefKeys.CURSOR_TYPE)
-        return getCursorBitmap(context, cursorType)
-            ?: getCursorBitmap(context, CursorType.LIGHT)
+        val cursorType = when (penMode) {
+            AppToServiceEvent.PenMode.Mouse -> preferences.get(PrefKeys.MOUSE_CURSOR_TYPE)
+            else -> preferences.get(PrefKeys.POINT_CURSOR_TYPE)
+        }
+        return getCursorBitmap(context, cursorType, penMode)
+            ?: getCursorBitmap(context, CursorType.Light, penMode)
     }
 
-    fun getSize(bitmap: Bitmap): Pair<Int, Int> {
+    fun getSize(penMode: AppToServiceEvent.PenMode, bitmap: Bitmap): Pair<Int, Int> {
         Log.d(TAG, "Getting cursor size")
 
-        val prefSize = preferences.get(PrefKeys.CURSOR_SIZE)
+        val prefSize = when (penMode) {
+            AppToServiceEvent.PenMode.Mouse -> preferences.get(PrefKeys.MOUSE_CURSOR_SIZE)
+            else -> preferences.get(PrefKeys.POINT_CURSOR_SIZE)
+        }
         val density = context.resources.displayMetrics.density
         val cursorSize = (prefSize * density).toInt()
 
@@ -36,12 +43,17 @@ class CursorPreferences(
         return Pair(width, cursorSize)
     }
 
-    fun getSensitivity() = preferences.get(PrefKeys.SPEN_SENSITIVITY)
+    fun getOpacity(penMode: AppToServiceEvent.PenMode) = when (penMode) {
+        AppToServiceEvent.PenMode.Mouse -> preferences.get(PrefKeys.MOUSE_CURSOR_ALPHA)
+        else -> preferences.get(PrefKeys.POINT_CURSOR_ALPHA)
+    }
+
+    fun getSensitivity() = preferences.get(PrefKeys.MOUSE_SENSITIVITY)
 
     fun getHideDelay() =
-        preferences.get(PrefKeys.CURSOR_HIDE_DELAY).toLong() * DELAY_TO_MS_MULTIPLIER
+        preferences.get(PrefKeys.MOUSE_CURSOR_HIDE_DELAY).toLong() * DELAY_TO_MS_MULTIPLIER
 
-    fun isSleepEnabled() = preferences.get(PrefKeys.SPEN_SLEEP_ENABLED)
+    fun isSleepEnabled() = preferences.get(PrefKeys.MOUSE_SLEEP_ENABLED)
 
     companion object {
         private const val TAG = "CursorPreferences"

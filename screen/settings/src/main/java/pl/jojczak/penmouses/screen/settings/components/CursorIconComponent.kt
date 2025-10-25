@@ -52,6 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.common.utils.CursorType
 import pl.jojczak.penmouses.core.common.utils.getCursorBitmap
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
@@ -61,10 +62,11 @@ import pl.jojczak.penmouses.core.ui.theme.pad_s
 import pl.jojczak.penmouses.core.ui.theme.pad_xl
 import pl.jojczak.penmouses.core.ui.theme.pad_xs
 import pl.jojczak.penmouses.core.ui.theme.radius_m
-import pl.jojczak.penmouses.core.ui.R as coreR
+import pl.jojczak.penmouses.screen.settings.R
 
 internal fun LazyListScope.cursorIconComponent(
     cursorType: CursorType,
+    penMode: AppToServiceEvent.PenMode,
     onCursorTypeChange: (CursorType) -> Unit = {},
     onCustomCursorFileSelected: (Uri) -> Unit = {}
 ) = item {
@@ -78,6 +80,7 @@ internal fun LazyListScope.cursorIconComponent(
     ) {
         CursorPreview(
             cursorType = cursorType,
+            penMode = penMode,
             radioButtonsHeight = radioButtonsHeight.intValue,
             onCustomCursorFileSelected = onCustomCursorFileSelected
         )
@@ -92,12 +95,13 @@ internal fun LazyListScope.cursorIconComponent(
 @Composable
 private fun RowScope.CursorPreview(
     cursorType: CursorType,
+    penMode: AppToServiceEvent.PenMode,
     radioButtonsHeight: Int,
     onCustomCursorFileSelected: (Uri) -> Unit = {}
 ) {
     val context = LocalContext.current
     var cursorBitmap by remember(cursorType) {
-        mutableStateOf(getCursorBitmap(context, cursorType))
+        mutableStateOf(getCursorBitmap(context, cursorType, penMode))
     }
 
     val pickImage = rememberLauncherForActivityResult(
@@ -106,14 +110,14 @@ private fun RowScope.CursorPreview(
         if (uri != null) {
             Log.d("PhotoPicker", "Selected URI: $uri")
             onCustomCursorFileSelected(uri)
-            cursorBitmap = getCursorBitmap(context, cursorType)
+            cursorBitmap = getCursorBitmap(context, cursorType, penMode)
         } else {
             Log.d("PhotoPicker", "No media selected")
         }
     }
 
     val previewCorner by animateDpAsState(
-        targetValue = if (cursorType == CursorType.CUSTOM) 0.dp else radius_m,
+        targetValue = if (cursorType == CursorType.Custom) 0.dp else radius_m,
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
     )
 
@@ -143,7 +147,7 @@ private fun RowScope.CursorPreview(
                 cursorBitmap?.let {
                     Image(
                         bitmap = it.asImageBitmap(),
-                        contentDescription = stringResource(coreR.string.settings_cursor_preview),
+                        contentDescription = stringResource(R.string.settings_cursor_preview),
                         contentScale = ContentScale.Fit
                     )
                 }
@@ -162,7 +166,7 @@ private fun CustomCursorButton(
     pickImage: ManagedActivityResultLauncher<String, Uri?>
 ) {
     AnimatedVisibility(
-        visible = cursorType == CursorType.CUSTOM,
+        visible = cursorType == CursorType.Custom,
         enter = expandVertically(),
         exit = shrinkVertically()
     ) {
@@ -179,7 +183,7 @@ private fun CustomCursorButton(
                 ),
                 modifier = Modifier.fillMaxSize()
             ) {
-                Text(stringResource(coreR.string.settings_change_cursor_button))
+                Text(stringResource(R.string.settings_change_cursor_button))
             }
         }
     }
@@ -232,7 +236,10 @@ private fun PreviewCursorIconComponent() {
     PenMouseSTheme {
         Surface {
             LazyColumn {
-                cursorIconComponent(CursorType.LIGHT)
+                cursorIconComponent(
+                    cursorType = CursorType.Light,
+                    penMode = AppToServiceEvent.PenMode.Mouse,
+                )
             }
         }
     }

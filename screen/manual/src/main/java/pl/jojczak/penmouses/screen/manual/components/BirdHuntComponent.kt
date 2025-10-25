@@ -1,4 +1,4 @@
-package pl.jojczak.penmouses.screen.settings.components
+package pl.jojczak.penmouses.screen.manual.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -46,10 +46,10 @@ import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_m
 import pl.jojczak.penmouses.core.ui.theme.pad_s
-import pl.jojczak.penmouses.core.ui.theme.pad_xl
 import pl.jojczak.penmouses.core.ui.theme.pad_xs
 import pl.jojczak.penmouses.core.ui.theme.radius_m
 import pl.jojczak.penmouses.core.ui.utils.openUrl
+import pl.jojczak.penmouses.screen.manual.R
 import pl.jojczak.penmouses.core.ui.R as coreR
 
 internal fun LazyListScope.birdHuntBanner() = item {
@@ -63,7 +63,7 @@ internal fun LazyListScope.birdHuntBanner() = item {
             .onGloballyPositioned { bannerHeight = it.size.height }
     ) {
         Image(
-            painter = painterResource(coreR.drawable.birdhunt_banner),
+            painter = painterResource(R.drawable.birdhunt_banner),
             contentDescription = null,
             contentScale = ContentScale.FillHeight,
             modifier = Modifier
@@ -75,7 +75,7 @@ internal fun LazyListScope.birdHuntBanner() = item {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = pad_xl)
+                .padding(horizontal = pad_l)
         ) {
             Row(
                 modifier = Modifier
@@ -85,24 +85,24 @@ internal fun LazyListScope.birdHuntBanner() = item {
                         style = HazeStyle(
                             backgroundColor = MaterialTheme.colorScheme.background,
                             tint = HazeTint(MaterialTheme.colorScheme.background.copy(alpha = 0.4f)),
-                            blurRadius = 3.dp,
+                            blurRadius = 2.dp,
                             noiseFactor = 0f
                         )
                     )
                     .padding(vertical = pad_xs, horizontal = pad_s)
             ) {
                 Text(
-                    text = stringResource(coreR.string.settings_bird_hunt_check),
+                    text = stringResource(R.string.manual_bird_hunt_check),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 3.dp)
                 )
                 Column {
                     Text(
-                        text = stringResource(coreR.string.settings_bird_hunt),
+                        text = stringResource(R.string.manual_bird_hunt),
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        text = stringResource(coreR.string.settings_bird_hunt_desc),
+                        text = stringResource(R.string.manual_bird_hunt_desc),
                         style = MaterialTheme.typography.labelMedium,
                     )
                 }
@@ -112,9 +112,9 @@ internal fun LazyListScope.birdHuntBanner() = item {
             ) {
                 CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     FilledTonalButton(
-                        onClick = { openUrl(context, coreR.string.settings_bird_hunt_url) },
+                        onClick = { openUrl(context, R.string.manual_bird_hunt_url) },
                     ) {
-                        Text(text = stringResource(coreR.string.settings_bird_hunt_button))
+                        Text(text = stringResource(R.string.manual_bird_hunt_button))
                         Icon(
                             painter = painterResource(coreR.drawable.open_in_new_24px),
                             contentDescription = null,

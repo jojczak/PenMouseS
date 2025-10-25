@@ -171,7 +171,7 @@ private fun AppLogo(
 ) {
     Image(
         painter = painterResource(coreR.drawable.logo),
-        contentDescription = stringResource(coreR.string.home_logo_alt),
+        contentDescription = stringResource(R.string.home_logo_alt),
         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
         modifier = modifier
             .clip(RoundedCornerShape(radius_l))
@@ -183,13 +183,13 @@ private fun AppLogo(
 }
 
 @Composable
-@Preview(showSystemUi = true)
+@Preview
 private fun HomeScreenPreview() {
     PenMouseSDevicePreview {
         HomeScreenContent(
             state = HomeScreenState(),
             hazeState = rememberHazeState(),
-            paddingValues = PaddingValues()
+            paddingValues = it
         )
     }
 }

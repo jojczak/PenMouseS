@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_logo_alt">Pen Mouse S Logo</string>
+    <string name="home_steps_bullet">\u00A0•</string>
+    <string name="home_steps_more">More info</string>
+    <string name="home_steps_dialog_dismiss">Dismiss</string>
+
+    <string name="home_steps_1">Step 1</string>
+    <string name="home_steps_1_settings">Settings</string>
+    <string name="home_steps_1_des">Disable system S Pen gestures</string>
+    <string name="home_steps_2">Step 2</string>
+    <string name="home_steps_2_des">Pin the app in the recents screen to prevent system from closing it in the background.</string>
+    <string name="home_steps_2_dialog_title">Pin the app</string>
+
+    <string name="home_steps_3">Step 3</string>
+    <string name="home_steps_3_settings">Accessibility settings</string>
+    <string name="home_steps_3_des">Enable PenMouse S accessibility service</string>
+    <string name="home_steps_3_dialog_content">Pen Mouse S requires its accessibility service to be enabled for proper functionality.\n\nAccessibility services are needed to:\n\n- Display the cursor above other apps, including the notification panel and the lock screen\n- Simulate touch input on the screen, mirroring S Pen movements\n\nPen Mouse S does not read your screen content.</string>
+
+    <string name="home_steps_4">Step 4</string>
+    <string name="home_steps_4_more">Remember to REMOVE the S Pen from the phone and WAIT for a successful connection BEFORE turning on Air Mouse.</string>
+    <string name="home_steps_4_turn_on">START AIR MOUSE</string>
+    <string name="home_steps_4_turn_off">STOP AIR MOUSE</string>
+
+    <string name="home_troubleshooting_button">Troubleshooting</string>
+</resources>

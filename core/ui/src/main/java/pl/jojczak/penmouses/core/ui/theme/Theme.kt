@@ -1,7 +1,7 @@
 package pl.jojczak.penmouses.core.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -9,7 +9,6 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
@@ -55,15 +54,11 @@ fun PenMouseSPreview(
 
 @Composable
 fun PenMouseSDevicePreview(
-    content: @Composable () -> Unit
+    content: @Composable (PaddingValues) -> Unit
 ) {
     PenMouseSTheme {
-        Scaffold { paddings ->
-            Surface(
-                modifier = Modifier.padding(paddings),
-            ) {
-                content()
-            }
+        Scaffold {
+            content(it)
         }
     }
 }

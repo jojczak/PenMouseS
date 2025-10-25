@@ -23,8 +23,9 @@ internal fun LazyListScope.settingsSlider(
     @StringRes textOnLastValue: Int? = null,
     value: Float,
     prefKey: PrefKey<Float>,
-    onValueChange: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
-    onValueChangeFinished: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
+    valueDisplay: (Float) -> String = { round(value).toInt().toString() },
+    onPrefChanging: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
+    onPrefChanged: (PrefKey<Float>, Float) -> Unit = { _, _ -> },
 ) = item {
     Column(
         verticalArrangement = Arrangement.spacedBy(pad_s),
@@ -34,7 +35,7 @@ internal fun LazyListScope.settingsSlider(
             stringResource(
                 textOnLastValue.takeIf { it != null && value == prefKey.range.endInclusive }
                     ?: text,
-                round(value).toInt()
+                valueDisplay(value)
             )
         )
         var sliderValue by remember(value) { mutableFloatStateOf(value) }
@@ -43,10 +44,10 @@ internal fun LazyListScope.settingsSlider(
             onValueChange = {
                 val roundedValue = (round(it / prefKey.step)) * prefKey.step
                 sliderValue = roundedValue
-                onValueChange(prefKey, roundedValue)
+                onPrefChanging(prefKey, roundedValue)
             },
             valueRange = prefKey.range,
-            onValueChangeFinished = { onValueChangeFinished(prefKey, sliderValue) },
+            onValueChangeFinished = { onPrefChanged(prefKey, sliderValue) },
         )
     }
 }

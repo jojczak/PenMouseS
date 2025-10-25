@@ -10,6 +10,7 @@ import android.os.SystemClock
 import android.util.Log
 import com.samsung.android.sdk.penremote.ButtonEvent
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.common.spen.listener.ButtonAction
 import pl.jojczak.penmouses.core.common.spen.listener.ConnectionResultCallback
@@ -34,6 +35,7 @@ class MouseMode(
     preferences = preferences,
     sPenManager = sPenManager,
     context = context,
+    penMode = AppToServiceEvent.PenMode.Mouse,
     animatorFactory = { view -> MouseAnimator(view) }
 ) {
     private var prefSensitivity = cursorPreferences.getSensitivity()
@@ -51,8 +53,11 @@ class MouseMode(
     override fun start() {
         super.start()
 
+        cursorAnimator.targetOpacity = cursorPreferences.getOpacity(AppToServiceEvent.PenMode.Mouse)
+
         sPenManager.connect(object : ConnectionResultCallback() {
             override fun onSuccess() {
+                pingCursor()
                 mainHandler.postDelayed({
                     sPenManager.registerButtonEventListener(::onButtonEvent)
                     sPenManager.registerAirMotionEventListener(::onAirMotionEvent)
@@ -94,10 +99,12 @@ class MouseMode(
 
         val (screenWidth, screenHeight) = getDisplaySize(getDisplay())
 
+        // @formatter:off
         updateCursorLayoutParams {
             x = (x + (deltaX * prefSensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt()).coerceIn(0, screenWidth)
             y = (y + (-deltaY * prefSensitivity * S_PEN_SENSITIVITY_MULTIPLIER).toInt()).coerceIn(0, screenHeight)
         }
+        // @formatter:on
     }
 
     private val updateStrokePathJob = object : PenRunnable(canStartJobs) {
@@ -108,13 +115,13 @@ class MouseMode(
             if (duration >= PenConst.MAX_CLICK_TIME_MS) {
                 sPenManager.isSPenButtonDown = false
                 cursorAnimator.releaseCursor()
-                performGesture( PenConst.MAX_CLICK_TIME_MS)
+                performGesture(PenConst.MAX_CLICK_TIME_MS)
                 return
             }
 
             val cursorPosition = getCursorPos()
             path.lineTo(cursorPosition.x.toFloat(), cursorPosition.y.toFloat())
-            mainHandler.postDelayed(this,  PenConst.CLICK_PEN_UPDATE_INTERVAL_MS)
+            mainHandler.postDelayed(this, PenConst.CLICK_PEN_UPDATE_INTERVAL_MS)
         }
     }
 
@@ -159,7 +166,7 @@ class MouseMode(
     }
 
     private fun hideCursor() {
-        if (prefHideDelay == PrefKeys.CURSOR_HIDE_DELAY.range.endInclusive.toLong()) {
+        if (prefHideDelay == PrefKeys.MOUSE_CURSOR_HIDE_DELAY.range.endInclusive.toLong()) {
             if (prefIsSleepEnabled) {
                 mainHandler.postDelayed(sleepJob, prefHideDelay + SLEEP_DELAY_MS_HIDING_DISABLED)
             }
@@ -184,28 +191,12 @@ class MouseMode(
         notificationsManager.showMouseSleepNotification(context)
     }
 
-    override fun updateBitmap() {
-        super.updateBitmap()
-        pingCursor()
-    }
-
-    override fun updateSize(){
-        super.updateSize()
-        pingCursor()
-    }
-
-    override fun updateHideDelay() {
+    override fun preferencesUpdated() {
+        super.preferencesUpdated()
         prefHideDelay = cursorPreferences.getHideDelay()
-        pingCursor()
-    }
-
-    override fun updateSensitivity() {
         prefSensitivity = cursorPreferences.getSensitivity()
-        pingCursor()
-    }
-
-    override fun updateSleepEnabled() {
         prefIsSleepEnabled = cursorPreferences.isSleepEnabled()
+        cursorAnimator.targetOpacity = cursorPreferences.getOpacity(AppToServiceEvent.PenMode.Mouse)
         pingCursor()
     }
 

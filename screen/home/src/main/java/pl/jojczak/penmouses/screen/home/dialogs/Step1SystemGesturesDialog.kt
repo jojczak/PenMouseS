@@ -14,11 +14,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
-import pl.jojczak.penmouses.core.ui.R as coreR
 import pl.jojczak.penmouses.core.ui.components.MoreInfoDialog
-import pl.jojczak.penmouses.screen.home.openSettings
 import pl.jojczak.penmouses.core.ui.theme.LINK_ICON_SIZE
 import pl.jojczak.penmouses.core.ui.theme.pad_xl
+import pl.jojczak.penmouses.screen.home.R
+import pl.jojczak.penmouses.screen.home.openSettings
+import pl.jojczak.penmouses.core.ui.R as coreR
 
 private const val URL = "file:///android_asset/dialog_contents/Step1SystemGestures.html"
 private const val STEP_1_VIDEO = "asset:///manual_videos/step1.mp4"
@@ -31,7 +32,7 @@ fun Step1SystemGesturesDialog(
     val context = LocalContext.current
 
     MoreInfoDialog(
-        titleResId = coreR.string.home_steps_1_des,
+        titleResId = R.string.home_steps_1_des,
         showDialog = showDialog,
         dialogId = 1,
         changeDialogState = changeDialogState,
@@ -53,7 +54,7 @@ fun Step1SystemGesturesDialog(
                 onClick = { changeDialogState(1, false) }
             ) {
                 Text(
-                    text = stringResource(coreR.string.home_steps_dialog_dismiss)
+                    text = stringResource(R.string.home_steps_dialog_dismiss)
                 )
             }
             TextButton(
@@ -63,7 +64,7 @@ fun Step1SystemGesturesDialog(
                 },
             ) {
                 Text(
-                    text = stringResource(coreR.string.home_steps_1_settings) + " "
+                    text = stringResource(R.string.home_steps_1_settings) + " "
                 )
                 Icon(
                     painter = painterResource(coreR.drawable.open_in_new_24px),

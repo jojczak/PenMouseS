@@ -10,11 +10,7 @@ object AppToServiceEvent {
     sealed class Event {
         data class Start(val mode: PenMode) : Event()
         data object Stop : Event()
-        data object UpdateSensitivity : Event()
-        data object UpdateCursorSize : Event()
-        data object UpdateCursorBitmap : Event()
-        data object UpdateHideDelay : Event()
-        data object UpdateSPenSleepEnabled : Event()
+        data object PreferencesUpdated: Event()
     }
 
     enum class PenMode {

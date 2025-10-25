@@ -17,6 +17,7 @@ import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALW
 import android.view.WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
 import android.widget.ImageView
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 import pl.jojczak.penmouses.core.common.utils.getDisplaySize
@@ -29,12 +30,12 @@ abstract class CursorMode<T : CursorAnimator>(
     preferences: PreferencesManager,
     sPenManager: SPenManager,
     context: Context,
+    private val penMode: AppToServiceEvent.PenMode,
     val animatorFactory: (ImageView) -> T
 ) : BaseMode(
     notificationsManager = notificationsManager,
     dispatchGesture = dispatchGesture,
     sPenManager = sPenManager,
-    preferences = preferences,
     context = context,
 ) {
 
@@ -54,13 +55,14 @@ abstract class CursorMode<T : CursorAnimator>(
 
     override fun start() {
         super.start()
-        cursorPreferences.getBitmap()?.let { bitmap ->
+        cursorPreferences.getBitmap(penMode)?.let { bitmap ->
             Log.d(tagName, "Cursor image loaded")
 
             val layoutParams = getDefaultLayoutParams()
-            val (width, height) = cursorPreferences.getSize(bitmap)
+            val (width, height) = cursorPreferences.getSize(penMode, bitmap)
 
             view.setImageBitmap(bitmap)
+            view.alpha = cursorPreferences.getOpacity(penMode)
             view.setPreDrawObserver()
 
             val (screenWidth, screenHeight) = getDisplaySize(getDisplay())
@@ -100,11 +102,18 @@ abstract class CursorMode<T : CursorAnimator>(
         }
     }
 
-    override fun updateSize() {
+    override fun preferencesUpdated() {
+        super.preferencesUpdated()
+        updateSize()
+        updateBitmap()
+        updateOpacity()
+    }
+
+    private fun updateSize() {
         Log.d(tagName, "Updating cursor size")
 
         (view.drawable as? BitmapDrawable)?.bitmap?.let { bitmap ->
-            val (newWidth, newHeight) = cursorPreferences.getSize(bitmap)
+            val (newWidth, newHeight) = cursorPreferences.getSize(penMode, bitmap)
 
             updateCursorLayoutParams {
                 width = newWidth
@@ -113,15 +122,20 @@ abstract class CursorMode<T : CursorAnimator>(
         }
     }
 
-    override fun updateBitmap() {
+    private fun updateBitmap() {
         Log.d(tagName, "Updating cursor image")
 
-        cursorPreferences.getBitmap()?.let { bitmap ->
+        cursorPreferences.getBitmap(penMode)?.let { bitmap ->
             view.post {
                 view.setImageBitmap(bitmap)
                 updateSize()
             }
         }
+    }
+
+    private fun updateOpacity() {
+        Log.d(tagName, "Updating cursor opacity")
+        view.post { view.alpha = cursorPreferences.getOpacity(penMode) }
     }
 
     private fun getDefaultLayoutParams() = WindowManager.LayoutParams(

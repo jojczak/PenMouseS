@@ -10,12 +10,14 @@ class MouseAnimator(
 ) : CursorAnimator(
     view = view
 ) {
+    var targetOpacity = 1f
+
     fun fadeInCursor() = view.post {
-        if (view.isVisible && view.alpha == 1f) return@post
+        if (view.isVisible && view.alpha == targetOpacity) return@post
 
         view.animate().cancel()
         view.animate()
-            .alpha(1f)
+            .alpha(targetOpacity)
             .setDuration(FADE_DURATION_MS)
             .withStartAction {
                 view.isVisible = true
@@ -30,7 +32,7 @@ class MouseAnimator(
         view.animate()
             .alpha(0f)
             .setDuration(FADE_DURATION_MS)
-            .withStartAction {
+            .withEndAction {
                 view.isGone = true
             }
             .start()

@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.core.content.edit
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.ui.R
 
 class PreferencesManager(
@@ -54,7 +55,7 @@ class PreferencesManager(
             }
 
             is CursorType -> {
-                CursorType.valueOf(
+                CursorType.fromValue(
                     prefs.getString(key.name, key.default.name) ?: key.default.name
                 ) as T
             }
@@ -67,11 +68,16 @@ class PreferencesManager(
 
     fun reset() {
         prefs.edit {
-            put(PrefKeys.SPEN_SENSITIVITY, PrefKeys.SPEN_SENSITIVITY.default)
-            put(PrefKeys.CURSOR_SIZE, PrefKeys.CURSOR_SIZE.default)
-            put(PrefKeys.CURSOR_TYPE, PrefKeys.CURSOR_TYPE.default)
-            put(PrefKeys.CURSOR_HIDE_DELAY, PrefKeys.CURSOR_HIDE_DELAY.default)
-            put(PrefKeys.SPEN_SLEEP_ENABLED, PrefKeys.SPEN_SLEEP_ENABLED.default)
+            put(PrefKeys.MOUSE_SENSITIVITY, PrefKeys.MOUSE_SENSITIVITY.default)
+            put(PrefKeys.MOUSE_CURSOR_SIZE, PrefKeys.MOUSE_CURSOR_SIZE.default)
+            put(PrefKeys.MOUSE_CURSOR_TYPE, PrefKeys.MOUSE_CURSOR_TYPE.default)
+            put(PrefKeys.MOUSE_CURSOR_HIDE_DELAY, PrefKeys.MOUSE_CURSOR_HIDE_DELAY.default)
+            put(PrefKeys.MOUSE_SLEEP_ENABLED, PrefKeys.MOUSE_SLEEP_ENABLED.default)
+            put(PrefKeys.MOUSE_CURSOR_ALPHA, PrefKeys.MOUSE_CURSOR_ALPHA.default)
+            put(PrefKeys.POINT_CURSOR_TYPE, PrefKeys.POINT_CURSOR_TYPE.default)
+            put(PrefKeys.POINT_CURSOR_ALPHA, PrefKeys.POINT_CURSOR_ALPHA.default)
+            put(PrefKeys.POINT_CURSOR_SIZE, PrefKeys.POINT_CURSOR_SIZE.default)
+            put(PrefKeys.SCROLL_EXPERIMENTAL_MODE, PrefKeys.SCROLL_EXPERIMENTAL_MODE.default)
             this.apply()
         }
         Log.d(TAG, "Preferences reset")
@@ -83,11 +89,16 @@ class PreferencesManager(
 }
 
 object PrefKeys {
-    val SPEN_SENSITIVITY = PrefKey("spen_sensitivity", 50f, 1f, 1f..100f)
-    val CURSOR_SIZE = PrefKey("cursor_size", 60f, 1f, 20f..250f)
-    val CURSOR_TYPE = PrefKey("cursor_type", CursorType.LIGHT)
-    val CURSOR_HIDE_DELAY = PrefKey("time_to_hide_cursor", 10f, 5f, 5f..305f)
-    val SPEN_SLEEP_ENABLED = PrefKey("spen_sleep_enabled", true)
+    val MOUSE_SENSITIVITY = PrefKey("spen_sensitivity", 50f, 1f, 1f..100f)
+    val MOUSE_CURSOR_SIZE = PrefKey("cursor_size", 60f, 1f, 20f..250f)
+    val MOUSE_CURSOR_TYPE = PrefKey("cursor_type", CursorType.Light)
+    val MOUSE_CURSOR_ALPHA = PrefKey("cursor_alpha", 1f, step = 0.05f, range = 0.05f..1f)
+    val MOUSE_CURSOR_HIDE_DELAY = PrefKey("time_to_hide_cursor", 10f, 5f, 5f..305f)
+    val MOUSE_SLEEP_ENABLED = PrefKey("spen_sleep_enabled", true)
+    val POINT_CURSOR_TYPE = PrefKey("point_cursor_type", CursorType.Light)
+    val POINT_CURSOR_ALPHA = PrefKey("point_cursor_alpha", 1f, step = 0.05f, range = 0.05f..1f)
+    val POINT_CURSOR_SIZE = PrefKey("point_cursor_size", 60f, 1f, 20f..250f)
+    val SCROLL_EXPERIMENTAL_MODE = PrefKey("scroll_experimental_mode", false)
     val FIRST_RUN = PrefKey("first_run", true)
     val FIRST_MOUSE_LAUNCH = PrefKey("first_mouse_launch", true)
 }
@@ -100,11 +111,23 @@ data class PrefKey<T>(
 )
 
 enum class CursorType(
-    val fileName: String,
+    private val fileName: String,
     @param:StringRes val label: Int
 ) {
-    LIGHT("light.png", R.string.settings_cursor_type_light),
-    DARK("dark.png", R.string.settings_cursor_type_dark),
-    RETRO("retro.png", R.string.settings_cursor_type_retro),
-    CUSTOM("custom.png", R.string.settings_cursor_type_custom)
+    Light("light.png", R.string.cursor_type_light),
+    Dark("dark.png", R.string.cursor_type_dark),
+    Retro("retro.png", R.string.cursor_type_retro),
+    Custom("custom.png", R.string.cursor_type_custom);
+
+    fun getFileName(mode: AppToServiceEvent.PenMode? = null) = when (mode) {
+        AppToServiceEvent.PenMode.Mouse -> "mouse_" + this.fileName
+        AppToServiceEvent.PenMode.Point -> "point_" + this.fileName
+        else -> this.fileName
+    }
+
+    companion object {
+        fun fromValue(value: String) = entries.firstOrNull {
+            it.name.lowercase() == value.lowercase()
+        } ?: Light
+    }
 }

@@ -13,7 +13,6 @@ import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 abstract class BaseMode(
     protected val notificationsManager: NotificationsManager,
     protected val dispatchGesture: (GestureDescription, GestureResultCallback?, Handler?) -> Unit,
-    protected val preferences: PreferencesManager,
     protected val sPenManager: SPenManager,
     protected val context: Context,
 ) {
@@ -29,25 +28,7 @@ abstract class BaseMode(
         notificationsManager.cancelStatusNotifications(context)
     }
 
-    open fun updateSize() {
-        Log.i(tagName, "Update size not implemented")
-    }
-
-    open fun updateBitmap() {
-        Log.i(tagName, "Update bitmap not implemented")
-    }
-
-    open fun updateSensitivity() {
-        Log.i(tagName, "Update sensitivity not implemented")
-    }
-
-    open fun updateHideDelay() {
-        Log.i(tagName, "Update hide delay not implemented")
-    }
-
-    open fun updateSleepEnabled() {
-        Log.i(tagName, "Update sleep enabled not implemented")
-    }
+    open fun preferencesUpdated() = Unit
 
     protected val tagName by lazy { this::class.simpleName }
 }

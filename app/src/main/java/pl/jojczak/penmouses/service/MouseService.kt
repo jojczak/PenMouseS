@@ -53,12 +53,8 @@ class MouseService : AccessibilityService() {
         Log.d(TAG, "Received event: $event")
         when (event) {
             is Event.Start -> stopCurrentStartNew(newMode = event.mode)
-            is Event.UpdateCursorSize -> currentMode?.updateSize()
-            is Event.UpdateCursorBitmap -> currentMode?.updateBitmap()
-            is Event.UpdateSensitivity -> currentMode?.updateSensitivity()
-            is Event.UpdateHideDelay -> currentMode?.updateHideDelay()
-            is Event.UpdateSPenSleepEnabled -> currentMode?.updateSleepEnabled()
             is Event.Stop -> stopMode()
+            is Event.PreferencesUpdated -> currentMode?.preferencesUpdated()
         }
     }
 
@@ -90,7 +86,6 @@ class MouseService : AccessibilityService() {
         AppToServiceEvent.PenMode.Scroll -> ScrollMode(
             notificationsManager = notificationsManager,
             dispatchGesture = ::dispatchGesture,
-            preferences = preferences,
             sPenManager = sPenManager,
             context = this,
         )

@@ -6,6 +6,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
+import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.core.ui.R as coreR
 
 @Serializable
@@ -17,19 +18,19 @@ internal sealed class Screen(
     @Serializable
     data object Home : Screen(
         titleResId = coreR.string.screen_home,
-        iconResId = coreR.drawable.stylus_24px
+        iconResId = R.drawable.stylus_24px
     )
 
     @Serializable
     data object Manual : Screen(
         titleResId = coreR.string.screen_manual,
-        iconResId = coreR.drawable.menu_book_24px
+        iconResId = R.drawable.menu_book_24px
     )
 
     @Serializable
     data object Settings : Screen(
         titleResId = coreR.string.screen_settings,
-        iconResId = coreR.drawable.settings_24px
+        iconResId = R.drawable.settings_24px
     )
 
     companion object {

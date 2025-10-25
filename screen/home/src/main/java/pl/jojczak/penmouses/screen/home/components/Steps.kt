@@ -44,9 +44,9 @@ import pl.jojczak.penmouses.core.ui.theme.pad_s
 import pl.jojczak.penmouses.core.ui.theme.pad_xs
 import pl.jojczak.penmouses.core.ui.theme.pad_xxs
 import pl.jojczak.penmouses.core.ui.theme.radius_m
+import pl.jojczak.penmouses.screen.home.R
 import pl.jojczak.penmouses.screen.home.openAccessibilitySettings
 import pl.jojczak.penmouses.screen.home.openSettings
-import pl.jojczak.penmouses.core.ui.R as coreR
 
 internal fun LazyListScope.stepsContainer(
     serviceStatus: PenMode,
@@ -75,17 +75,17 @@ private fun LazyListScope.step1(
         ) {
             Column {
                 StepHeader(
-                    stepText = coreR.string.home_steps_1,
+                    stepText = R.string.home_steps_1,
                     dialogIdToOpen = 1,
                     changeDialogState = changeDialogState
                 )
                 Text(
-                    text = stringResource(coreR.string.home_steps_1_des),
+                    text = stringResource(R.string.home_steps_1_des),
                     modifier = Modifier.padding(start = pad_m, bottom = pad_m)
                 )
             }
             TextButton(
-                stringRes = coreR.string.home_steps_1_settings,
+                stringRes = R.string.home_steps_1_settings,
                 onClick = { openSettings(context) },
             )
         }
@@ -98,12 +98,12 @@ private fun LazyListScope.step2(
     StepSurface {
         Column {
             StepHeader(
-                stepText = coreR.string.home_steps_2,
+                stepText = R.string.home_steps_2,
                 dialogIdToOpen = 2,
                 changeDialogState = changeDialogState
             )
             Text(
-                text = stringResource(coreR.string.home_steps_2_des),
+                text = stringResource(R.string.home_steps_2_des),
                 modifier = Modifier.padding(start = pad_m, end = pad_m, bottom = pad_m)
             )
         }
@@ -122,12 +122,12 @@ private fun LazyListScope.step3(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 StepHeader(
-                    stepText = coreR.string.home_steps_3,
+                    stepText = R.string.home_steps_3,
                     dialogIdToOpen = 3,
                     changeDialogState = changeDialogState
                 )
                 StepHeaderLink(
-                    linkText = coreR.string.home_steps_3_settings,
+                    linkText = R.string.home_steps_3_settings,
                     linkCallback = { openAccessibilitySettings(context) }
                 )
             }
@@ -137,7 +137,7 @@ private fun LazyListScope.step3(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = stringResource(coreR.string.home_steps_3_des),
+                    text = stringResource(R.string.home_steps_3_des),
                     modifier = Modifier
                         .padding(start = pad_m, bottom = pad_m)
                         .weight(1f)
@@ -169,7 +169,7 @@ private fun LazyListScope.step4(
     ) {
         Column {
             StepHeader(
-                stepText = coreR.string.home_steps_4,
+                stepText = R.string.home_steps_4,
                 changeDialogState = changeDialogState
             )
             Column(
@@ -182,7 +182,7 @@ private fun LazyListScope.step4(
                 )
             ) {
                 Text(
-                    text = stringResource(coreR.string.home_steps_4_more),
+                    text = stringResource(R.string.home_steps_4_more),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary,
                     textAlign = TextAlign.Justify
@@ -241,12 +241,12 @@ private fun StepHeader(
         )
         dialogIdToOpen?.let {
             Text(
-                text = stringResource(id = coreR.string.home_steps_bullet),
+                text = stringResource(id = R.string.home_steps_bullet),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = pad_s)
             )
             Text(
-                text = stringResource(id = coreR.string.home_steps_more),
+                text = stringResource(id = R.string.home_steps_more),
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
