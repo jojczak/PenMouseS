@@ -32,14 +32,14 @@ import pl.jojczak.penmouses.core.ui.R as coreR
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsTopAppBar(
-    hazeState: HazeState,
+    localHazeState: HazeState,
     pagerState: PagerState,
     modifier: Modifier = Modifier,
     resetSettingsDialogClicked: (Boolean) -> Unit
 ) = Column(
     modifier = modifier
         .hazeEffect(
-            state = hazeState,
+            state = localHazeState,
             style = hazeUltraThinSurface()
         )
 ) {
@@ -88,7 +88,7 @@ private fun PreviewSettingsAppTopBar() {
     PenMouseSTheme {
         Surface {
             SettingsTopAppBar(
-                hazeState = HazeState(),
+                localHazeState = HazeState(),
                 pagerState = rememberPagerState { SettingTabs.entries.size },
                 resetSettingsDialogClicked = {}
             )

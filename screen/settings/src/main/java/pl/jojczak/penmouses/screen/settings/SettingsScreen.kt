@@ -1,5 +1,7 @@
 package pl.jojczak.penmouses.screen.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -8,6 +10,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBarDefaults.TopAppBarExpandedHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,7 +40,7 @@ import pl.jojczak.penmouses.screen.settings.tab.scroll.SettingsScrollTab
 @Composable
 fun SettingsScreen(
     paddingValues: PaddingValues = PaddingValues(),
-    hazeState: HazeState,
+    navigationHazeState: HazeState,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -45,7 +48,7 @@ fun SettingsScreen(
     // @formatter:off
     SettingsScreenContent(
         state = state,
-        hazeState = hazeState,
+        navigationHazeState = navigationHazeState,
         paddingValues = paddingValues,
         resetSettingsDialogClicked = { viewModel.onViewAction(SettingsViewAction.ToggleResetDialog(it)) },
         resetSettings = { viewModel.onViewAction(SettingsViewAction.ResetSettings) }
@@ -57,31 +60,40 @@ fun SettingsScreen(
 @Composable
 private fun SettingsScreenContent(
     state: SettingsScreenState,
-    hazeState: HazeState,
+    navigationHazeState: HazeState,
     paddingValues: PaddingValues,
     resetSettingsDialogClicked: (Boolean) -> Unit = {},
     resetSettings: () -> Unit = {}
 ) {
     val localDensity = LocalDensity.current
+    val localHazeState = rememberHazeState()
     val pagerState = rememberPagerState { SettingTabs.entries.size }
     var topAppBarHeight by remember { mutableStateOf(TopAppBarExpandedHeight) }
     val contentPadding = rememberPagerContentPadding(paddingValues, topAppBarHeight)
 
-    SettingsPager(
-        hazeState = hazeState,
-        pagerState = pagerState,
-        contentPadding = contentPadding,
-        refreshDataTrigger = state.showSettingsResetDialog
-    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        SettingsPager(
+            pagerState = pagerState,
+            contentPadding = contentPadding,
+            refreshDataTrigger = state.showSettingsResetDialog,
+            modifier = Modifier
+                .hazeSource(navigationHazeState)
+                .hazeSource(localHazeState)
+        )
 
-    SettingsTopAppBar(
-        hazeState = hazeState,
-        pagerState = pagerState,
-        resetSettingsDialogClicked = resetSettingsDialogClicked,
-        modifier = Modifier.onGloballyPositioned {
-            with(localDensity) { topAppBarHeight = it.size.height.toDp() }
-        },
-    )
+        SettingsTopAppBar(
+            localHazeState = localHazeState,
+            pagerState = pagerState,
+            resetSettingsDialogClicked = resetSettingsDialogClicked,
+            modifier = Modifier.onGloballyPositioned {
+                with(localDensity) { topAppBarHeight = it.size.height.toDp() }
+            },
+        )
+    }
 
     if (state.showSettingsResetDialog) {
         ResetSettingsDialog(
@@ -93,15 +105,15 @@ private fun SettingsScreenContent(
 
 @Composable
 private fun SettingsPager(
-    hazeState: HazeState,
     pagerState: PagerState,
-    contentPadding: PaddingValues = PaddingValues(),
-    refreshDataTrigger: Boolean
+    contentPadding: PaddingValues,
+    refreshDataTrigger: Boolean,
+    modifier: Modifier = Modifier
 ) = HorizontalPager(
     state = pagerState,
     modifier = Modifier
         .fillMaxSize()
-        .hazeSource(hazeState)
+        .then(modifier)
 ) {
     if (LocalInspectionMode.current) return@HorizontalPager
 
@@ -149,7 +161,7 @@ private fun SettingsScreenPreview() {
     PenMouseSDevicePreview {
         SettingsScreenContent(
             state = SettingsScreenState(),
-            hazeState = rememberHazeState(),
+            navigationHazeState = rememberHazeState(),
             paddingValues = it
         )
     }

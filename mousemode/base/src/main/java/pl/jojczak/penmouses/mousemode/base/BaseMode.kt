@@ -5,10 +5,8 @@ import android.accessibilityservice.GestureDescription
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.SPenManager
-import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 
 abstract class BaseMode(
     protected val notificationsManager: NotificationsManager,

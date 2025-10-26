@@ -1,6 +1,8 @@
 package pl.jojczak.penmouses.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DrawerState
@@ -103,7 +105,7 @@ private fun PenMouseSScaffold(
     manualViewState: ManualViewState,
     modifier: Modifier = Modifier
 ) {
-    val hazeState = rememberHazeState()
+    val navigationHazeState = rememberHazeState()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -112,7 +114,7 @@ private fun PenMouseSScaffold(
                 navController = navController,
                 currentScreen = currentScreen,
                 modifier = Modifier.hazeEffect(
-                    state = hazeState,
+                    state = navigationHazeState,
                     style = hazeUltraThinSurface()
                 )
             )
@@ -121,7 +123,7 @@ private fun PenMouseSScaffold(
             PenMouseSNavigation(
                 navController = navController,
                 paddingValues = paddingValues,
-                hazeState = hazeState,
+                navigationHazeState = navigationHazeState,
                 manualDrawerState = manualDrawerState,
                 manualViewState = manualViewState
             )
@@ -133,7 +135,7 @@ private fun PenMouseSScaffold(
 private fun PenMouseSNavigation(
     navController: NavHostController,
     paddingValues: PaddingValues,
-    hazeState: HazeState,
+    navigationHazeState: HazeState,
     manualDrawerState: DrawerState,
     manualViewState: ManualViewState,
 ) {
@@ -141,20 +143,20 @@ private fun PenMouseSNavigation(
         navController = navController,
         startDestination = Screen.Home,
         enterTransition = AnimatedContentTransitionScope<NavBackStackEntry>::enterAnimation,
-        exitTransition = AnimatedContentTransitionScope<NavBackStackEntry>::exitAnimation,
-        popEnterTransition = AnimatedContentTransitionScope<NavBackStackEntry>::enterAnimation,
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
         popExitTransition = AnimatedContentTransitionScope<NavBackStackEntry>::exitAnimation
     ) {
         composable<Screen.Home> {
             HomeScreen(
                 paddingValues = paddingValues,
-                hazeState = hazeState
+                navigationHazeState = navigationHazeState
             )
         }
         composable<Screen.Manual> {
             ManualScreen(
                 paddingValues = paddingValues,
-                hazeState = hazeState,
+                navigationHazeState = navigationHazeState,
                 manualDrawerState = manualDrawerState,
                 viewState = manualViewState
             )
@@ -162,7 +164,7 @@ private fun PenMouseSNavigation(
         composable<Screen.Settings> {
             SettingsScreen(
                 paddingValues = paddingValues,
-                hazeState = hazeState
+                navigationHazeState = navigationHazeState
             )
         }
     }

@@ -2,6 +2,7 @@ package pl.jojczak.penmouses.screen.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -43,7 +44,7 @@ import pl.jojczak.penmouses.core.ui.R as coreR
 @Composable
 fun HomeScreen(
     paddingValues: PaddingValues = PaddingValues(),
-    hazeState: HazeState,
+    navigationHazeState: HazeState,
     viewModel: HomeScreenViewModel = hiltViewModel()
 ) {
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
@@ -55,7 +56,7 @@ fun HomeScreen(
 
     HomeScreenContent(
         state = state,
-        hazeState = hazeState,
+        navigationHazeState = navigationHazeState,
         paddingValues = paddingValues,
         changeDialogState = viewModel::changeDialogState,
         toggleService = viewModel::sendSignalToService,
@@ -67,7 +68,7 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     state: HomeScreenState,
-    hazeState: HazeState,
+    navigationHazeState: HazeState,
     paddingValues: PaddingValues,
     changeDialogState: (step: Int, show: Boolean) -> Unit = { _, _ -> },
     toggleService: (event: AppToServiceEvent.Event) -> Unit = {},
@@ -75,8 +76,9 @@ private fun HomeScreenContent(
 ) {
     BoxWithConstraints(
         modifier = Modifier
-            .hazeSource(hazeState)
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .hazeSource(navigationHazeState)
     ) {
         if (maxHeight > maxWidth) {
             PortraitLayout(
@@ -188,7 +190,7 @@ private fun HomeScreenPreview() {
     PenMouseSDevicePreview {
         HomeScreenContent(
             state = HomeScreenState(),
-            hazeState = rememberHazeState(),
+            navigationHazeState = rememberHazeState(),
             paddingValues = it
         )
     }
