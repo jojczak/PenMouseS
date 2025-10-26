@@ -18,6 +18,7 @@ class SPenManager(
     var isSPenButtonDown = false
 
     private var sPenUnitManager: SpenUnitManager? = null
+    private var isAirMotionRegistered = false
 
     fun connect(sPenManagerConnectionResultCallback: ConnectionResultCallback) {
         Log.i(TAG, "Connecting to S-Pen...")
@@ -77,6 +78,12 @@ class SPenManager(
     }
 
     fun registerAirMotionEventListener(airMotionEventListener: AirMotionEventListener) {
+        if (isAirMotionRegistered) {
+            Log.w(TAG, "Air motion event listener already registered")
+            return
+        }
+        isAirMotionRegistered = true
+
         sPenUnitManager?.let { unitManager ->
             val airMotionUnit = unitManager.getUnit(SpenUnit.TYPE_AIR_MOTION)
 
@@ -92,6 +99,8 @@ class SPenManager(
     }
 
     fun unregisterAirMotionEventListener() {
+        isAirMotionRegistered = false
+
         Log.d(TAG, "Unregistering air motion event listener")
         sPenUnitManager?.let {
             val airMotionUnit = it.getUnit(SpenUnit.TYPE_AIR_MOTION)
@@ -107,6 +116,7 @@ class SPenManager(
             val airMotionUnit = it.getUnit(SpenUnit.TYPE_AIR_MOTION)
             it.unregisterSpenEventListener(buttonUnit)
             it.unregisterSpenEventListener(airMotionUnit)
+            isAirMotionRegistered = false
         }
         sPenUnitManager = null
 

@@ -35,6 +35,7 @@ abstract class CursorMode<T : CursorAnimator>(
 ) : BaseMode(
     notificationsManager = notificationsManager,
     dispatchGesture = dispatchGesture,
+    preferences = preferences,
     sPenManager = sPenManager,
     context = context,
 ) {

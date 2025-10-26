@@ -7,10 +7,12 @@ import android.os.Handler
 import android.os.Looper
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.SPenManager
+import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 
 abstract class BaseMode(
     protected val notificationsManager: NotificationsManager,
     protected val dispatchGesture: (GestureDescription, GestureResultCallback?, Handler?) -> Unit,
+    protected val preferences: PreferencesManager,
     protected val sPenManager: SPenManager,
     protected val context: Context,
 ) {

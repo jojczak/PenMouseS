@@ -86,6 +86,7 @@ class MouseService : AccessibilityService() {
         AppToServiceEvent.PenMode.Scroll -> ScrollMode(
             notificationsManager = notificationsManager,
             dispatchGesture = ::dispatchGesture,
+            preferences = preferences,
             sPenManager = sPenManager,
             context = this,
         )
