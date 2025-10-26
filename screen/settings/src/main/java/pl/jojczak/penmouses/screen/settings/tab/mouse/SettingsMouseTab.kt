@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.utils.CursorType
 import pl.jojczak.penmouses.core.common.utils.PrefKey
 import pl.jojczak.penmouses.core.common.utils.PrefKeys
@@ -80,7 +80,7 @@ private fun SettingsMouseTabContent(
 ) {
     cursorIconComponent(
         cursorType = viewState.cursorType,
-        penMode = AppToServiceEvent.PenMode.Mouse,
+        modeStatus = ModeStatus.Mouse,
         onCursorTypeChange = onCursorTypeChange,
         onCustomCursorFileSelected = onCustomCursorFileSelected
     )

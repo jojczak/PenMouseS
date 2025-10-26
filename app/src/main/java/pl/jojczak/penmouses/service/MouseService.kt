@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.Event
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
@@ -24,7 +25,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MouseService : AccessibilityService() {
 
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val serviceScope = CoroutineScope(context = SupervisorJob() + Dispatchers.Default)
     private var eventCollectorJob: Job? = null
     private var currentMode: BaseMode? = null
 
@@ -45,7 +46,7 @@ class MouseService : AccessibilityService() {
     private fun registerReceiver() {
         cancelAppToServiceEventObserver()
         eventCollectorJob = serviceScope.launch {
-            AppToServiceEvent.event.collect(::eventManager)
+            AppToServiceEvent.event.collect(collector = ::eventManager)
         }
     }
 
@@ -58,16 +59,16 @@ class MouseService : AccessibilityService() {
         }
     }
 
-    private fun stopCurrentStartNew(newMode: AppToServiceEvent.PenMode) = serviceScope.launch {
-        stopMode()
-        delay(DELAY_BETWEEN_MODES)
-        currentMode = getNewMode(newMode)
+    private fun stopCurrentStartNew(newMode: ModeStatus) = serviceScope.launch {
+        stopMode(stopMode = ModeStatus.Loading)
+        delay(timeMillis = DELAY_BETWEEN_MODES)
+        currentMode = getNewMode(newMode = newMode)
         currentMode?.start()
-        AppToServiceEvent.serviceStatus.tryEmit(newMode)
+        AppToServiceEvent.serviceStatus.tryEmit(value = newMode)
     }
 
-    private fun getNewMode(newMode: AppToServiceEvent.PenMode) = when (newMode) {
-        AppToServiceEvent.PenMode.Mouse -> MouseMode(
+    private fun getNewMode(newMode: ModeStatus) = when (newMode) {
+        ModeStatus.Mouse -> MouseMode(
             notificationsManager = notificationsManager,
             dispatchGesture = ::dispatchGesture,
             preferences = preferences,
@@ -75,7 +76,7 @@ class MouseService : AccessibilityService() {
             context = this,
         )
 
-        AppToServiceEvent.PenMode.Point -> PointMode(
+        ModeStatus.Point -> PointMode(
             notificationsManager = notificationsManager,
             dispatchGesture = ::dispatchGesture,
             preferences = preferences,
@@ -83,7 +84,7 @@ class MouseService : AccessibilityService() {
             context = this,
         )
 
-        AppToServiceEvent.PenMode.Scroll -> ScrollMode(
+        ModeStatus.Scroll -> ScrollMode(
             notificationsManager = notificationsManager,
             dispatchGesture = ::dispatchGesture,
             preferences = preferences,
@@ -94,12 +95,12 @@ class MouseService : AccessibilityService() {
         else -> null
     }
 
-    private fun stopMode() {
+    private fun stopMode(stopMode: ModeStatus = ModeStatus.Off) {
         val currentModeName = currentMode?.let { it::class.simpleName } ?: "null"
         Log.d(TAG, "Stopping current mode ($currentModeName)")
         currentMode?.stop()
         currentMode = null
-        AppToServiceEvent.serviceStatus.tryEmit(AppToServiceEvent.PenMode.Off)
+        AppToServiceEvent.serviceStatus.tryEmit(value = stopMode)
     }
 
     private fun cancelAppToServiceEventObserver() {
@@ -116,6 +117,6 @@ class MouseService : AccessibilityService() {
 
     companion object {
         private const val TAG = "MouseService"
-        private const val DELAY_BETWEEN_MODES = 2000L
+        private const val DELAY_BETWEEN_MODES = 1000L
     }
 }

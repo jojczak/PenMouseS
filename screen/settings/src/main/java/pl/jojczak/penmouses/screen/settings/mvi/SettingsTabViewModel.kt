@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.PenMode
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 
 internal abstract class SettingsTabViewModel<StateType: SettingsTabState>(
@@ -33,7 +33,7 @@ internal abstract class SettingsTabViewModel<StateType: SettingsTabState>(
     }
 
     protected fun tryToPingService() {
-        if (AppToServiceEvent.serviceStatus.value != PenMode.Off) {
+        if (AppToServiceEvent.serviceStatus.value != ModeStatus.Off) {
             AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.PreferencesUpdated)
         }
     }

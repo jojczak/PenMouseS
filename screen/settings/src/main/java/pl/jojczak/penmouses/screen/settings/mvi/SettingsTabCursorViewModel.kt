@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.graphics.scale
 import dagger.hilt.android.qualifiers.ApplicationContext
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.PenMode
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.utils.CURSOR_IMAGE_WIDTH
 import pl.jojczak.penmouses.core.common.utils.CursorType
 import pl.jojczak.penmouses.core.common.utils.PrefKeys
@@ -21,7 +21,7 @@ import java.io.IOException
 
 internal abstract class SettingsTabCursorViewModel<StateType: SettingsTabCursorState>(
     @param:ApplicationContext private val context: Context,
-    private val penMode: PenMode,
+    private val modeStatus: ModeStatus,
     preferencesManager: PreferencesManager,
     startState: StateType,
 ): SettingsTabViewModel<StateType>(
@@ -53,7 +53,7 @@ internal abstract class SettingsTabCursorViewModel<StateType: SettingsTabCursorS
             val targetHeight = (originalBitmap.height * scaleFactor).toInt()
             val resizedBitmap = originalBitmap.scale(targetWidth, targetHeight)
 
-            val outputFile = File(context.filesDir, CursorType.Custom.getFileName(penMode))
+            val outputFile = File(context.filesDir, CursorType.Custom.getFileName(modeStatus))
             val outputStream = FileOutputStream(outputFile)
             resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
 
@@ -72,9 +72,9 @@ internal abstract class SettingsTabCursorViewModel<StateType: SettingsTabCursorS
     }
 
     protected open fun onCursorTypeChange(cursorType: CursorType) {
-        when (penMode) {
-            PenMode.Mouse -> preferencesManager.put(PrefKeys.MOUSE_CURSOR_TYPE, cursorType)
-            else /*PenMode.Point*/ -> preferencesManager.put(PrefKeys.POINT_CURSOR_TYPE, cursorType)
+        when (modeStatus) {
+            ModeStatus.Mouse -> preferencesManager.put(PrefKeys.MOUSE_CURSOR_TYPE, cursorType)
+            else /*ModeStatus.Point*/ -> preferencesManager.put(PrefKeys.POINT_CURSOR_TYPE, cursorType)
         }
         tryToPingService()
     }

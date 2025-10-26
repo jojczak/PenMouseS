@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.utils.CursorType
 import pl.jojczak.penmouses.core.common.utils.PrefKey
 import pl.jojczak.penmouses.core.common.utils.PrefKeys
@@ -61,7 +61,7 @@ private fun SettingsPointTabContent(
 ) {
     cursorIconComponent(
         cursorType = viewState.cursorType,
-        penMode = AppToServiceEvent.PenMode.Point,
+        modeStatus = ModeStatus.Point,
         onCursorTypeChange = onCursorTypeChange,
         onCustomCursorFileSelected = onCustomCursorFileSelected
     )

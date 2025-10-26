@@ -19,7 +19,7 @@ object SPenModule {
 
     @Provides
     @Singleton
-    fun provideSPenManager2(activityProvider: ActivityProvider): SPenManager {
+    fun provideSPenManager(activityProvider: ActivityProvider): SPenManager {
         return SPenManager(activityProvider)
     }
 }

@@ -32,11 +32,12 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import pl.jojczak.penmouses.core.common.types.ManualPageType
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_s
 import pl.jojczak.penmouses.core.ui.theme.radius_l
-import pl.jojczak.penmouses.screen.manual.ManualPageType
 import pl.jojczak.penmouses.screen.manual.R
+import pl.jojczak.penmouses.screen.manual.manualPageData
 
 
 private val MAX_DRAWER_WIDTH = 281.dp
@@ -156,12 +157,13 @@ private fun LazyListScope.drawerItem(
     onPageClicked: (ManualPageType) -> Unit,
 ) = item {
     val selected = currentPageType == pageType
+    val pageData = manualPageData.getValue(pageType)
 
     NavigationDrawerItem(
         label = {
             Column {
-                Text(text = stringResource(pageType.labelId))
-                pageType.descId?.let {
+                Text(text = stringResource(pageData.labelId))
+                pageData.descId?.let {
                     Text(
                         text = stringResource(it),
                         style = MaterialTheme.typography.bodySmall,
@@ -171,10 +173,10 @@ private fun LazyListScope.drawerItem(
             }
         },
         icon = {
-            val iconId = if (selected && pageType.filledIconId != null) {
-                pageType.filledIconId
+            val iconId = if (selected && pageData.filledIconId != null) {
+                pageData.filledIconId
             } else {
-                pageType.iconId
+                pageData.iconId
             }
 
             Icon(

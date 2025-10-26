@@ -3,7 +3,7 @@ package pl.jojczak.penmouses.screen.settings.tab.mouse
 import android.content.Context
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.utils.CursorType
 import pl.jojczak.penmouses.core.common.utils.PrefKeys
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
@@ -19,7 +19,7 @@ internal class SettingsMouseViewModel @Inject constructor(
 ): SettingsTabCursorViewModel<SettingsMouseState>(
     preferencesManager = preferencesManager,
     startState = SettingsMouseState(),
-    penMode = AppToServiceEvent.PenMode.Mouse,
+    modeStatus = ModeStatus.Mouse,
     context = context
 ) {
     override fun refreshSettingsData() = updateState {

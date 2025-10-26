@@ -14,7 +14,7 @@ import android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
 import android.widget.ImageView
 import com.samsung.android.sdk.penremote.ButtonEvent
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.common.spen.listener.ButtonAction
 import pl.jojczak.penmouses.core.common.spen.listener.ConnectionResultCallback
@@ -35,7 +35,7 @@ class PointMode(
     preferences = preferences,
     sPenManager = sPenManager,
     context = context,
-    penMode = AppToServiceEvent.PenMode.Point,
+    modeStatus = ModeStatus.Point,
     animatorFactory = { view -> PointAnimator(view) }
 ) {
     private var clickStartTime: Long = 0

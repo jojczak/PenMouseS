@@ -66,7 +66,7 @@ import pl.jojczak.penmouses.screen.settings.R
 
 internal fun LazyListScope.cursorIconComponent(
     cursorType: CursorType,
-    penMode: AppToServiceEvent.PenMode,
+    modeStatus: AppToServiceEvent.ModeStatus,
     onCursorTypeChange: (CursorType) -> Unit = {},
     onCustomCursorFileSelected: (Uri) -> Unit = {}
 ) = item {
@@ -80,7 +80,7 @@ internal fun LazyListScope.cursorIconComponent(
     ) {
         CursorPreview(
             cursorType = cursorType,
-            penMode = penMode,
+            modeStatus = modeStatus,
             radioButtonsHeight = radioButtonsHeight.intValue,
             onCustomCursorFileSelected = onCustomCursorFileSelected
         )
@@ -95,13 +95,13 @@ internal fun LazyListScope.cursorIconComponent(
 @Composable
 private fun RowScope.CursorPreview(
     cursorType: CursorType,
-    penMode: AppToServiceEvent.PenMode,
+    modeStatus: AppToServiceEvent.ModeStatus,
     radioButtonsHeight: Int,
     onCustomCursorFileSelected: (Uri) -> Unit = {}
 ) {
     val context = LocalContext.current
     var cursorBitmap by remember(cursorType) {
-        mutableStateOf(getCursorBitmap(context, cursorType, penMode))
+        mutableStateOf(getCursorBitmap(context, cursorType, modeStatus))
     }
 
     val pickImage = rememberLauncherForActivityResult(
@@ -110,7 +110,7 @@ private fun RowScope.CursorPreview(
         if (uri != null) {
             Log.d("PhotoPicker", "Selected URI: $uri")
             onCustomCursorFileSelected(uri)
-            cursorBitmap = getCursorBitmap(context, cursorType, penMode)
+            cursorBitmap = getCursorBitmap(context, cursorType, modeStatus)
         } else {
             Log.d("PhotoPicker", "No media selected")
         }
@@ -238,7 +238,7 @@ private fun PreviewCursorIconComponent() {
             LazyColumn {
                 cursorIconComponent(
                     cursorType = CursorType.Light,
-                    penMode = AppToServiceEvent.PenMode.Mouse,
+                    modeStatus = AppToServiceEvent.ModeStatus.Mouse,
                 )
             }
         }

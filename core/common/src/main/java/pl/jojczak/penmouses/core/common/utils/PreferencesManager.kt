@@ -6,7 +6,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.core.content.edit
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.ui.R
 
 class PreferencesManager(
@@ -119,9 +119,9 @@ enum class CursorType(
     Retro("retro.png", R.string.cursor_type_retro),
     Custom("custom.png", R.string.cursor_type_custom);
 
-    fun getFileName(mode: AppToServiceEvent.PenMode? = null) = when (mode) {
-        AppToServiceEvent.PenMode.Mouse -> "mouse_" + this.fileName
-        AppToServiceEvent.PenMode.Point -> "point_" + this.fileName
+    fun getFileName(mode: ModeStatus? = null) = when (mode) {
+        ModeStatus.Mouse -> "mouse_" + this.fileName
+        ModeStatus.Point -> "point_" + this.fileName
         else -> this.fileName
     }
 

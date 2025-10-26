@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -41,6 +42,7 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import pl.jojczak.penmouses.core.common.types.ManualPageType
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.hazeUltraThinSurface
 import pl.jojczak.penmouses.screen.home.HomeScreen
@@ -81,7 +83,7 @@ internal fun PenMouseSContentWithManualDrawer() {
                 manualHazeState = manualHazeState,
                 currentPageType = manualViewState.page,
                 onPageClicked = {
-                    manualViewModel.onViewAction(ManualUserAction.ChangeScreen(it))
+                    manualViewModel.onViewAction(viewAction = ManualUserAction.ChangeScreen(page = it))
                     scope.launch { delay(MANUAL_DRAWER_DELAY_AFTER_PAGE_CHANGE_MS); manualDrawerState.close() }
                 }
             )
@@ -92,7 +94,11 @@ internal fun PenMouseSContentWithManualDrawer() {
             currentScreen = currentScreen,
             manualDrawerState = manualDrawerState,
             manualViewState = manualViewState,
-            modifier = Modifier.hazeSource(state = manualHazeState)
+            modifier = Modifier.hazeSource(state = manualHazeState),
+            showManualPageClicked = {
+                manualViewModel.onViewAction(viewAction = ManualUserAction.ChangeScreen(page = it))
+                navController.navigateTo(Screen.Manual)
+            }
         )
     }
 }
@@ -103,7 +109,8 @@ private fun PenMouseSScaffold(
     currentScreen: Screen,
     manualDrawerState: DrawerState,
     manualViewState: ManualViewState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showManualPageClicked: (ManualPageType) -> Unit,
 ) {
     val navigationHazeState = rememberHazeState()
 
@@ -125,7 +132,8 @@ private fun PenMouseSScaffold(
                 paddingValues = paddingValues,
                 navigationHazeState = navigationHazeState,
                 manualDrawerState = manualDrawerState,
-                manualViewState = manualViewState
+                manualViewState = manualViewState,
+                showManualPageClicked = showManualPageClicked
             )
         }
     )
@@ -138,35 +146,35 @@ private fun PenMouseSNavigation(
     navigationHazeState: HazeState,
     manualDrawerState: DrawerState,
     manualViewState: ManualViewState,
+    showManualPageClicked: (ManualPageType) -> Unit,
+) = NavHost(
+    navController = navController,
+    startDestination = Screen.Home,
+    enterTransition = AnimatedContentTransitionScope<NavBackStackEntry>::enterAnimation,
+    exitTransition = { ExitTransition.None },
+    popEnterTransition = { EnterTransition.None },
+    popExitTransition = AnimatedContentTransitionScope<NavBackStackEntry>::exitAnimation
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Home,
-        enterTransition = AnimatedContentTransitionScope<NavBackStackEntry>::enterAnimation,
-        exitTransition = { ExitTransition.None },
-        popEnterTransition = { EnterTransition.None },
-        popExitTransition = AnimatedContentTransitionScope<NavBackStackEntry>::exitAnimation
-    ) {
-        composable<Screen.Home> {
-            HomeScreen(
-                paddingValues = paddingValues,
-                navigationHazeState = navigationHazeState
-            )
-        }
-        composable<Screen.Manual> {
-            ManualScreen(
-                paddingValues = paddingValues,
-                navigationHazeState = navigationHazeState,
-                manualDrawerState = manualDrawerState,
-                viewState = manualViewState
-            )
-        }
-        composable<Screen.Settings> {
-            SettingsScreen(
-                paddingValues = paddingValues,
-                navigationHazeState = navigationHazeState
-            )
-        }
+    composable<Screen.Home> {
+        HomeScreen(
+            paddingValues = paddingValues,
+            navigationHazeState = navigationHazeState,
+            showManualPageClicked = showManualPageClicked
+        )
+    }
+    composable<Screen.Manual> {
+        ManualScreen(
+            paddingValues = paddingValues,
+            navigationHazeState = navigationHazeState,
+            manualDrawerState = manualDrawerState,
+            viewState = manualViewState
+        )
+    }
+    composable<Screen.Settings> {
+        SettingsScreen(
+            paddingValues = paddingValues,
+            navigationHazeState = navigationHazeState
+        )
     }
 }
 
@@ -175,49 +183,36 @@ private fun PenMouseSBottomBar(
     navController: NavHostController,
     currentScreen: Screen,
     modifier: Modifier = Modifier
+) = NavigationBar(
+    windowInsets = NavigationBarDefaults.windowInsets,
+    containerColor = Color.Transparent,
+    modifier = modifier
 ) {
-    NavigationBar(
-        windowInsets = NavigationBarDefaults.windowInsets,
-        containerColor = Color.Transparent,
-        modifier = modifier
-    ) {
-        Screen.order.forEach { screen ->
-            NavigationBarItem(
-                selected = screen == currentScreen,
-                onClick = {
-                    navController.navigate(screen) {
-                        launchSingleTop = true
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        restoreState = true
-                    }
-                },
-                icon = { NavIcon(screen = screen) },
-                label = { NavLabel(screen = screen) }
-            )
-        }
+    Screen.order.forEach { screen ->
+        NavigationBarItem(
+            selected = screen == currentScreen,
+            onClick = { navController.navigateTo(screen) },
+            icon = { NavIcon(screen = screen) },
+            label = { Text(text = stringResource(screen.titleResId)) }
+        )
     }
 }
 
 @Composable
-private fun NavIcon(screen: Screen) {
-    Icon(
-        painter = painterResource(screen.iconResId),
-        contentDescription = stringResource(screen.titleResId)
-    )
-}
-
-@Composable
-private fun NavLabel(screen: Screen) {
-    Text(
-        text = stringResource(screen.titleResId)
-    )
-}
+private fun NavIcon(screen: Screen) = Icon(
+    painter = painterResource(screen.iconResId),
+    contentDescription = stringResource(screen.titleResId)
+)
 
 @Composable
 private fun rememberScreen(currentRoute: String?) = remember(currentRoute) {
     Screen.findFromRoute(currentRoute)
+}
+
+private fun NavController.navigateTo(screen: Any) = navigate(screen) {
+    launchSingleTop = true
+    popUpTo(graph.findStartDestination().id) { saveState = true }
+    restoreState = true
 }
 
 @Composable

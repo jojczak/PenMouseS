@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import pl.jojczak.penmouses.core.common.types.ManualPageType
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,7 +30,7 @@ class ManualViewModel @Inject constructor(
     private fun loadManualPage(pageType: ManualPageType) {
         val pageContent = context
             .resources
-            .openRawResource(pageType.fileId)
+            .openRawResource(manualPageData.getValue(pageType).fileId)
             .bufferedReader()
             .use { it.readText() }
 

@@ -33,7 +33,8 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.PenMode
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
+import pl.jojczak.penmouses.core.common.types.ManualPageType
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSDevicePreview
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_s
@@ -43,8 +44,9 @@ import pl.jojczak.penmouses.core.ui.R as coreR
 
 @Composable
 fun HomeScreen(
-    paddingValues: PaddingValues = PaddingValues(),
+    paddingValues: PaddingValues,
     navigationHazeState: HazeState,
+    showManualPageClicked: (ManualPageType) -> Unit,
     viewModel: HomeScreenViewModel = hiltViewModel()
 ) {
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
@@ -58,7 +60,7 @@ fun HomeScreen(
         state = state,
         navigationHazeState = navigationHazeState,
         paddingValues = paddingValues,
-        changeDialogState = viewModel::changeDialogState,
+        showManualPageClicked = showManualPageClicked,
         toggleService = viewModel::sendSignalToService,
         togglePermissionNotification = viewModel::togglePermissionNotification
     )
@@ -70,119 +72,115 @@ private fun HomeScreenContent(
     state: HomeScreenState,
     navigationHazeState: HazeState,
     paddingValues: PaddingValues,
-    changeDialogState: (step: Int, show: Boolean) -> Unit = { _, _ -> },
+    showManualPageClicked: (ManualPageType) -> Unit,
     toggleService: (event: AppToServiceEvent.Event) -> Unit = {},
     togglePermissionNotification: (state: Boolean) -> Unit = {}
+) = BoxWithConstraints(
+    modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)
+        .hazeSource(navigationHazeState)
 ) {
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .hazeSource(navigationHazeState)
-    ) {
-        if (maxHeight > maxWidth) {
-            PortraitLayout(
-                serviceStatus = state.serviceStatus,
-                paddingValues = paddingValues,
-                toggleService = toggleService,
-                changeDialogState = changeDialogState
-            )
-        } else {
-            LandscapeLayout(
-                serviceStatus = state.serviceStatus,
-                paddingValues = paddingValues,
-                toggleService = toggleService,
-                changeDialogState = changeDialogState
-            )
-        }
+    if (maxHeight > maxWidth) {
+        PortraitLayout(
+            serviceStatus = state.serviceStatus,
+            paddingValues = paddingValues,
+            isAccessibilityEnabled = state.isAccessibilityEnabled,
+            toggleService = toggleService,
+            showManualPageClicked = showManualPageClicked
+        )
+    } else {
+        LandscapeLayout(
+            serviceStatus = state.serviceStatus,
+            paddingValues = paddingValues,
+            isAccessibilityEnabled = state.isAccessibilityEnabled,
+            toggleService = toggleService,
+            showManualPageClicked = showManualPageClicked
+        )
     }
 }
 
 @Composable
 private fun PortraitLayout(
-    serviceStatus: PenMode,
+    serviceStatus: ModeStatus,
     paddingValues: PaddingValues,
-    changeDialogState: (step: Int, show: Boolean) -> Unit,
+    isAccessibilityEnabled: Boolean,
+    showManualPageClicked: (ManualPageType) -> Unit,
     toggleService: (event: AppToServiceEvent.Event) -> Unit,
+) = LazyColumn(
+    contentPadding = PaddingValues(
+        start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + pad_l,
+        top = paddingValues.calculateTopPadding() + pad_l,
+        end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + pad_l,
+        bottom = paddingValues.calculateBottomPadding() + pad_l
+    ),
+    verticalArrangement = Arrangement.spacedBy(pad_s)
 ) {
-    LazyColumn(
-        contentPadding = PaddingValues(
-            start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + pad_l,
-            top = paddingValues.calculateTopPadding() + pad_l,
-            end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + pad_l,
-            bottom = paddingValues.calculateBottomPadding() + pad_l
-        ),
-        verticalArrangement = Arrangement.spacedBy(pad_s)
-    ) {
-        item {
-            AppLogo(
-                changeDialogState = changeDialogState,
-                modifier = Modifier.padding(bottom = pad_s)
-            )
-        }
-
-        stepsContainer(
-            serviceStatus = serviceStatus,
-            toggleService = toggleService,
-            changeDialogState = changeDialogState,
+    item {
+        AppLogo(
+            showManualPageClicked = showManualPageClicked,
+            modifier = Modifier.padding(bottom = pad_s)
         )
     }
+
+    stepsContainer(
+        serviceStatus = serviceStatus,
+        toggleService = toggleService,
+        isAccessibilityEnabled = isAccessibilityEnabled,
+        showManualPageClicked = showManualPageClicked
+    )
 }
 
 @Composable
 private fun LandscapeLayout(
-    serviceStatus: PenMode,
+    serviceStatus: ModeStatus,
     paddingValues: PaddingValues,
-    changeDialogState: (step: Int, show: Boolean) -> Unit,
+    isAccessibilityEnabled: Boolean,
+    showManualPageClicked: (ManualPageType) -> Unit,
     toggleService: (event: AppToServiceEvent.Event) -> Unit,
+) = Row(
+    horizontalArrangement = Arrangement.spacedBy(pad_l)
 ) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(pad_l)
-    ) {
-        AppLogo(
-            changeDialogState = changeDialogState,
-            modifier = Modifier
-                .padding(
-                    start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + pad_l,
-                    top = paddingValues.calculateTopPadding() + pad_l
-                )
-                .weight(1f)
-        )
-        LazyColumn(
-            contentPadding = PaddingValues(
-                top = paddingValues.calculateTopPadding() + pad_l,
-                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + pad_l,
-                bottom = paddingValues.calculateBottomPadding() + pad_l
-            ),
-            verticalArrangement = Arrangement.spacedBy(pad_s),
-            modifier = Modifier.weight(2f)
-        ) {
-            stepsContainer(
-                serviceStatus = serviceStatus,
-                toggleService = toggleService,
-                changeDialogState = changeDialogState,
+    AppLogo(
+        showManualPageClicked = showManualPageClicked,
+        modifier = Modifier
+            .padding(
+                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + pad_l,
+                top = paddingValues.calculateTopPadding() + pad_l
             )
-        }
+            .weight(1f)
+    )
+    LazyColumn(
+        contentPadding = PaddingValues(
+            top = paddingValues.calculateTopPadding() + pad_l,
+            end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + pad_l,
+            bottom = paddingValues.calculateBottomPadding() + pad_l
+        ),
+        verticalArrangement = Arrangement.spacedBy(pad_s),
+        modifier = Modifier.weight(2f)
+    ) {
+        stepsContainer(
+            serviceStatus = serviceStatus,
+            toggleService = toggleService,
+            isAccessibilityEnabled = isAccessibilityEnabled,
+            showManualPageClicked = showManualPageClicked
+        )
     }
 }
 
 @Composable
 private fun AppLogo(
-    changeDialogState: (step: Int, show: Boolean) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Image(
-        painter = painterResource(coreR.drawable.logo),
-        contentDescription = stringResource(R.string.home_logo_alt),
-        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
-        modifier = modifier
-            .clip(RoundedCornerShape(radius_l))
-            .clickable {
-                changeDialogState(6, true)
-            }
-            .padding(pad_l)
-    )
-}
+    modifier: Modifier = Modifier,
+    showManualPageClicked: (ManualPageType) -> Unit,
+) = Image(
+    painter = painterResource(coreR.drawable.logo),
+    contentDescription = stringResource(R.string.home_logo_alt),
+    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+    modifier = modifier
+        .clip(RoundedCornerShape(radius_l))
+        .clickable { showManualPageClicked(ManualPageType.AboutPenMouseS) }
+        .padding(pad_l)
+)
 
 @Composable
 @Preview
@@ -191,7 +189,8 @@ private fun HomeScreenPreview() {
         HomeScreenContent(
             state = HomeScreenState(),
             navigationHazeState = rememberHazeState(),
-            paddingValues = it
+            paddingValues = it,
+            showManualPageClicked = {}
         )
     }
 }

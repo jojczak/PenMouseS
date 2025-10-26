@@ -2,8 +2,10 @@ package pl.jojczak.penmouses.screen.home.components
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -20,12 +24,14 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -33,7 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.Event
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.PenMode
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
+import pl.jojczak.penmouses.core.common.types.ManualPageType
 import pl.jojczak.penmouses.core.ui.components.TextButton
 import pl.jojczak.penmouses.core.ui.theme.LINK_ICON_SIZE_SMALL
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSPreview
@@ -45,26 +52,30 @@ import pl.jojczak.penmouses.core.ui.theme.pad_xs
 import pl.jojczak.penmouses.core.ui.theme.pad_xxs
 import pl.jojczak.penmouses.core.ui.theme.radius_m
 import pl.jojczak.penmouses.screen.home.R
+import pl.jojczak.penmouses.screen.home.modesComponentData
 import pl.jojczak.penmouses.screen.home.openAccessibilitySettings
 import pl.jojczak.penmouses.screen.home.openSettings
 
 internal fun LazyListScope.stepsContainer(
-    serviceStatus: PenMode,
+    serviceStatus: ModeStatus,
+    isAccessibilityEnabled: Boolean,
     toggleService: (event: Event) -> Unit,
-    changeDialogState: (step: Int, show: Boolean) -> Unit,
+    showManualPageClicked: (ManualPageType) -> Unit,
 ) {
-    step1(changeDialogState = changeDialogState)
-    step2(changeDialogState = changeDialogState)
-    step3(changeDialogState = changeDialogState)
+    step1(showManualPageClicked = showManualPageClicked)
+    step2(showManualPageClicked = showManualPageClicked)
+    step3(
+        isAccessibilityEnabled = isAccessibilityEnabled,
+        showManualPageClicked = showManualPageClicked
+    )
     step4(
         serviceStatus = serviceStatus,
         toggleService = toggleService,
-        changeDialogState = changeDialogState
     )
 }
 
 private fun LazyListScope.step1(
-    changeDialogState: (step: Int, show: Boolean) -> Unit,
+    showManualPageClicked: (ManualPageType) -> Unit,
 ) = item {
     val context = LocalContext.current
 
@@ -76,8 +87,7 @@ private fun LazyListScope.step1(
             Column {
                 StepHeader(
                     stepText = R.string.home_steps_1,
-                    dialogIdToOpen = 1,
-                    changeDialogState = changeDialogState
+                    showManualPageClicked = { showManualPageClicked(ManualPageType.PreparationStep1) }
                 )
                 Text(
                     text = stringResource(R.string.home_steps_1_des),
@@ -93,14 +103,13 @@ private fun LazyListScope.step1(
 }
 
 private fun LazyListScope.step2(
-    changeDialogState: (step: Int, show: Boolean) -> Unit,
+    showManualPageClicked: (ManualPageType) -> Unit,
 ) = item {
     StepSurface {
         Column {
             StepHeader(
                 stepText = R.string.home_steps_2,
-                dialogIdToOpen = 2,
-                changeDialogState = changeDialogState
+                showManualPageClicked = { showManualPageClicked(ManualPageType.PreparationStep2) }
             )
             Text(
                 text = stringResource(R.string.home_steps_2_des),
@@ -111,7 +120,8 @@ private fun LazyListScope.step2(
 }
 
 private fun LazyListScope.step3(
-    changeDialogState: (step: Int, show: Boolean) -> Unit,
+    isAccessibilityEnabled: Boolean,
+    showManualPageClicked: (ManualPageType) -> Unit,
 ) = item {
     val context = LocalContext.current
 
@@ -123,8 +133,7 @@ private fun LazyListScope.step3(
             ) {
                 StepHeader(
                     stepText = R.string.home_steps_3,
-                    dialogIdToOpen = 3,
-                    changeDialogState = changeDialogState
+                    showManualPageClicked = { showManualPageClicked(ManualPageType.PreparationStep3) }
                 )
                 StepHeaderLink(
                     linkText = R.string.home_steps_3_settings,
@@ -144,7 +153,8 @@ private fun LazyListScope.step3(
                 )
                 CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                     Switch(
-                        checked = true,
+                        checked = isAccessibilityEnabled,
+                        enabled = !isAccessibilityEnabled,
                         onCheckedChange = { openAccessibilitySettings(context) },
                         modifier = Modifier.padding(top = pad_xs, end = pad_m)
                     )
@@ -155,9 +165,8 @@ private fun LazyListScope.step3(
 }
 
 private fun LazyListScope.step4(
-    serviceStatus: PenMode,
+    serviceStatus: ModeStatus,
     toggleService: (event: Event) -> Unit,
-    changeDialogState: (step: Int, show: Boolean) -> Unit,
 ) = item {
     StepSurface(
         shape = RoundedCornerShape(
@@ -168,10 +177,7 @@ private fun LazyListScope.step4(
         )
     ) {
         Column {
-            StepHeader(
-                stepText = R.string.home_steps_4,
-                changeDialogState = changeDialogState
-            )
+            StepHeader(stepText = R.string.home_steps_4)
             Column(
                 verticalArrangement = Arrangement.spacedBy(space = pad_s),
                 modifier = Modifier.padding(
@@ -188,26 +194,55 @@ private fun LazyListScope.step4(
                     textAlign = TextAlign.Justify
                 )
                 Text("Select mode:")
-                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        PenMode.entries.forEachIndexed { index, mode ->
-                            SegmentedButton(
-                                shape = SegmentedButtonDefaults.itemShape(
-                                    index,
-                                    PenMode.entries.size
-                                ),
-                                onClick = {
-                                    toggleService(Event.Start(mode))
-                                },
-                                selected = mode == serviceStatus,
-                            ) {
-                                Text(mode.name)
-                            }
-                        }
+                Step4SegmentedButtonsContainer(
+                    serviceStatus = serviceStatus,
+                    toggleService = toggleService
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Step4SegmentedButtonsContainer(
+    serviceStatus: ModeStatus,
+    toggleService: (event: Event) -> Unit,
+) = CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+    Box {
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            modesComponentData.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    onClick = { toggleService(Event.Start(mode.mode)) },
+                    selected = mode.mode == serviceStatus,
+                    enabled = serviceStatus != ModeStatus.Loading,
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = modesComponentData.size
+                    ),
+                    label = {
+                        Text(text = stringResource(id = mode.labelId))
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = if (mode.mode == serviceStatus) mode.iconActiveId else mode.iconId),
+                            contentDescription = null
+                        )
                     }
-                }
+                )
+            }
+        }
+        if (serviceStatus == ModeStatus.Loading) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceColorAtElevation(elevation = 2.dp)
+                            .copy(alpha = 0.7f)
+                    )
+                    .padding(all = pad_s)
+            ) {
+                LinearProgressIndicator()
             }
         }
     }
@@ -217,45 +252,39 @@ private fun LazyListScope.step4(
 private fun StepSurface(
     shape: RoundedCornerShape = RoundedCornerShape(radius_m),
     content: @Composable () -> Unit
-) {
-    Surface(
-        tonalElevation = elevation_1,
-        shape = shape,
-        modifier = Modifier
-            .fillMaxWidth(),
-        content = content
-    )
-}
+) = Surface(
+    tonalElevation = elevation_1,
+    shape = shape,
+    modifier = Modifier.fillMaxWidth(),
+    content = content
+)
 
 @Composable
 private fun StepHeader(
     @StringRes stepText: Int,
-    dialogIdToOpen: Int? = null,
-    changeDialogState: (step: Int, show: Boolean) -> Unit,
-) {
-    Row {
+    showManualPageClicked: (() -> Unit)? = null,
+) = Row {
+    Text(
+        text = stringResource(id = stepText),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = pad_m, top = pad_s)
+    )
+    showManualPageClicked?.let {
         Text(
-            text = stringResource(id = stepText),
+            text = stringResource(id = R.string.home_steps_bullet),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = pad_m, top = pad_s)
+            modifier = Modifier.padding(top = pad_s)
         )
-        dialogIdToOpen?.let {
-            Text(
-                text = stringResource(id = R.string.home_steps_bullet),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = pad_s)
-            )
-            Text(
-                text = stringResource(id = R.string.home_steps_more),
-                textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(start = pad_xxs, top = pad_xs)
-                    .clip(RoundedCornerShape(radius_m))
-                    .clickable { changeDialogState(dialogIdToOpen, true) }
-                    .padding(all = pad_xs)
-            )
-        }
+        Text(
+            text = stringResource(id = R.string.home_steps_more),
+            textDecoration = TextDecoration.Underline,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .padding(start = pad_xxs, top = pad_xs)
+                .clip(RoundedCornerShape(radius_m))
+                .clickable { it() }
+                .padding(all = pad_xs)
+        )
     }
 }
 
@@ -263,17 +292,15 @@ private fun StepHeader(
 private fun StepHeaderLink(
     @StringRes linkText: Int,
     linkCallback: () -> Unit
-) {
-    TextButton(
-        stringRes = linkText,
-        textStyle = MaterialTheme.typography.bodySmall,
-        onClick = linkCallback,
-        iconSize = LINK_ICON_SIZE_SMALL,
-        spacedBy = pad_xs,
-        smallPad = PaddingValues(pad_xs, pad_xs, pad_xs, 0.dp),
-        normalPad = PaddingValues(pad_s)
-    )
-}
+) = TextButton(
+    stringRes = linkText,
+    textStyle = MaterialTheme.typography.bodySmall,
+    onClick = linkCallback,
+    iconSize = LINK_ICON_SIZE_SMALL,
+    spacedBy = pad_xs,
+    smallPad = PaddingValues(pad_xs, pad_xs, pad_xs, 0.dp),
+    normalPad = PaddingValues(pad_s)
+)
 
 @Composable
 @Preview
@@ -283,8 +310,9 @@ private fun StepsPreview() {
             verticalArrangement = Arrangement.spacedBy(pad_s)
         ) {
             stepsContainer(
-                serviceStatus = PenMode.Off,
-                changeDialogState = { _, _ -> },
+                serviceStatus = ModeStatus.Loading,
+                isAccessibilityEnabled = false,
+                showManualPageClicked = { _ -> },
                 toggleService = {}
             )
         }
@@ -299,8 +327,9 @@ private fun StepsPreviewDark() {
             verticalArrangement = Arrangement.spacedBy(pad_s)
         ) {
             stepsContainer(
-                serviceStatus = PenMode.Off,
-                changeDialogState = { _, _ -> },
+                serviceStatus = ModeStatus.Off,
+                isAccessibilityEnabled = true,
+                showManualPageClicked = { _ -> },
                 toggleService = {}
             )
         }

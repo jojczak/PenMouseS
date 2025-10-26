@@ -4,8 +4,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.DrawerState
@@ -26,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
@@ -33,6 +39,7 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
+import pl.jojczak.penmouses.core.common.types.ManualPageType
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSDevicePreview
 import pl.jojczak.penmouses.core.ui.theme.hazeUltraThinSurface
 import pl.jojczak.penmouses.core.ui.theme.pad_l
@@ -52,6 +59,8 @@ fun ManualScreen(
     val scope = rememberCoroutineScope()
     val localHazeState = rememberHazeState()
     val localDensity = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val insets = WindowInsets.safeDrawing.asPaddingValues()
     var topAppBarHeight by remember { mutableStateOf(TopAppBarExpandedHeight) }
 
     BackHandler(manualDrawerState.isOpen) {
@@ -64,7 +73,13 @@ fun ManualScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
-            contentPadding = paddingValues.copy(top = topAppBarHeight),
+            contentPadding = paddingValues.copy(
+                start = paddingValues.calculateStartPadding(layoutDirection) +
+                        insets.calculateStartPadding(layoutDirection),
+                top = topAppBarHeight,
+                end = paddingValues.calculateEndPadding(layoutDirection) +
+                        insets.calculateEndPadding(layoutDirection)
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .hazeSource(state = navigationHazeState)

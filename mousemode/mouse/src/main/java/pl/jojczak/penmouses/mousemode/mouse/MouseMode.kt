@@ -10,7 +10,7 @@ import android.os.SystemClock
 import android.util.Log
 import com.samsung.android.sdk.penremote.ButtonEvent
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.common.spen.listener.ButtonAction
 import pl.jojczak.penmouses.core.common.spen.listener.ConnectionResultCallback
@@ -35,7 +35,7 @@ class MouseMode(
     preferences = preferences,
     sPenManager = sPenManager,
     context = context,
-    penMode = AppToServiceEvent.PenMode.Mouse,
+    modeStatus = ModeStatus.Mouse,
     animatorFactory = { view -> MouseAnimator(view) }
 ) {
     private var prefSensitivity = cursorPreferences.getSensitivity()
@@ -53,7 +53,7 @@ class MouseMode(
     override fun start() {
         super.start()
 
-        cursorAnimator.targetOpacity = cursorPreferences.getOpacity(AppToServiceEvent.PenMode.Mouse)
+        cursorAnimator.targetOpacity = cursorPreferences.getOpacity(modeStatus = ModeStatus.Mouse)
 
         sPenManager.connect(object : ConnectionResultCallback() {
             override fun onSuccess() {
@@ -196,7 +196,7 @@ class MouseMode(
         prefHideDelay = cursorPreferences.getHideDelay()
         prefSensitivity = cursorPreferences.getSensitivity()
         prefIsSleepEnabled = cursorPreferences.isSleepEnabled()
-        cursorAnimator.targetOpacity = cursorPreferences.getOpacity(AppToServiceEvent.PenMode.Mouse)
+        cursorAnimator.targetOpacity = cursorPreferences.getOpacity(modeStatus = ModeStatus.Mouse)
         pingCursor()
     }
 

@@ -11,7 +11,9 @@ import pl.jojczak.penmouses.core.common.di.ActivityProvider
 import pl.jojczak.penmouses.core.common.spen.listener.AirMotionEventListener
 import pl.jojczak.penmouses.core.common.spen.listener.ButtonEventListener
 import pl.jojczak.penmouses.core.common.spen.listener.ConnectionResultCallback
+import javax.inject.Singleton
 
+@Singleton
 class SPenManager(
     private val activityProvider: ActivityProvider,
 ) {

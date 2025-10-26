@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.PenMode
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.utils.CursorType
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 import java.io.File
@@ -35,10 +35,10 @@ class SettingsViewModel @Inject constructor(
 
     private fun resetSettings() {
         preferencesManager.reset()
-        File(context.filesDir, CursorType.Custom.getFileName(PenMode.Mouse)).delete()
-        File(context.filesDir, CursorType.Custom.getFileName(PenMode.Point)).delete()
+        File(context.filesDir, CursorType.Custom.getFileName(ModeStatus.Mouse)).delete()
+        File(context.filesDir, CursorType.Custom.getFileName(ModeStatus.Point)).delete()
 
-        if (AppToServiceEvent.serviceStatus.value != PenMode.Off) {
+        if (AppToServiceEvent.serviceStatus.value != ModeStatus.Off) {
             AppToServiceEvent.event.tryEmit(AppToServiceEvent.Event.PreferencesUpdated)
         }
     }

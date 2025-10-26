@@ -9,9 +9,6 @@
     <string name="manual_page_how_to_use">How to use?</string>
     
     <string name="manual_page_category_modes">Modes</string>
-    <string name="manual_page_mouse_mode">Mouse</string>
-    <string name="manual_page_point_mode">Point</string>
-    <string name="manual_page_scroll_mode">Scroll</string>
     
     <string name="manual_page_category_preparation">Preparation</string>
     <string name="manual_page_step_1">Step 1</string>

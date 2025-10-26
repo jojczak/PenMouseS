@@ -3,7 +3,7 @@ package pl.jojczak.penmouses.mousemode.basecursor
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.utils.CursorType
 import pl.jojczak.penmouses.core.common.utils.PrefKeys
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
@@ -14,22 +14,22 @@ class CursorPreferences(
     private val preferences: PreferencesManager,
 ) {
 
-    fun getBitmap(penMode: AppToServiceEvent.PenMode): Bitmap? {
+    fun getBitmap(modeStatus: ModeStatus): Bitmap? {
         Log.d(TAG, "Getting cursor image")
 
-        val cursorType = when (penMode) {
-            AppToServiceEvent.PenMode.Mouse -> preferences.get(PrefKeys.MOUSE_CURSOR_TYPE)
+        val cursorType = when (modeStatus) {
+            ModeStatus.Mouse -> preferences.get(PrefKeys.MOUSE_CURSOR_TYPE)
             else -> preferences.get(PrefKeys.POINT_CURSOR_TYPE)
         }
-        return getCursorBitmap(context, cursorType, penMode)
-            ?: getCursorBitmap(context, CursorType.Light, penMode)
+        return getCursorBitmap(context, cursorType, modeStatus)
+            ?: getCursorBitmap(context, CursorType.Light, modeStatus)
     }
 
-    fun getSize(penMode: AppToServiceEvent.PenMode, bitmap: Bitmap): Pair<Int, Int> {
+    fun getSize(modeStatus: ModeStatus, bitmap: Bitmap): Pair<Int, Int> {
         Log.d(TAG, "Getting cursor size")
 
-        val prefSize = when (penMode) {
-            AppToServiceEvent.PenMode.Mouse -> preferences.get(PrefKeys.MOUSE_CURSOR_SIZE)
+        val prefSize = when (modeStatus) {
+            ModeStatus.Mouse -> preferences.get(PrefKeys.MOUSE_CURSOR_SIZE)
             else -> preferences.get(PrefKeys.POINT_CURSOR_SIZE)
         }
         val density = context.resources.displayMetrics.density
@@ -43,8 +43,8 @@ class CursorPreferences(
         return Pair(width, cursorSize)
     }
 
-    fun getOpacity(penMode: AppToServiceEvent.PenMode) = when (penMode) {
-        AppToServiceEvent.PenMode.Mouse -> preferences.get(PrefKeys.MOUSE_CURSOR_ALPHA)
+    fun getOpacity(modeStatus: ModeStatus) = when (modeStatus) {
+        ModeStatus.Mouse -> preferences.get(PrefKeys.MOUSE_CURSOR_ALPHA)
         else -> preferences.get(PrefKeys.POINT_CURSOR_ALPHA)
     }
 

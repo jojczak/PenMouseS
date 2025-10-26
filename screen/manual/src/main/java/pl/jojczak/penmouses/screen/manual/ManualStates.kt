@@ -3,6 +3,8 @@ package pl.jojczak.penmouses.screen.manual
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
 import androidx.annotation.StringRes
+import pl.jojczak.penmouses.core.common.types.ManualPageType
+import pl.jojczak.penmouses.core.ui.R as coreR
 
 sealed class ManualAction
 
@@ -15,65 +17,67 @@ data class ManualViewState(
     val markdownContent: String = ""
 )
 
-enum class ManualPageType(
+internal data class ManualPageData(
     @param:RawRes val fileId: Int,
     @param:DrawableRes val iconId: Int,
     @param:DrawableRes val filledIconId: Int? = null,
     @param:StringRes val labelId: Int,
     @param:StringRes val descId: Int? = null,
-) {
-    AboutPenMouseS(
+)
+
+internal val manualPageData = mapOf(
+    ManualPageType.AboutPenMouseS to ManualPageData(
         fileId = R.raw.manual_page_about_pen_mouse_s,
         iconId = R.drawable.ic_spen,
         filledIconId = R.drawable.ic_spen_filled,
-        labelId = R.string.manual_page_about_penmouse_s,
+        labelId = R.string.manual_page_about_penmouse_s
     ),
-    WhatsNewIn2(
+    ManualPageType.WhatsNewIn2 to ManualPageData(
         fileId = R.raw.manual_page_whats_new,
         iconId = R.drawable.ic_star,
         filledIconId = R.drawable.ic_star_filled,
         labelId = R.string.manual_page_whats_new
     ),
-    HowToUse(
+    ManualPageType.HowToUse to ManualPageData(
         fileId = R.raw.manual_page_how_to_use,
         iconId = R.drawable.ic_question_mark,
         labelId = R.string.manual_page_how_to_use
     ),
-    MouseMode(
+    ManualPageType.MouseMode to ManualPageData(
         fileId = R.raw.manual_page_about_pen_mouse_s,
-        iconId = R.drawable.ic_mouse_mode,
-        filledIconId = R.drawable.ic_mouse_mode_filled,
-        labelId = R.string.manual_page_mouse_mode
+        iconId = coreR.drawable.ic_mouse_mode,
+        filledIconId = coreR.drawable.ic_mouse_mode_filled,
+        labelId = coreR.string.pen_mode_mouse
     ),
-    PointMode(
+    ManualPageType.PointMode to ManualPageData(
         fileId = R.raw.manual_page_about_pen_mouse_s,
-        iconId = R.drawable.ic_point_mode,
-        labelId = R.string.manual_page_point_mode
+        iconId = coreR.drawable.ic_point_mode,
+        labelId = coreR.string.pen_mode_point
     ),
-    ScrollMode(
+    ManualPageType.ScrollMode to ManualPageData(
         fileId = R.raw.manual_page_about_pen_mouse_s,
-        iconId = R.drawable.ic_scroll_mode,
-        filledIconId = R.drawable.ic_scroll_mode_filled,
-        labelId = R.string.manual_page_scroll_mode
+        iconId = coreR.drawable.ic_scroll_mode,
+        filledIconId = coreR.drawable.ic_scroll_mode_filled,
+        labelId = coreR.string.pen_mode_scroll
     ),
-    PreparationStep1(
+    ManualPageType.PreparationStep1 to ManualPageData(
         fileId = R.raw.manual_page_about_pen_mouse_s,
         iconId = R.drawable.ic_preparation_1,
         filledIconId = R.drawable.ic_preparation_1_filled,
         labelId = R.string.manual_page_step_1,
         descId = R.string.manual_page_step_1_desc
     ),
-    PreparationStep2(
+    ManualPageType.PreparationStep2 to ManualPageData(
         fileId = R.raw.manual_page_about_pen_mouse_s,
         iconId = R.drawable.ic_preparation_2,
         filledIconId = R.drawable.ic_preparation_2_filled,
         labelId = R.string.manual_page_step_2,
         descId = R.string.manual_page_step_2_desc
     ),
-    PreparationStep3(
+    ManualPageType.PreparationStep3 to ManualPageData(
         fileId = R.raw.manual_page_about_pen_mouse_s,
         iconId = R.drawable.ic_preparation_3,
         labelId = R.string.manual_page_step_3,
         descId = R.string.manual_page_step_3_desc
     )
-}
+)

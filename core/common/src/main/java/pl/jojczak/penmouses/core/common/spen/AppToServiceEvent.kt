@@ -4,17 +4,18 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 object AppToServiceEvent {
-    val serviceStatus = MutableStateFlow<PenMode>(PenMode.Off)
+    val serviceStatus = MutableStateFlow<ModeStatus>(ModeStatus.Off)
     val event = MutableSharedFlow<Event>(extraBufferCapacity = 1)
 
     sealed class Event {
-        data class Start(val mode: PenMode) : Event()
+        data class Start(val mode: ModeStatus) : Event()
         data object Stop : Event()
         data object PreferencesUpdated: Event()
     }
 
-    enum class PenMode {
+    enum class ModeStatus {
         Off,
+        Loading,
         Mouse,
         Point,
         Scroll

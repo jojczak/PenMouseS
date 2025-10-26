@@ -11,6 +11,11 @@
     <string name="cursor_type_retro">Retro</string>
     <string name="cursor_type_custom">Custom</string>
 
+    <string name="pen_mode_off">Off</string>
+    <string name="pen_mode_mouse">Mouse</string>
+    <string name="pen_mode_point">Point</string>
+    <string name="pen_mode_scroll">Scroll</string>
+
     <string name="notification_channel_status">Status</string>
     <string name="notification_action_stop">Stop</string>
 
