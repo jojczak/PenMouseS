@@ -17,19 +17,13 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:common"))
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.bundles.compose.core)
     implementation(platform(libs.androidx.compose.bom))
 
-    implementation(libs.haze)
-    implementation(libs.haze.materials)
+    implementation(libs.bundles.haze)
 
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    ksp(libs.hilt.ksp)
+    implementation(libs.bundles.hilt)
+    ksp(libs.bundles.hilt.ksp)
 
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    debugImplementation(libs.bundles.compose.debug)
 }

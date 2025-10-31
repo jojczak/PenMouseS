@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,20 +22,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.pad_l
+import pl.jojczak.penmouses.core.ui.theme.pad_s
 import pl.jojczak.penmouses.core.ui.theme.pad_xl
 import pl.jojczak.penmouses.core.ui.utils.openUrlClickable
 import pl.jojczak.penmouses.screen.manual.R
 
-internal fun LazyListScope.aboutComponent(ctx: Context) {
-    appInfoComponent(ctx)
-    item { HorizontalDivider() }
-    donateComponent()
-    item { HorizontalDivider() }
-    birdHuntBanner()
-    item { HorizontalDivider() }
-}
-
-private fun LazyListScope.appInfoComponent(ctx: Context) = item {
+internal fun LazyListScope.appInfoComponent(ctx: Context) = item {
     val inspection = LocalInspectionMode.current
 
     // @formatter:off
@@ -55,7 +46,9 @@ private fun LazyListScope.appInfoComponent(ctx: Context) = item {
     // @formatter:on
 
     Row(
-        modifier = Modifier.padding(pad_l),
+        modifier = Modifier
+            .padding(top = pad_xl, bottom = pad_s)
+            .padding(horizontal = pad_l),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -112,7 +105,7 @@ private fun PreviewDonateComponent() {
         Surface {
             val ctx = LocalContext.current
             LazyColumn {
-                aboutComponent(ctx)
+                appInfoComponent(ctx)
             }
         }
     }

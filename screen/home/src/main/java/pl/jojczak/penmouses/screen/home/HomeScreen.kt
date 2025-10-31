@@ -39,7 +39,10 @@ import pl.jojczak.penmouses.core.ui.theme.PenMouseSDevicePreview
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_s
 import pl.jojczak.penmouses.core.ui.theme.radius_l
+import pl.jojczak.penmouses.core.ui.utils.add
 import pl.jojczak.penmouses.screen.home.components.stepsContainer
+import pl.jojczak.penmouses.screen.home.dialog.DialogFirstRun
+import pl.jojczak.penmouses.screen.home.dialog.DialogUnsupportedDevice
 import pl.jojczak.penmouses.core.ui.R as coreR
 
 @Composable
@@ -53,17 +56,20 @@ fun HomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(lifecycleState) {
-        viewModel.onLifecycleEvent(lifecycleState)
+        viewModel.onViewAction(HomeViewAction.LifecycleEvent(lifecycleState))
     }
 
+    //@formatter:off
     HomeScreenContent(
         state = state,
         navigationHazeState = navigationHazeState,
         paddingValues = paddingValues,
         showManualPageClicked = showManualPageClicked,
-        toggleService = viewModel::sendSignalToService,
-        togglePermissionNotification = viewModel::togglePermissionNotification
+        sendEventToService = { viewModel.onViewAction(HomeViewAction.SendEventToService(it)) },
+        toggleUnsupportedDeviceDialog = { viewModel.onViewAction(HomeViewAction.ToggleUnsupportedDeviceDialog(it)) },
+        toggleFirstRunDialog = { viewModel.onViewAction(HomeViewAction.ToggleFirstRunDialog(it)) }
     )
+    //@formatter:on
 }
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -73,29 +79,46 @@ private fun HomeScreenContent(
     navigationHazeState: HazeState,
     paddingValues: PaddingValues,
     showManualPageClicked: (ManualPageType) -> Unit,
-    toggleService: (event: AppToServiceEvent.Event) -> Unit = {},
-    togglePermissionNotification: (state: Boolean) -> Unit = {}
-) = BoxWithConstraints(
-    modifier = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)
-        .hazeSource(navigationHazeState)
+    sendEventToService: (event: AppToServiceEvent.Event) -> Unit = {},
+    toggleUnsupportedDeviceDialog: (Boolean) -> Unit,
+    toggleFirstRunDialog: (Boolean) -> Unit
 ) {
-    if (maxHeight > maxWidth) {
-        PortraitLayout(
-            serviceStatus = state.serviceStatus,
-            paddingValues = paddingValues,
-            isAccessibilityEnabled = state.isAccessibilityEnabled,
-            toggleService = toggleService,
-            showManualPageClicked = showManualPageClicked
-        )
-    } else {
-        LandscapeLayout(
-            serviceStatus = state.serviceStatus,
-            paddingValues = paddingValues,
-            isAccessibilityEnabled = state.isAccessibilityEnabled,
-            toggleService = toggleService,
-            showManualPageClicked = showManualPageClicked
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .hazeSource(navigationHazeState)
+    ) {
+        if (maxHeight > maxWidth) {
+            PortraitLayout(
+                serviceStatus = state.serviceStatus,
+                paddingValues = paddingValues,
+                isAccessibilityEnabled = state.isAccessibilityEnabled,
+                toggleService = sendEventToService,
+                showManualPageClicked = showManualPageClicked
+            )
+        } else {
+            LandscapeLayout(
+                serviceStatus = state.serviceStatus,
+                paddingValues = paddingValues,
+                isAccessibilityEnabled = state.isAccessibilityEnabled,
+                toggleService = sendEventToService,
+                showManualPageClicked = showManualPageClicked
+            )
+        }
+    }
+
+    if (state.unsupportedDeviceDialogEnabled) {
+        DialogUnsupportedDevice { toggleUnsupportedDeviceDialog(false) }
+    }
+
+    if (state.firstRunDialogEnabled) {
+        DialogFirstRun(
+            onDismiss = { toggleFirstRunDialog(false) },
+            onConfirm = {
+                toggleFirstRunDialog(false)
+                showManualPageClicked(ManualPageType.HowToUse)
+            }
         )
     }
 }
@@ -108,12 +131,7 @@ private fun PortraitLayout(
     showManualPageClicked: (ManualPageType) -> Unit,
     toggleService: (event: AppToServiceEvent.Event) -> Unit,
 ) = LazyColumn(
-    contentPadding = PaddingValues(
-        start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + pad_l,
-        top = paddingValues.calculateTopPadding() + pad_l,
-        end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + pad_l,
-        bottom = paddingValues.calculateBottomPadding() + pad_l
-    ),
+    contentPadding = paddingValues.add(pad_l),
     verticalArrangement = Arrangement.spacedBy(pad_s)
 ) {
     item {
@@ -190,7 +208,9 @@ private fun HomeScreenPreview() {
             state = HomeScreenState(),
             navigationHazeState = rememberHazeState(),
             paddingValues = it,
-            showManualPageClicked = {}
+            showManualPageClicked = {},
+            toggleUnsupportedDeviceDialog = {},
+            toggleFirstRunDialog = {}
         )
     }
 }

@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBarDefaults.TopAppBarExpandedHeight
 import androidx.compose.material3.rememberDrawerState
@@ -33,19 +32,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
+import com.halilibo.richtext.markdown.node.AstNode
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
-import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.core.common.types.ManualPageType
+import pl.jojczak.penmouses.core.ui.components.PenMouseSMarkdown
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSDevicePreview
 import pl.jojczak.penmouses.core.ui.theme.hazeUltraThinSurface
 import pl.jojczak.penmouses.core.ui.theme.pad_l
+import pl.jojczak.penmouses.core.ui.utils.add
 import pl.jojczak.penmouses.core.ui.utils.copy
 import pl.jojczak.penmouses.screen.manual.components.ManualTopAppBar
-import pl.jojczak.penmouses.screen.manual.components.aboutComponent
+import pl.jojczak.penmouses.screen.manual.components.appInfoComponent
+import pl.jojczak.penmouses.screen.manual.components.birdHuntBanner
+import pl.jojczak.penmouses.screen.manual.components.donateComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,22 +76,25 @@ fun ManualScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
-            contentPadding = paddingValues.copy(
-                start = paddingValues.calculateStartPadding(layoutDirection) +
-                        insets.calculateStartPadding(layoutDirection),
-                top = topAppBarHeight,
-                end = paddingValues.calculateEndPadding(layoutDirection) +
-                        insets.calculateEndPadding(layoutDirection)
-            ),
+            contentPadding = paddingValues
+                .copy(top = topAppBarHeight)
+                .add(
+                    start = insets.calculateStartPadding(layoutDirection),
+                    end = insets.calculateEndPadding(layoutDirection)
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .hazeSource(state = navigationHazeState)
                 .hazeSource(state = localHazeState)
         ) {
             if (viewState.page == ManualPageType.AboutPenMouseS) {
-                aboutComponent(ctx)
+                appInfoComponent(ctx)
             }
-            manualPage(markdown = viewState.markdownContent)
+            manualPage(markdownNode = viewState.markdownNode)
+            if (viewState.page == ManualPageType.AboutPenMouseS) {
+                donateComponent()
+                birdHuntBanner()
+            }
         }
 
         ManualTopAppBar(
@@ -107,13 +113,12 @@ fun ManualScreen(
     }
 }
 
-private fun LazyListScope.manualPage(markdown: String) = item {
-    MarkdownText(
-        markdown = markdown,
-        style = LocalTextStyle.current.copy(
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-        ),
-        modifier = Modifier.padding(all = pad_l)
+private fun LazyListScope.manualPage(markdownNode: AstNode) = item {
+    PenMouseSMarkdown(
+        astNode = markdownNode,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(pad_l)
     )
 }
 

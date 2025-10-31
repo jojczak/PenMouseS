@@ -2,6 +2,7 @@ package pl.jojczak.penmouses.screen.manual
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.halilibo.richtext.commonmark.CommonmarkAstNodeParser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import pl.jojczak.penmouses.core.common.types.ManualPageType
+import java.io.BufferedReader
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,20 +26,21 @@ class ManualViewModel @Inject constructor(
     }
 
     fun onViewAction(viewAction: ManualAction) = when (viewAction) {
-        is ManualUserAction.ChangeScreen -> loadManualPage(viewAction.page)
+        is ManualUserAction.ChangePage -> loadManualPage(viewAction.page)
     }
 
     private fun loadManualPage(pageType: ManualPageType) {
-        val pageContent = context
-            .resources
+        val pageContent = context.resources
             .openRawResource(manualPageData.getValue(pageType).fileId)
             .bufferedReader()
-            .use { it.readText() }
+            .use(BufferedReader::readText)
+
+        val markdownNode = CommonmarkAstNodeParser().parse(pageContent)
 
         _state.update {
             ManualViewState(
                 page = pageType,
-                markdownContent = pageContent
+                markdownNode = markdownNode
             )
         }
     }

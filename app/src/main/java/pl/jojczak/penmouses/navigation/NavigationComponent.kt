@@ -83,7 +83,7 @@ internal fun PenMouseSContentWithManualDrawer() {
                 manualHazeState = manualHazeState,
                 currentPageType = manualViewState.page,
                 onPageClicked = {
-                    manualViewModel.onViewAction(viewAction = ManualUserAction.ChangeScreen(page = it))
+                    manualViewModel.onViewAction(viewAction = ManualUserAction.ChangePage(page = it))
                     scope.launch { delay(MANUAL_DRAWER_DELAY_AFTER_PAGE_CHANGE_MS); manualDrawerState.close() }
                 }
             )
@@ -96,7 +96,7 @@ internal fun PenMouseSContentWithManualDrawer() {
             manualViewState = manualViewState,
             modifier = Modifier.hazeSource(state = manualHazeState),
             showManualPageClicked = {
-                manualViewModel.onViewAction(viewAction = ManualUserAction.ChangeScreen(page = it))
+                manualViewModel.onViewAction(viewAction = ManualUserAction.ChangePage(page = it))
                 navController.navigateTo(Screen.Manual)
             }
         )

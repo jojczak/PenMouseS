@@ -16,7 +16,6 @@ dependencies {
     implementation(files("../../libs/sdk-v1.0.0.jar"))
     implementation(files("../../libs/spenremote-v1.0.1.jar"))
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    ksp(libs.hilt.ksp)
+    implementation(libs.bundles.hilt)
+    ksp(libs.bundles.hilt.ksp)
 }

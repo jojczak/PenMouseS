@@ -43,7 +43,9 @@ class PointMode(
     override fun start() {
         super.start()
 
-        view.setupDraggableCursor()
+        view.post {
+            view.setupDraggableCursor()
+        }
 
         sPenManager.connect(object : ConnectionResultCallback() {
             override fun onSuccess() {

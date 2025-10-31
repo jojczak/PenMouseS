@@ -28,66 +28,43 @@ class HomeScreenViewModel @Inject constructor(
     val state: StateFlow<HomeScreenState> = _state.asStateFlow()
 
     init {
+        checkIfLaunchedFirstTime()
         checkAccessibilityPermission()
-        checkIfSPenFeaturesSupported()
+        checkSPenSupportAndShowDialogIfNot()
+        collectServiceStatus()
+    }
 
-        preferencesManager.get(PrefKeys.FIRST_RUN).takeIf { it }?.let {
-            _state.update { it.copy(showFirstRunDialog = true) }
-            preferencesManager.put(PrefKeys.FIRST_RUN, false)
+    //@formatter:off
+    fun onViewAction(viewAction: HomeViewAction) = when (viewAction) {
+        is HomeViewAction.LifecycleEvent -> onLifecycleEvent(viewAction.state)
+        is HomeViewAction.ToggleUnsupportedDeviceDialog -> _state.update { it.copy(unsupportedDeviceDialogEnabled = viewAction.enabled) }
+        is HomeViewAction.ToggleFirstRunDialog -> _state.update { it.copy(firstRunDialogEnabled = viewAction.enabled) }
+        is HomeViewAction.SendEventToService -> sendEventToService(viewAction.event)
+    }
+    //@formatter:on
+
+    private fun onLifecycleEvent(lifecycleState: Lifecycle.State) = when (lifecycleState) {
+        Lifecycle.State.RESUMED -> {
+            checkAccessibilityPermission()
         }
 
-        _state.update {
-            it.copy(isFirstMouseLaunch = preferencesManager.get(PrefKeys.FIRST_MOUSE_LAUNCH))
-        }
+        else -> {}
+    }
 
-        viewModelScope.launch {
-            AppToServiceEvent.serviceStatus.collect {
-                _state.update { state ->
-                    state.copy(serviceStatus = it)
-                }
+    private fun collectServiceStatus() = viewModelScope.launch {
+        AppToServiceEvent.serviceStatus.collect {
+            _state.update { state ->
+                state.copy(serviceStatus = it)
             }
         }
     }
 
-    fun onLifecycleEvent(lifecycleState: Lifecycle.State) {
-        when (lifecycleState) {
-            Lifecycle.State.RESUMED -> {
-                checkAccessibilityPermission()
-            }
-
-            else -> {}
-        }
-    }
-
-    fun sendSignalToService(event: AppToServiceEvent.Event) {
-        if (SPenManager.isSPenSupported()) {
+    private fun sendEventToService(event: AppToServiceEvent.Event) {
+        if (checkSPenSupportAndShowDialogIfNot()) {
             if (event == AppToServiceEvent.Event.Stop) {
                 preferencesManager.put(PrefKeys.FIRST_MOUSE_LAUNCH, false)
-                _state.update { it.copy(isFirstMouseLaunch = false) }
             }
             AppToServiceEvent.event.tryEmit(event)
-        } else {
-            changeDialogState(4, true)
-        }
-    }
-
-    fun changeDialogState(step: Int, state: Boolean) {
-        _state.update {
-            when (step) {
-                1 -> it.copy(showStep1Dialog = state)
-                2 -> it.copy(showStep2Dialog = state)
-                3 -> it.copy(showStep3Dialog = state)
-                4 -> it.copy(showUnsupportedSPenDialog = state)
-                5 -> it.copy(showTroubleshootingDialog = state)
-                6 -> it.copy(showFirstRunDialog = state)
-                else -> it
-            }
-        }
-    }
-
-    fun togglePermissionNotification(state: Boolean) {
-        _state.update {
-            it.copy(showNotificationPermission = state)
         }
     }
 
@@ -98,15 +75,18 @@ class HomeScreenViewModel @Inject constructor(
         )
         val isAccessibilityEnabled = enabledServices?.contains(MOUSE_SERVICE_NAME) == true
 
-        _state.update {
-            it.copy(
-                isAccessibilityEnabled = isAccessibilityEnabled
-            )
-        }
+        _state.update { it.copy(isAccessibilityEnabled = isAccessibilityEnabled) }
     }
 
-    private fun checkIfSPenFeaturesSupported() {
-        changeDialogState(4, !SPenManager.isSPenSupported())
+    private fun checkSPenSupportAndShowDialogIfNot() = SPenManager.isSPenSupported().also {
+        if (!it) onViewAction(HomeViewAction.ToggleUnsupportedDeviceDialog(true))
+    }
+
+    private fun checkIfLaunchedFirstTime() {
+        if (preferencesManager.get(PrefKeys.FIRST_RUN)) {
+            _state.update { it.copy(firstRunDialogEnabled = true) }
+            preferencesManager.put(PrefKeys.FIRST_RUN, false)
+        }
     }
 
     companion object {

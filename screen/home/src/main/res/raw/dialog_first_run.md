@@ -1,0 +1,1 @@
+Hi! It looks like you're running the app for the first time. Please keep in mind that this is an **experimental app** that pushes the S Pen's functionality to the limits allowed by the system so not everything will work and not always reliably. Before you start using the app, please read the included manual.

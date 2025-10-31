@@ -3,7 +3,7 @@
     android:accessibilityFlags="flagDefault"
     android:canPerformGestures="true"
     android:canRetrieveWindowContent="false"
-    android:description="@string/home_steps_3_dialog_content"
+    android:description="@string/pen_mouse_s_service_description"
     android:isAccessibilityTool="true"
     android:notificationTimeout="100"
     android:packageNames="pl.jojczak.penmouses"

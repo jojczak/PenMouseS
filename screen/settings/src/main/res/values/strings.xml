@@ -32,5 +32,5 @@
     <string name="settings_reset_confirm">Reset</string>
 
     <string name="settings_scroll_experimental_mode">Power saving mode (Experimental!)</string>
-    <string name="settings_scroll_experimental_mode_desc">S Pen will activate the gyroscope only after the button is pressed, which significantly saves the S Pen’s battery but may interrupt the connection. Disable if scrolling suddenly stops working.</string>
+    <string name="settings_scroll_experimental_mode_desc">S Pen will activate the gyroscope only after the button is pressed, which significantly saves the S Pen\'s battery but may interrupt the connection. Disable if scrolling suddenly stops working.</string>
 </resources>
