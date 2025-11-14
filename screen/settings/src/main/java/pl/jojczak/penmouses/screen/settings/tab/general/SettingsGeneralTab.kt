@@ -71,7 +71,7 @@ internal fun LazyListScope.notificationsComponent() = item {
                     .padding(start = pad_m)
             )
             Icon(
-                painter = painterResource(coreR.drawable.open_in_new_24px),
+                painter = painterResource(coreR.drawable.ic_open_in_new),
                 tint = MaterialTheme.colorScheme.primary,
                 contentDescription = null
             )

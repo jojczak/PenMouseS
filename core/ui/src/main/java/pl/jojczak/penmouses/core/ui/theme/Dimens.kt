@@ -18,4 +18,4 @@ val elevation_2 = 4.dp
 
 val LINK_ICON_SIZE_SMALL = 12.dp
 val LINK_ICON_SIZE = 16.dp
-val PLAYER_HEIGHT = 400.dp
+val PLAYER_HEIGHT = 500.dp

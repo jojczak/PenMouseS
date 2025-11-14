@@ -116,7 +116,7 @@ internal fun LazyListScope.birdHuntBanner() = item {
                     ) {
                         Text(text = stringResource(R.string.manual_bird_hunt_button))
                         Icon(
-                            painter = painterResource(coreR.drawable.open_in_new_24px),
+                            painter = painterResource(coreR.drawable.ic_open_in_new),
                             contentDescription = null,
                             modifier = Modifier.size(LINK_ICON_SIZE)
                         )

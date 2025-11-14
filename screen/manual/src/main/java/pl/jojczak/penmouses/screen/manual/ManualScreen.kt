@@ -1,5 +1,6 @@
 package pl.jojczak.penmouses.screen.manual
 
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
+import pl.jojczak.penmouses.core.common.types.ManualPageFeature
 import pl.jojczak.penmouses.core.common.types.ManualPageType
 import pl.jojczak.penmouses.core.ui.components.PenMouseSMarkdown
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSDevicePreview
@@ -49,6 +51,7 @@ import pl.jojczak.penmouses.screen.manual.components.ManualTopAppBar
 import pl.jojczak.penmouses.screen.manual.components.appInfoComponent
 import pl.jojczak.penmouses.screen.manual.components.birdHuntBanner
 import pl.jojczak.penmouses.screen.manual.components.donateComponent
+import pl.jojczak.penmouses.screen.manual.components.videoComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,19 +88,17 @@ fun ManualScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .hazeSource(state = navigationHazeState)
-                .hazeSource(state = localHazeState)
+                .hazeSource(state = localHazeState),
         ) {
-            if (viewState.page == ManualPageType.AboutPenMouseS) {
-                appInfoComponent(ctx)
-            }
-            manualPage(markdownNode = viewState.markdownNode)
-            if (viewState.page == ManualPageType.AboutPenMouseS) {
-                donateComponent()
-                birdHuntBanner()
-            }
+            handlePage(
+                ctx = ctx,
+                pageType = viewState.page,
+                markdownNode = viewState.markdownNode
+            )
         }
 
         ManualTopAppBar(
+            manualPage = viewState.page,
             onMenuIconClicked = {
                 scope.launch { manualDrawerState.apply { if (isClosed) open() else close() } }
             },
@@ -110,6 +111,34 @@ fun ManualScreen(
                     with(localDensity) { topAppBarHeight = it.size.height.toDp() }
                 },
         )
+    }
+}
+
+private fun LazyListScope.handlePage(
+    ctx: Context,
+    pageType: ManualPageType,
+    markdownNode: AstNode
+) {
+    for (feature in pageType.featuresBefore) handlePageFeature(ctx = ctx, feature = feature)
+    manualPage(markdownNode = markdownNode)
+    for (feature in pageType.featuresAfter) handlePageFeature(ctx = ctx, feature = feature)
+}
+
+private fun LazyListScope.handlePageFeature(
+    ctx: Context,
+    feature: ManualPageFeature
+) = when (feature) {
+    ManualPageFeature.AppInfo -> {
+        appInfoComponent(ctx)
+    }
+
+    ManualPageFeature.Banners -> {
+        donateComponent()
+        birdHuntBanner()
+    }
+
+    is ManualPageFeature.Video -> {
+        videoComponent(feature.uri)
     }
 }
 

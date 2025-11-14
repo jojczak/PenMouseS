@@ -30,7 +30,8 @@ fun PenMouseSMarkdown(
 ) {
     RichTextThemeProvider(
         textStyleProvider = { paragraphStyle(align) },
-        textStyleBackProvider = { nS, c -> mergedTextStyle(newStyle = nS, content = c, align) },
+        textStyleBackProvider = { nS, c -> MergedTextStyle(newStyle = nS, content = c, align) },
+        contentColorProvider = { MaterialTheme.colorScheme.onBackground },
         content = { BasicMarkdown(astNode = astNode) }
     )
 }
@@ -39,11 +40,10 @@ fun PenMouseSMarkdown(
 private fun paragraphStyle(textAlign: TextAlign) = LocalTextStyle.current.copy(
     textAlign = textAlign,
     letterSpacing = TextUnit.Unspecified,
-    color = MaterialTheme.colorScheme.onBackground
 )
 
 @Composable
-private fun mergedTextStyle(
+private fun MergedTextStyle(
     newStyle: TextStyle,
     content: @Composable () -> Unit,
     textAlign: TextAlign

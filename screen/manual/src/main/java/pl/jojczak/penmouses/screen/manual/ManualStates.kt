@@ -12,7 +12,10 @@ import pl.jojczak.penmouses.core.ui.R as coreR
 sealed class ManualAction
 
 sealed class ManualUserAction : ManualAction() {
-    data class ChangePage(val page: ManualPageType) : ManualUserAction()
+    data class ChangePage(
+        val page: ManualPageType,
+        val isDarkMode: Boolean
+    ) : ManualUserAction()
 }
 
 data class ManualViewState(
@@ -35,33 +38,10 @@ internal val manualPageData = mapOf(
         filledIconId = R.drawable.ic_spen_filled,
         labelId = R.string.manual_page_about_penmouse_s
     ),
-    ManualPageType.WhatsNewIn2 to ManualPageData(
-        fileId = R.raw.manual_page_whats_new,
-        iconId = R.drawable.ic_star,
-        filledIconId = R.drawable.ic_star_filled,
-        labelId = R.string.manual_page_whats_new
-    ),
     ManualPageType.HowToUse to ManualPageData(
         fileId = R.raw.manual_page_how_to_use,
         iconId = R.drawable.ic_question_mark,
         labelId = R.string.manual_page_how_to_use
-    ),
-    ManualPageType.MouseMode to ManualPageData(
-        fileId = R.raw.manual_page_about_pen_mouse_s,
-        iconId = coreR.drawable.ic_mouse_mode,
-        filledIconId = coreR.drawable.ic_mouse_mode_filled,
-        labelId = coreR.string.pen_mode_mouse
-    ),
-    ManualPageType.PointMode to ManualPageData(
-        fileId = R.raw.manual_page_about_pen_mouse_s,
-        iconId = coreR.drawable.ic_point_mode,
-        labelId = coreR.string.pen_mode_point
-    ),
-    ManualPageType.ScrollMode to ManualPageData(
-        fileId = R.raw.manual_page_about_pen_mouse_s,
-        iconId = coreR.drawable.ic_scroll_mode,
-        filledIconId = coreR.drawable.ic_scroll_mode_filled,
-        labelId = coreR.string.pen_mode_scroll
     ),
     ManualPageType.PreparationStep1 to ManualPageData(
         fileId = R.raw.manual_page_preparation_step_1,
@@ -82,5 +62,22 @@ internal val manualPageData = mapOf(
         iconId = R.drawable.ic_preparation_3,
         labelId = R.string.manual_page_step_3,
         descId = R.string.manual_page_step_3_desc
+    ),
+    ManualPageType.MouseMode to ManualPageData(
+        fileId = R.raw.manual_page_about_pen_mouse_s,
+        iconId = coreR.drawable.ic_mouse_mode,
+        filledIconId = coreR.drawable.ic_mouse_mode_filled,
+        labelId = coreR.string.pen_mode_mouse
+    ),
+    ManualPageType.PointMode to ManualPageData(
+        fileId = R.raw.manual_page_about_pen_mouse_s,
+        iconId = coreR.drawable.ic_point_mode,
+        labelId = coreR.string.pen_mode_point
+    ),
+    ManualPageType.ScrollMode to ManualPageData(
+        fileId = R.raw.manual_page_about_pen_mouse_s,
+        iconId = coreR.drawable.ic_scroll_mode,
+        filledIconId = coreR.drawable.ic_scroll_mode_filled,
+        labelId = coreR.string.pen_mode_scroll
     )
 )

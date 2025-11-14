@@ -3,6 +3,7 @@ package pl.jojczak.penmouses.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DrawerState
@@ -59,6 +60,7 @@ private const val MANUAL_DRAWER_DELAY_AFTER_PAGE_CHANGE_MS = 150L
 @Composable
 internal fun PenMouseSContentWithManualDrawer() {
     val scope = rememberCoroutineScope()
+    val isDarkMode = isSystemInDarkTheme()
     val manualHazeState = rememberHazeState()
     val manualDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
@@ -75,6 +77,15 @@ internal fun PenMouseSContentWithManualDrawer() {
         }
     }
 
+    LaunchedEffect(isDarkMode) {
+        manualViewModel.onViewAction(
+            viewAction = ManualUserAction.ChangePage(
+                page = manualViewState.page,
+                isDarkMode = isDarkMode
+            )
+        )
+    }
+
     ModalNavigationDrawer(
         drawerState = manualDrawerState,
         gesturesEnabled = currentScreen == Screen.Manual,
@@ -83,7 +94,12 @@ internal fun PenMouseSContentWithManualDrawer() {
                 manualHazeState = manualHazeState,
                 currentPageType = manualViewState.page,
                 onPageClicked = {
-                    manualViewModel.onViewAction(viewAction = ManualUserAction.ChangePage(page = it))
+                    manualViewModel.onViewAction(
+                        viewAction = ManualUserAction.ChangePage(
+                            page = it,
+                            isDarkMode = isDarkMode
+                        )
+                    )
                     scope.launch { delay(MANUAL_DRAWER_DELAY_AFTER_PAGE_CHANGE_MS); manualDrawerState.close() }
                 }
             )
@@ -96,7 +112,12 @@ internal fun PenMouseSContentWithManualDrawer() {
             manualViewState = manualViewState,
             modifier = Modifier.hazeSource(state = manualHazeState),
             showManualPageClicked = {
-                manualViewModel.onViewAction(viewAction = ManualUserAction.ChangePage(page = it))
+                manualViewModel.onViewAction(
+                    viewAction = ManualUserAction.ChangePage(
+                        page = it,
+                        isDarkMode = isDarkMode
+                    )
+                )
                 navController.navigateTo(Screen.Manual)
             }
         )

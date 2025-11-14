@@ -18,6 +18,8 @@
     <string name="pen_mode_point">Point</string>
     <string name="pen_mode_scroll">Scroll</string>
 
+    <string name="common_accessibility">Accessibility settings</string>
+
     <string name="notification_channel_status">Status</string>
     <string name="notification_action_stop">Stop</string>
 

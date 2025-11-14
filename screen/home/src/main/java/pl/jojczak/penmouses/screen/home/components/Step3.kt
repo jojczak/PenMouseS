@@ -19,12 +19,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import pl.jojczak.penmouses.core.common.types.ManualPageType
+import pl.jojczak.penmouses.core.common.utils.openAccessibilitySettings
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSPreview
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_m
 import pl.jojczak.penmouses.core.ui.theme.pad_xs
 import pl.jojczak.penmouses.screen.home.R
-import pl.jojczak.penmouses.screen.home.openAccessibilitySettings
+import pl.jojczak.penmouses.core.ui.R as coreR
 
 internal fun LazyListScope.step3(
     isAccessibilityEnabled: Boolean,
@@ -43,7 +44,7 @@ internal fun LazyListScope.step3(
                     showManualPageClicked = { showManualPageClicked(ManualPageType.PreparationStep3) }
                 )
                 StepHeaderLink(
-                    linkText = R.string.home_steps_3_settings,
+                    linkText = coreR.string.common_accessibility,
                     linkCallback = { openAccessibilitySettings(context) }
                 )
             }

@@ -21,19 +21,19 @@ class ManualViewModel @Inject constructor(
     private val _state: MutableStateFlow<ManualViewState> = MutableStateFlow(ManualViewState())
     val state: StateFlow<ManualViewState> = _state.asStateFlow()
 
-    init {
-        loadManualPage(state.value.page)
-    }
-
     fun onViewAction(viewAction: ManualAction) = when (viewAction) {
-        is ManualUserAction.ChangePage -> loadManualPage(viewAction.page)
+        is ManualUserAction.ChangePage -> loadManualPage(viewAction.page, viewAction.isDarkMode)
     }
 
-    private fun loadManualPage(pageType: ManualPageType) {
+    private fun loadManualPage(
+        pageType: ManualPageType,
+        isDarkMode: Boolean
+    ) {
         val pageContent = context.resources
             .openRawResource(manualPageData.getValue(pageType).fileId)
             .bufferedReader()
             .use(BufferedReader::readText)
+            .replace(THEME_PLACEHOLDER, if (isDarkMode) THEME_DARK else THEME_LIGHT)
 
         val markdownNode = CommonmarkAstNodeParser().parse(pageContent)
 
@@ -43,5 +43,11 @@ class ManualViewModel @Inject constructor(
                 markdownNode = markdownNode
             )
         }
+    }
+
+    companion object {
+        private const val THEME_PLACEHOLDER = "{theme}"
+        private const val THEME_LIGHT = "light"
+        private const val THEME_DARK = "dark"
     }
 }

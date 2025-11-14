@@ -32,7 +32,7 @@ internal fun LazyListScope.appInfoComponent(ctx: Context) = item {
 
     // @formatter:off
     val drawable = remember {
-        if (inspection) ctx.getDrawable(R.drawable.ic_star)
+        if (inspection) ctx.getDrawable(R.drawable.ic_spen)
         else ctx.packageManager.getApplicationIcon(ctx.packageName)
     }
     val appName = remember {

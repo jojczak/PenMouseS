@@ -41,7 +41,6 @@ import pl.jojczak.penmouses.core.ui.theme.pad_xs
 import pl.jojczak.penmouses.core.ui.theme.pad_xxl
 import pl.jojczak.penmouses.core.ui.theme.radius_m
 import pl.jojczak.penmouses.screen.home.R
-import pl.jojczak.penmouses.screen.home.components.step3
 import pl.jojczak.penmouses.screen.home.modesComponentData
 
 fun LazyListScope.step4(

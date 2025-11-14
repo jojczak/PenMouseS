@@ -60,7 +60,7 @@ fun TextButton(
             color = MaterialTheme.colorScheme.primary
         )
         Icon(
-            painter = painterResource(id = coreR.drawable.open_in_new_24px),
+            painter = painterResource(id = coreR.drawable.ic_open_in_new),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(iconSize)

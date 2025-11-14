@@ -45,18 +45,18 @@ private val MAX_DRAWER_WIDTH = 281.dp
 val sections = mapOf(
     R.string.manual_page_category_main to listOf(
         ManualPageType.AboutPenMouseS,
-        ManualPageType.WhatsNewIn2,
         ManualPageType.HowToUse
+    ),
+
+    R.string.manual_page_category_preparation to listOf(
+        ManualPageType.PreparationStep1,
+        ManualPageType.PreparationStep2,
+        ManualPageType.PreparationStep3
     ),
     R.string.manual_page_category_modes to listOf(
         ManualPageType.MouseMode,
         ManualPageType.PointMode,
         ManualPageType.ScrollMode
-    ),
-    R.string.manual_page_category_preparation to listOf(
-        ManualPageType.PreparationStep1,
-        ManualPageType.PreparationStep2,
-        ManualPageType.PreparationStep3
     )
 )
 

@@ -14,11 +14,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import pl.jojczak.penmouses.core.common.types.ManualPageType
+import pl.jojczak.penmouses.core.common.utils.openSettings
 import pl.jojczak.penmouses.core.ui.components.TextButton
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSPreview
 import pl.jojczak.penmouses.core.ui.theme.pad_m
 import pl.jojczak.penmouses.screen.home.R
-import pl.jojczak.penmouses.screen.home.openSettings
+import pl.jojczak.penmouses.core.ui.R as coreR
 
 internal fun LazyListScope.step1(
     showManualPageClicked: (ManualPageType) -> Unit,
@@ -41,7 +42,7 @@ internal fun LazyListScope.step1(
                 )
             }
             TextButton(
-                stringRes = R.string.home_steps_1_settings,
+                stringRes = coreR.string.screen_settings,
                 onClick = { openSettings(context) },
             )
         }

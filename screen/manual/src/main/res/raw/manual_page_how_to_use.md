@@ -10,6 +10,6 @@ Currently supported devices include:
 Complete all **preparation steps 1-3** from the home screen. You'll find detailed descriptions of each step on other pages of this manual.
 
 Remove the **S Pen** from your device and wait until it connects successfully. You'll see this icon once connected:  
-![S Pen connected Icon](file:///android_asset/manual_assets/spen_connected_icon.png)
+![S Pen connected Icon](file:///android_asset/manual_assets/spen_connected_icon_{theme}.png)
 
 After completing these steps, you can choose one of the three operating modes. Descriptions of each mode are also available in this manual.
