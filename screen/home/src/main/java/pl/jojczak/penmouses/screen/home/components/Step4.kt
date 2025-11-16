@@ -1,5 +1,8 @@
 package pl.jojczak.penmouses.screen.home.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -32,9 +36,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.Event
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
+import pl.jojczak.penmouses.core.common.types.ManualPageType
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSPreview
+import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_m
 import pl.jojczak.penmouses.core.ui.theme.pad_s
 import pl.jojczak.penmouses.core.ui.theme.pad_xs
@@ -46,25 +53,36 @@ import pl.jojczak.penmouses.screen.home.modesComponentData
 fun LazyListScope.step4(
     serviceStatus: ModeStatus,
     isAccessibilityEnabled: Boolean,
+    showManualPageClicked: (ManualPageType) -> Unit,
     toggleService: (event: Event) -> Unit,
 ) = item {
-    StepSurface(
-        shape = RoundedCornerShape(
-            topStart = radius_m,
-            topEnd = radius_m,
-            bottomStart = pad_xxl,
-            bottomEnd = pad_xxl
-        )
-    ) {
-        Box {
-            MainContainer(
-                serviceStatus = serviceStatus,
-                toggleService = toggleService
-            )
-            if (!isAccessibilityEnabled) {
-                BlockingOverlay()
+    Column {
+        StepSurface(
+            shape = RoundedCornerShape(
+                topStart = radius_m,
+                topEnd = radius_m,
+                bottomStart = pad_xxl,
+                bottomEnd = pad_xxl
+            ),
+            modifier = Modifier.zIndex(1f)
+        ) {
+            Box {
+                MainContainer(
+                    serviceStatus = serviceStatus,
+                    toggleService = toggleService
+                )
+                if (!isAccessibilityEnabled) {
+                    BlockingOverlay()
+                }
             }
         }
+        TroubleshootingButton(
+            serviceStatus = serviceStatus,
+            showManualPageClicked = showManualPageClicked,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .zIndex(0f)
+        )
     }
 }
 
@@ -162,6 +180,25 @@ private fun BoxScope.BlockingOverlay(
     content = content
 )
 
+@Composable
+private fun TroubleshootingButton(
+    serviceStatus: ModeStatus,
+    modifier: Modifier = Modifier,
+    showManualPageClicked: (ManualPageType) -> Unit,
+) = AnimatedVisibility(
+    visible = serviceStatus != ModeStatus.Off,
+    modifier = modifier,
+    enter = slideInVertically(initialOffsetY = { fullHeight -> -fullHeight }),
+    exit = slideOutVertically(targetOffsetY = { fullHeight -> -fullHeight })
+) {
+    FilledTonalButton(
+        onClick = { showManualPageClicked(ManualPageType.Troubleshooting) },
+        modifier = Modifier.padding(top = pad_l)
+    ) {
+        Text(text = stringResource(R.string.home_troubleshooting_button))
+    }
+}
+
 @Preview
 @Composable
 private fun Step4Preview() {
@@ -170,6 +207,7 @@ private fun Step4Preview() {
             step4(
                 isAccessibilityEnabled = true,
                 serviceStatus = ModeStatus.Off,
+                showManualPageClicked = {},
                 toggleService = {}
             )
         }
@@ -184,6 +222,7 @@ private fun Step4AccessibilityDisabledPreview() {
             step4(
                 isAccessibilityEnabled = false,
                 serviceStatus = ModeStatus.Off,
+                showManualPageClicked = {},
                 toggleService = {}
             )
         }
@@ -198,6 +237,7 @@ private fun Step4MouseModePreview() {
             step4(
                 isAccessibilityEnabled = true,
                 serviceStatus = ModeStatus.Mouse,
+                showManualPageClicked = {},
                 toggleService = {}
             )
         }

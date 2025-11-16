@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.bundles.haze)
     implementation(libs.bundles.exoplayer)
     implementation(libs.bundles.halilibo.richtext)
+    implementation(libs.bundles.review)
 
     implementation(libs.bundles.hilt)
     ksp(libs.bundles.hilt.ksp)

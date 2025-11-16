@@ -27,7 +27,7 @@ import pl.jojczak.penmouses.core.ui.theme.radius_l
 import pl.jojczak.penmouses.screen.manual.R
 
 @OptIn(UnstableApi::class)
-fun LazyListScope.videoComponent(uri: Uri) = item {
+fun LazyListScope.videoComponent(uri: Uri) = item(uri) {
     val context = LocalContext.current
     val resources = LocalResources.current
 

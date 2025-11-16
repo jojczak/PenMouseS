@@ -4,8 +4,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.Lifecycle
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
-import pl.jojczak.penmouses.core.ui.R as coreR
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
+import pl.jojczak.penmouses.core.ui.R as coreR
 
 data class HomeScreenState(
     val isAccessibilityEnabled: Boolean = false,
@@ -14,11 +14,15 @@ data class HomeScreenState(
     val serviceStatus: ModeStatus = ModeStatus.Off
 )
 
+sealed class HomeScreenEvent {
+    data object TryToShowReviewDialog : HomeScreenEvent()
+}
+
 sealed class HomeViewAction {
-    data class LifecycleEvent(val state: Lifecycle.State): HomeViewAction()
-    data class ToggleUnsupportedDeviceDialog(val enabled: Boolean): HomeViewAction()
-    data class ToggleFirstRunDialog(val enabled: Boolean): HomeViewAction()
-    data class SendEventToService(val event: AppToServiceEvent.Event): HomeViewAction()
+    data class LifecycleEvent(val state: Lifecycle.State) : HomeViewAction()
+    data class ToggleUnsupportedDeviceDialog(val enabled: Boolean) : HomeViewAction()
+    data class ToggleFirstRunDialog(val enabled: Boolean) : HomeViewAction()
+    data class SendEventToService(val event: AppToServiceEvent.Event) : HomeViewAction()
 }
 
 data class ModesComponentData(

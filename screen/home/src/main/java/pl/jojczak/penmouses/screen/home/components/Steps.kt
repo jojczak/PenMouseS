@@ -50,6 +50,7 @@ internal fun LazyListScope.stepsContainer(
     step4(
         serviceStatus = serviceStatus,
         isAccessibilityEnabled = isAccessibilityEnabled,
+        showManualPageClicked = showManualPageClicked,
         toggleService = toggleService,
     )
 }
@@ -57,11 +58,12 @@ internal fun LazyListScope.stepsContainer(
 @Composable
 internal fun StepSurface(
     shape: RoundedCornerShape = RoundedCornerShape(radius_m),
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) = Surface(
     tonalElevation = elevation_1,
     shape = shape,
-    modifier = Modifier.fillMaxWidth(),
+    modifier = modifier.fillMaxWidth(),
     content = content
 )
 

@@ -6,7 +6,9 @@
     <string name="manual_page_category_main">About PenMouse S</string>
     <string name="manual_page_about_penmouse_s">About PenMouse S</string>
     <string name="manual_page_how_to_use">How to use?</string>
-    
+
+    <string name="manual_page_troubleshooting">Troubleshooting</string>
+
     <string name="manual_page_category_modes">Modes</string>
     
     <string name="manual_page_category_preparation">Preparation</string>

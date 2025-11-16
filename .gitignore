@@ -11,6 +11,8 @@
 /.idea/deploymentTargetSelector.xml
 /.idea/codeStyles
 /.idea/deviceManager.xml
+/.idea/appInsightsSettings.xml
+/.idea/markdown.xml
 .DS_Store
 /build
 /*/build

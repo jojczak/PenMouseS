@@ -39,7 +39,6 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
-import pl.jojczak.penmouses.core.common.types.ManualPageFeature
 import pl.jojczak.penmouses.core.common.types.ManualPageType
 import pl.jojczak.penmouses.core.ui.components.PenMouseSMarkdown
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSDevicePreview
@@ -119,9 +118,15 @@ private fun LazyListScope.handlePage(
     pageType: ManualPageType,
     markdownNode: AstNode
 ) {
-    for (feature in pageType.featuresBefore) handlePageFeature(ctx = ctx, feature = feature)
+    for (feature in manualPageData.getValue(pageType).featuresBefore) handlePageFeature(
+        ctx = ctx,
+        feature = feature
+    )
     manualPage(markdownNode = markdownNode)
-    for (feature in pageType.featuresAfter) handlePageFeature(ctx = ctx, feature = feature)
+    for (feature in manualPageData.getValue(pageType).featuresAfter) handlePageFeature(
+        ctx = ctx,
+        feature = feature
+    )
 }
 
 private fun LazyListScope.handlePageFeature(

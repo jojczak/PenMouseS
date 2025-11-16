@@ -100,7 +100,7 @@ object PrefKeys {
     val POINT_CURSOR_SIZE = PrefKey("point_cursor_size", 60f, 1f, 20f..250f)
     val SCROLL_EXPERIMENTAL_MODE = PrefKey("scroll_experimental_mode", false)
     val FIRST_RUN = PrefKey("first_run", true)
-    val FIRST_MOUSE_LAUNCH = PrefKey("first_mouse_launch", true)
+    val LAUNCH_COUNT = PrefKey("launch_count", 0)
 }
 
 data class PrefKey<T>(
@@ -127,7 +127,7 @@ enum class CursorType(
 
     companion object {
         fun fromValue(value: String) = entries.firstOrNull {
-            it.name.lowercase() == value.lowercase()
+            it.name.equals(value, ignoreCase = true)
         } ?: Light
     }
 }

@@ -1,6 +1,9 @@
 package pl.jojczak.penmouses.screen.home
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.util.Log
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +32,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewManagerFactory
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
@@ -52,11 +57,20 @@ fun HomeScreen(
     showManualPageClicked: (ManualPageType) -> Unit,
     viewModel: HomeScreenViewModel = hiltViewModel()
 ) {
+    val activity = LocalActivity.current
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(lifecycleState) {
         viewModel.onViewAction(HomeViewAction.LifecycleEvent(lifecycleState))
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            if (event is HomeScreenEvent.TryToShowReviewDialog && activity != null) {
+                tryToShowReviewDialog(activity)
+            }
+        }
     }
 
     //@formatter:off
@@ -183,6 +197,18 @@ private fun LandscapeLayout(
             isAccessibilityEnabled = isAccessibilityEnabled,
             showManualPageClicked = showManualPageClicked
         )
+    }
+}
+
+private fun tryToShowReviewDialog(activity: Activity) {
+    val manager = ReviewManagerFactory.create(activity)
+    val request = manager.requestReviewFlow()
+    request.addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            manager.launchReviewFlow(activity, task.result)
+        } else {
+            Log.e("HomeScreen", "tryToShowReviewDialog", task.exception as ReviewException)
+        }
     }
 }
 
