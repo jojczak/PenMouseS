@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.module.android.application)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.plugin)
     alias(libs.plugins.ksp)
@@ -8,15 +8,9 @@ plugins {
 
 android {
     namespace = "pl.jojczak.penmouses"
-    compileSdk = 35
 
     defaultConfig {
         applicationId = "pl.jojczak.penmouses"
-        minSdk = 31
-        targetSdk = 35
-        versionCode = 6
-        versionName = "1.0.3"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -42,51 +36,47 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
         }
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+        }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+
     buildFeatures {
         compose = true
     }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
+    implementation(project(":core:ui"))
+    implementation(project(":core:common"))
+
+    implementation(project(":screen:home"))
+    implementation(project(":screen:manual"))
+    implementation(project(":screen:settings"))
+
+    implementation(project(":mousemode:base"))
+    implementation(project(":mousemode:basecursor"))
+    implementation(project(":mousemode:point"))
+    implementation(project(":mousemode:scroll"))
+    implementation(project(":mousemode:mouse"))
+
+    implementation(libs.bundles.compose.core)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
     implementation(libs.androidx.splashscreen)
-    implementation(libs.haze)
-    implementation(libs.haze.materials)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(platform(libs.androidx.compose.bom))
 
-    implementation(files("libs/sdk-v1.0.0.jar"))
-    implementation(files("libs/spenremote-v1.0.1.jar"))
+    implementation(libs.bundles.haze)
 
-    implementation(libs.exoplayer)
-    implementation(libs.exoplayer.ui)
-
-    implementation(libs.review)
-    implementation(libs.review.ktx)
-
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    ksp(libs.hilt.ksp)
+    implementation(libs.bundles.hilt)
+    ksp(libs.bundles.hilt.ksp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    debugImplementation(libs.bundles.compose.debug)
 }

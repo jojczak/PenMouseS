@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_mouse_tab">Mouse</string>
+    <string name="settings_point_tab">Point</string>
+    <string name="settings_scroll_tab">Scroll</string>
+    <string name="settings_general_tab">General</string>
+
+    <string name="settings_reset_to_defaults">Reset to defaults</string>
+    <string name="settings_s_pen_sensitivity_slider_label">Sensitivity: %s</string>
+    <string name="settings_cursor_size_slider_label">Cursor size: %s dp</string>
+
+    <string name="settings_cursor_preview">Cursor preview</string>
+
+    <string name="settings_change_cursor_button">Change</string>
+    <string name="settings_change_cursor_file_type_error">Oops! The selected file isn\'t a supported image format.</string>
+    <string name="settings_change_cursor_file_load_error">Oops! We couldn\'t load the image. Please try again.</string>
+
+    <string name="settings_cursor_hide_delay">Hide cursor after %ss of inactivity</string>
+    <string name="settings_cursor_hide_delay_indefinite">Keep cursor visible</string>
+
+    <string name="settings_cursor_alpha">Cursor opacity: %s%%</string>
+
+    <string name="settings_s_pen_sleep_info">Disable stylus gyroscope 1 minute after hiding cursor</string>
+    <string name="settings_s_pen_sleep_enabled_info">Press the S Pen button and wait a moment to reactivate the gyroscope after inactivity. If cursor hiding above is disabled, the gyroscope will turn off after 5 minutes.</string>
+    <string name="settings_s_pen_sleep_disabled_warning">Warning: Continuous use of the S Pen\'s gyroscope may quickly drain the stylus battery.</string>
+
+    <string name="settings_notification">Notification settings</string>
+
+    <string name="settings_reset_dialog_title">Reset settings?</string>
+    <string name="settings_reset_dialog_desc">Are you sure you want to reset all settings to their default values?</string>
+    <string name="settings_reset_cancel">Cancel</string>
+    <string name="settings_reset_confirm">Reset</string>
+
+    <string name="settings_scroll_experimental_mode">Power saving mode (Experimental!)</string>
+    <string name="settings_scroll_experimental_mode_desc">S Pen will activate the gyroscope only after the button is pressed, which significantly saves the S Pen\'s battery but may interrupt the connection. Disable if scrolling suddenly stops working.</string>
+</resources>

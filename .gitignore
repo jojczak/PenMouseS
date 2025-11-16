@@ -7,8 +7,16 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/studiobot.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/codeStyles
+/.idea/deviceManager.xml
+/.idea/appInsightsSettings.xml
+/.idea/markdown.xml
 .DS_Store
 /build
+/*/build
+/*/*/build
 /captures
 .externalNativeBuild
 .cxx

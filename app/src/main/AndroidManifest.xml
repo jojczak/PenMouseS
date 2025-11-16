@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PenMouseS">
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name=".main.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/Theme.PenMouseS">
@@ -40,7 +40,7 @@
         </service>
 
         <receiver
-            android:name=".notifications.NotificationsActionReceiver"
+            android:name=".core.common.notifications.NotificationsActionReceiver"
             android:exported="false" />
     </application>
 

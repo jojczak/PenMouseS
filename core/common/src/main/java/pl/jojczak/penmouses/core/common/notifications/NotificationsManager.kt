@@ -1,0 +1,211 @@
+package pl.jojczak.penmouses.core.common.notifications
+
+import android.Manifest.permission.POST_NOTIFICATIONS
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.util.Log
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import pl.jojczak.penmouses.core.common.di.ActivityProvider
+import javax.inject.Inject
+import javax.inject.Singleton
+import pl.jojczak.penmouses.core.ui.R as coreR
+
+@Singleton
+class NotificationsManager @Inject constructor(
+    private val activityProvider: ActivityProvider
+) {
+    fun showIdleNotification(context: Context) {
+        Log.d(TAG, "Showing idle notification")
+        createNotificationChannels(context)
+
+        val notification = NotificationCompat.Builder(context, NotificationChannels.STATUS.channelId)
+            .setSmallIcon(Notifications.IDLE.smallIcon)
+            .setContentTitle(context.getString(Notifications.IDLE.title, context.getString(coreR.string.app_name)))
+            .setContentText(context.getString(Notifications.IDLE.content))
+            .setContentIntent(getAppPendingIntent(context))
+            .addAction(getStopActionIntent(context))
+            .build()
+
+        showNotification(
+            context = context,
+            id = NotificationChannels.STATUS.notificationId,
+            notification = notification
+        )
+    }
+
+    fun showMouseHiddenNotification(context: Context) {
+        Log.d(TAG, "Showing mouse hidden notification")
+        createNotificationChannels(context)
+
+        val notification = NotificationCompat.Builder(context, NotificationChannels.STATUS.channelId)
+            .setSmallIcon(Notifications.HIDDEN.smallIcon)
+            .setContentTitle(context.getString(Notifications.HIDDEN.title))
+            .setContentText(context.getString(Notifications.HIDDEN.content))
+            .setContentIntent(getAppPendingIntent(context))
+            .addAction(getStopActionIntent(context))
+            .build()
+
+        showNotification(
+            context = context,
+            id = NotificationChannels.STATUS.notificationId,
+            notification = notification
+        )
+    }
+
+    fun showMouseSleepNotification(context: Context) {
+        Log.d(TAG, "Showing mouse sleep notification")
+        createNotificationChannels(context)
+
+        val notification = NotificationCompat.Builder(context, NotificationChannels.STATUS.channelId)
+            .setSmallIcon(Notifications.SLEEP.smallIcon)
+            .setContentTitle(context.getString(Notifications.SLEEP.title))
+            .setContentText(context.getString(Notifications.SLEEP.content))
+            .setContentIntent(getAppPendingIntent(context))
+            .addAction(getStopActionIntent(context))
+            .build()
+
+        showNotification(
+            context = context,
+            id = NotificationChannels.STATUS.notificationId,
+            notification = notification
+        )
+    }
+
+    fun showErrorNotification(context: Context) {
+        Log.d(TAG, "Showing error notification")
+        createNotificationChannels(context)
+
+        val notification = NotificationCompat.Builder(context, NotificationChannels.STATUS.channelId)
+            .setSmallIcon(Notifications.ERROR.smallIcon)
+            .setContentTitle(context.getString(Notifications.ERROR.title))
+            .setContentText(context.getString(Notifications.ERROR.content, context.getString(coreR.string.app_name)))
+            .setContentIntent(getAppPendingIntent(context))
+            .build()
+
+        showNotification(
+            context = context,
+            id = ERROR_NOTIFICATION_ID,
+            notification = notification
+        )
+    }
+
+    fun cancelStatusNotifications(context: Context) {
+        Log.d(TAG, "Cancelling status notifications")
+        with(NotificationManagerCompat.from(context)) {
+            cancel(NotificationChannels.STATUS.notificationId)
+        }
+    }
+
+    fun createNotificationChannels(context: Context) {
+        Log.d(TAG, "Creating notification channels")
+        if (ContextCompat.checkSelfPermission(context, POST_NOTIFICATIONS) == PERMISSION_GRANTED) {
+            NotificationChannels.entries.forEach {
+                val channel = NotificationChannel(
+                    it.channelId,
+                    context.getString(it.channelName),
+                    NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    setSound(null, null)
+                    enableVibration(false)
+                    enableLights(false)
+                }
+
+                context.getSystemService(NotificationManager::class.java).apply {
+                    createNotificationChannel(channel)
+                }
+            }
+        }
+    }
+
+    private fun showNotification(context: Context, id: Int, notification: Notification) {
+        Log.d(TAG, "Showing notification with id $id")
+        if (ContextCompat.checkSelfPermission(context, POST_NOTIFICATIONS) == PERMISSION_GRANTED) {
+            with(NotificationManagerCompat.from(context)) {
+                notify(id, notification)
+            }
+        }
+    }
+
+    private fun getAppPendingIntent(context: Context): PendingIntent {
+        val activityClass = activityProvider.getActivity()?.javaClass
+        return PendingIntent.getActivity(
+            context,
+            0,
+            Intent(context, activityClass),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    private fun getStopActionIntent(context: Context): NotificationCompat.Action {
+        val actionIntent = Intent(context, NotificationsActionReceiver::class.java).apply {
+            putExtra(NotificationsActionReceiver.ACTION, NotificationsActionReceiver.ACTION_TYPE_STOP)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            actionIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val action = NotificationCompat.Action.Builder(
+            coreR.drawable.ic_notification_stop,
+            context.getString(coreR.string.notification_action_stop),
+            pendingIntent
+        ).build()
+
+        return action
+    }
+
+    private enum class NotificationChannels(
+        val notificationId: Int,
+        val channelId: String,
+        @param:StringRes val channelName: Int
+    ) {
+        STATUS(
+            notificationId = 1001,
+            channelId = "nt_status",
+            channelName = coreR.string.notification_channel_status
+        )
+    }
+
+    private enum class Notifications(
+        @param:DrawableRes val smallIcon: Int,
+        @param:StringRes val title: Int,
+        @param:StringRes val content: Int
+    ) {
+        IDLE(
+            smallIcon = coreR.drawable.ic_notification_stylus_default,
+            title = coreR.string.notification_idle_title,
+            content = coreR.string.notification_idle_content
+        ),
+        HIDDEN(
+            smallIcon = coreR.drawable.ic_notification_stylus_hide,
+            title = coreR.string.notification_hidden_title,
+            content = coreR.string.notification_hidden_content
+        ),
+        SLEEP(
+            smallIcon = coreR.drawable.ic_notification_stylus_sleep,
+            title = coreR.string.notification_sleep_title,
+            content = coreR.string.notification_sleep_content
+        ),
+        ERROR(
+            smallIcon = coreR.drawable.ic_notification_stop,
+            title = coreR.string.notification_interrupted_title,
+            content = coreR.string.notification_interrupted_content
+        )
+    }
+
+    companion object {
+        private const val TAG = "NotificationsManager"
+        private const val ERROR_NOTIFICATION_ID = 1002
+    }
+}

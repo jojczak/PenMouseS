@@ -2,7 +2,7 @@ package pl.jojczak.penmouses
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
-import pl.jojczak.penmouses.di.ActivityProvider
+import pl.jojczak.penmouses.core.common.di.ActivityProvider
 import javax.inject.Inject
 
 @HiltAndroidApp

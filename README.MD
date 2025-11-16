@@ -16,11 +16,11 @@ One important note: due to limitations of the Accessibility API, all actions are
 In addition to the mouse control mentioned earlier, the app also allows you to:
 - Adjust the cursor size
 - Change the mouse sensitivity
-- Automatically hide the cursor after a period of inactivity so it doesn’t get in the way
+- Automatically hide the cursor after a period of inactivity so it doesn't get in the way
 - Turn off the S Pen gyroscope after a period of inactivity to save battery
 - Change the cursor icon — the app includes three default icons, and you can also set a custom one
 
-The app also includes a detailed setup guide with videos explaining how to prepare your phone for using the S Pen as a mouse. This is especially useful because some of the S Pen’s built-in features need to be disabled to prevent them from interfering with the PenMouse S.
+The app also includes a detailed setup guide with videos explaining how to prepare your phone for using the S Pen as a mouse. This is especially useful because some of the S Pen's built-in features need to be disabled to prevent them from interfering with the PenMouse S.
 
 You can see a demonstration of the app in this video:</br>
 [<img src="gimp/yt_thumb.png" alt="PenMouse S YouTube video" height="250"/>](https://youtu.be/SMZjguBtFQQ)
@@ -33,7 +33,7 @@ You can see a demonstration of the app in this video:</br>
 
 It also requires Android 12 or newer.
 
-The S Pen SDK is quite a niche tool and has long been forgotten by Samsung. In fact, in their latest flagship phone, the S25 Ultra, they removed both Bluetooth connectivity and the gyroscope from the S Pen. So keep in mind that the app might work poorly, have bugs, or not work at all. Unfortunately, it's a bit random and depends on both the pen and the phone - don’t say I didn’t warn you!
+The S Pen SDK is quite a niche tool and has long been forgotten by Samsung. In fact, in their latest flagship phone, the S25 Ultra, they removed both Bluetooth connectivity and the gyroscope from the S Pen. So keep in mind that the app might work poorly, have bugs, or not work at all. Unfortunately, it's a bit random and depends on both the pen and the phone - don't say I didn't warn you!
 
 ## Download
 You can download PenMouse S from the [Releases](https://github.com/jojczak/PenMouseS/releases) section here on GitHub or from Google Play:

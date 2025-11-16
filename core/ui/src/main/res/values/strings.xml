@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">PenMouse S</string>
+    <string name="app_name_debug">PenMouse S</string>
+
+    <string name="pen_mouse_s_service_description">Pen Mouse S requires its accessibility service to be enabled for proper functionality.\n\nAccessibility services are needed to:\n\n- Display the cursor above other apps, including the notification panel and the lock screen\n- Simulate touch input on the screen, mirroring S Pen movements\n\nPen Mouse S does not read your screen content.</string>
+
+    <string name="screen_home">Home</string>
+    <string name="screen_manual">Manual</string>
+    <string name="screen_settings">Settings</string>
+
+    <string name="cursor_type_light">Light</string>
+    <string name="cursor_type_dark">Dark</string>
+    <string name="cursor_type_retro">Retro</string>
+    <string name="cursor_type_custom">Custom</string>
+
+    <string name="pen_mode_off">Off</string>
+    <string name="pen_mode_mouse">Mouse</string>
+    <string name="pen_mode_point">Point</string>
+    <string name="pen_mode_scroll">Scroll</string>
+
+    <string name="common_accessibility">Accessibility settings</string>
+
+    <string name="notification_channel_status">Status</string>
+    <string name="notification_action_stop">Stop</string>
+
+    <string name="notification_idle_title">%s is controlling the mouse</string>
+    <string name="notification_idle_content">Tap here to open the app.</string>
+
+    <string name="notification_hidden_title">Cursor hidden due to inactivity</string>
+    <string name="notification_hidden_content">Move the S Pen to restore the cursor, or tap here to open the app.</string>
+
+    <string name="notification_sleep_title">Cursor has been put to sleep due to inactivity</string>
+    <string name="notification_sleep_content">Click the button on the S Pen to wake up the cursor, or tap here to open the app.</string>
+
+    <string name="notification_interrupted_title">An error occurred!</string>
+    <string name="notification_interrupted_content">The app encountered an unexpected issue. Try restarting %s or reset the accessibility permissions.</string>
+</resources>
