@@ -57,8 +57,8 @@ internal fun LazyListScope.stepsContainer(
 
 @Composable
 internal fun StepSurface(
-    shape: RoundedCornerShape = RoundedCornerShape(radius_m),
     modifier: Modifier = Modifier,
+    shape: RoundedCornerShape = RoundedCornerShape(radius_m),
     content: @Composable () -> Unit
 ) = Surface(
     tonalElevation = elevation_1,
