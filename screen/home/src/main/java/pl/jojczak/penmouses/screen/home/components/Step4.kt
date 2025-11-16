@@ -30,6 +30,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +50,8 @@ import pl.jojczak.penmouses.core.ui.theme.pad_xxl
 import pl.jojczak.penmouses.core.ui.theme.radius_m
 import pl.jojczak.penmouses.screen.home.R
 import pl.jojczak.penmouses.screen.home.modesComponentData
+import pl.jojczak.penmouses.screen.home.utils.checkNotifications
+import pl.jojczak.penmouses.screen.home.utils.getNotificationLauncher
 
 fun LazyListScope.step4(
     serviceStatus: ModeStatus,
@@ -136,10 +139,24 @@ private fun ModesSegmentedButtons(
     serviceStatus: ModeStatus,
     toggleService: (event: Event) -> Unit,
 ) = CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+    val context = LocalContext.current
+
+    var modeToStart = remember { ModeStatus.Off }
+    val notificationLauncher = getNotificationLauncher { toggleService(Event.Start(modeToStart)) }
+
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
         modesComponentData.forEachIndexed { index, mode ->
             SegmentedButton(
-                onClick = { toggleService(Event.Start(mode.mode)) },
+                onClick = {
+                    modeToStart = mode.mode
+                    if (modeToStart == ModeStatus.Off) {
+                        toggleService(Event.Start(modeToStart))
+                    } else {
+                        checkNotifications(context, notificationLauncher) {
+                            toggleService(Event.Start(modeToStart))
+                        }
+                    }
+                },
                 selected = mode.mode == serviceStatus,
                 enabled = serviceStatus != ModeStatus.Loading,
                 shape = SegmentedButtonDefaults.itemShape(
