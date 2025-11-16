@@ -41,7 +41,7 @@ You can download PenMouse S from the [Releases](https://github.com/jojczak/PenMo
 [<img src="gimp/google_play_badge.png" height="50">](https://play.google.com/store/apps/details?id=pl.jojczak.penmouses)
 
 ## Screenshots
-<img src="gimp/screenshots/Screenshot_20250508_154807.png" width="256"> <img src="gimp/screenshots/Screenshot_20250508_154901.png" width="256"> <img src="gimp/screenshots/Screenshot_20250508_155011.png" width="256"> <img src="gimp/screenshots/Screenshot_20250508_155050.png" width="256">
+<img src="gimp/screenshots/1.png" width="256"> <img src="gimp/screenshots/2.png" width="256"> <img src="gimp/screenshots/3.png" width="256"> <img src="gimp/screenshots/4.png" width="256">
 
 ## Building the Project
 1. Clone the repository:
@@ -56,6 +56,7 @@ You can download PenMouse S from the [Releases](https://github.com/jojczak/PenMo
 - Hilt - Dependency injection framework
 - [Haze](https://github.com/chrisbanes/haze) by [@chrisbanes](https://github.com/chrisbanes) - Real-time blur effects for Jetpack Compose
 - [S Pen Remote SDK](https://developer.samsung.com/galaxy-spen-remote/overview.html) - Samsung's SDK for accessing motion and button input from the S Pen
+- [Compose Richtext](https://github.com/halilozercan/compose-richtext) by [Halil Ozercan](https://github.com/halilozercan)
 - Android Accessibility Service API - Used to simulate touch events and show custom overlays
 
 ## Legal
