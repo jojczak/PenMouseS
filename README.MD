@@ -1,3 +1,5 @@
+[![Download](https://playbadges.pavi2410.me/badge/downloads?id=pl.jojczak.penmouses)](https://play.google.com/store/apps/details?id=pl.jojczak.penmouses)
+
 <p align="center">
   <img alt="PenMouse S logo" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" />
 </p>
