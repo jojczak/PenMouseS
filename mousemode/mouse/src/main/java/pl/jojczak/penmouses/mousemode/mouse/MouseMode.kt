@@ -28,12 +28,14 @@ class MouseMode(
     notificationsManager: NotificationsManager,
     preferences: PreferencesManager,
     sPenManager: SPenManager,
+    stopService: () -> Unit,
     context: Context,
 ) : CursorMode<MouseAnimator>(
     notificationsManager = notificationsManager,
     dispatchGesture = dispatchGesture,
     preferences = preferences,
     sPenManager = sPenManager,
+    stopService = stopService,
     context = context,
     modeStatus = ModeStatus.Mouse,
     animatorFactory = { view -> MouseAnimator(view) }
@@ -59,8 +61,14 @@ class MouseMode(
             override fun onSuccess() {
                 pingCursor()
                 mainHandler.postDelayed({
-                    sPenManager.registerButtonEventListener(::onButtonEvent)
-                    sPenManager.registerAirMotionEventListener(::onAirMotionEvent)
+                    sPenManager.registerButtonEventListener(
+                        ::onButtonEvent,
+                        ::showErrorAndStopService
+                    )
+                    sPenManager.registerAirMotionEventListener(
+                        ::onAirMotionEvent,
+                        ::showErrorAndStopService
+                    )
                 }, PenConst.DELAY_TO_EVENT_REGISTER_MS)
             }
         })
@@ -160,7 +168,10 @@ class MouseMode(
         }
         if (isSleeping) {
             isSleeping = false
-            sPenManager.registerAirMotionEventListener(::onAirMotionEvent)
+            sPenManager.registerAirMotionEventListener(
+                ::onAirMotionEvent,
+                ::showErrorAndStopService
+            )
             return
         }
     }

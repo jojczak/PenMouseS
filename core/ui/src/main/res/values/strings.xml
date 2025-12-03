@@ -19,6 +19,10 @@
     <string name="pen_mode_scroll">Scroll</string>
 
     <string name="common_accessibility">Accessibility settings</string>
+    <string name="common_link_error">An error occurred while trying to open the link.</string>
+
+    <string name="connection_unsupported_device">Error! your device most likely doesn\'t support S Pen Remote.</string>
+    <string name="connection_unknown_error">An unknown error has occurred. Try restarting the device.</string>
 
     <string name="notification_channel_status">Status</string>
     <string name="notification_action_stop">Stop</string>

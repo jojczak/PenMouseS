@@ -25,12 +25,14 @@ class ScrollMode(
     notificationsManager: NotificationsManager,
     preferences: PreferencesManager,
     sPenManager: SPenManager,
+    stopService: () -> Unit,
     context: Context,
 ) : BaseMode(
     notificationsManager = notificationsManager,
     dispatchGesture = dispatchGesture,
     preferences = preferences,
     sPenManager = sPenManager,
+    stopService = stopService,
     context = context,
 ) {
     private val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
@@ -45,9 +47,15 @@ class ScrollMode(
             override fun onSuccess() {
                 mainHandler.postDelayed({
                     if (!isExperimentalModeEnabled) {
-                        sPenManager.registerAirMotionEventListener(::onAirMotionEvent)
+                        sPenManager.registerAirMotionEventListener(
+                            ::onAirMotionEvent,
+                            ::showErrorAndStopService
+                        )
                     }
-                    sPenManager.registerButtonEventListener(::onButtonEvent)
+                    sPenManager.registerButtonEventListener(
+                        ::onButtonEvent,
+                        ::showErrorAndStopService
+                    )
                 }, PenConst.DELAY_TO_EVENT_REGISTER_MS)
             }
         })
@@ -59,7 +67,10 @@ class ScrollMode(
         if (type == ButtonEvent.ACTION_DOWN) {
             deltaY = 0f
             if (isExperimentalModeEnabled) {
-                sPenManager.registerAirMotionEventListener(::onAirMotionEvent)
+                sPenManager.registerAirMotionEventListener(
+                    ::onAirMotionEvent,
+                    ::showErrorAndStopService
+                )
             }
         } else if (type == ButtonEvent.ACTION_UP) {
             if (isExperimentalModeEnabled) {

@@ -28,12 +28,14 @@ class PointMode(
     notificationsManager: NotificationsManager,
     preferences: PreferencesManager,
     sPenManager: SPenManager,
+    stopService: () -> Unit,
     context: Context,
 ) : CursorMode<PointAnimator>(
     notificationsManager = notificationsManager,
     dispatchGesture = dispatchGesture,
     preferences = preferences,
     sPenManager = sPenManager,
+    stopService = stopService,
     context = context,
     modeStatus = ModeStatus.Point,
     animatorFactory = { view -> PointAnimator(view) }
@@ -50,7 +52,10 @@ class PointMode(
         sPenManager.connect(object : ConnectionResultCallback() {
             override fun onSuccess() {
                 mainHandler.postDelayed({
-                    sPenManager.registerButtonEventListener(::onButtonEvent)
+                    sPenManager.registerButtonEventListener(
+                        ::onButtonEvent,
+                        ::showErrorAndStopService
+                    )
                 }, PenConst.DELAY_TO_EVENT_REGISTER_MS)
             }
         })
