@@ -195,40 +195,72 @@ private fun RowScope.CursorTypeSelector(
     onCursorTypeChange: (CursorType) -> Unit = {},
     radioButtonsHeight: MutableIntState
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(pad_xs),
+    val leftCol = arrayOf(CursorType.Light, CursorType.Dark, CursorType.Retro, CursorType.Custom)
+    val rightCol = arrayOf(CursorType.SPen)
+
+    Row(
         modifier = Modifier
-            .selectableGroup()
             .weight(2f)
-            .onGloballyPositioned { coordinates ->
-                radioButtonsHeight.intValue = coordinates.size.height
-            }
+            .selectableGroup()
     ) {
-        CursorType.entries.forEach {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .fillMaxWidth()
-                    .selectable(
-                        selected = cursorType == it,
-                        onClick = { onCursorTypeChange(it) },
-                        role = Role.RadioButton
-                    )
-                    .padding(pad_xs)
-            ) {
-                RadioButton(
-                    selected = cursorType == it,
-                    onClick = null
+        Column(
+            verticalArrangement = Arrangement.spacedBy(pad_xs),
+            modifier = Modifier
+                .onGloballyPositioned { coordinates ->
+                    radioButtonsHeight.intValue = coordinates.size.height
+                }
+                .weight(1f)
+        ) {
+            leftCol.forEach {
+                CursorSelector(
+                    selectedType = cursorType,
+                    onCursorTypeChange = onCursorTypeChange,
+                    cursorType = it
                 )
-                Text(
-                    text = stringResource(it.label),
-                    modifier = Modifier.padding(start = pad_s)
+            }
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(pad_xs),
+            modifier = Modifier.weight(1f)
+        ) {
+            rightCol.forEach {
+                CursorSelector(
+                    selectedType = cursorType,
+                    onCursorTypeChange = onCursorTypeChange,
+                    cursorType = it
                 )
             }
         }
     }
 }
+
+@Composable
+private fun CursorSelector(
+    selectedType: CursorType,
+    onCursorTypeChange: (CursorType) -> Unit,
+    cursorType: CursorType,
+) = Row(
+    verticalAlignment = Alignment.CenterVertically,
+    modifier = Modifier
+        .clip(CircleShape)
+        .fillMaxWidth()
+        .selectable(
+            selected = selectedType == cursorType,
+            onClick = { onCursorTypeChange(cursorType) },
+            role = Role.RadioButton
+        )
+        .padding(pad_xs)
+) {
+    RadioButton(
+        selected = selectedType == cursorType,
+        onClick = null
+    )
+    Text(
+        text = stringResource(cursorType.label),
+        modifier = Modifier.padding(start = pad_s)
+    )
+}
+
 
 @Preview
 @Composable

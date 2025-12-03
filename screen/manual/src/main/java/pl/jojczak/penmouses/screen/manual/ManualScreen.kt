@@ -122,7 +122,10 @@ private fun LazyListScope.handlePage(
         ctx = ctx,
         feature = feature
     )
-    manualPage(markdownNode = markdownNode)
+    manualPage(
+        pageType = pageType,
+        markdownNode = markdownNode
+    )
     for (feature in manualPageData.getValue(pageType).featuresAfter) handlePageFeature(
         ctx = ctx,
         feature = feature
@@ -147,12 +150,20 @@ private fun LazyListScope.handlePageFeature(
     }
 }
 
-private fun LazyListScope.manualPage(markdownNode: AstNode) = item {
+private fun LazyListScope.manualPage(
+    pageType: ManualPageType,
+    markdownNode: AstNode
+) = item {
     PenMouseSMarkdown(
         astNode = markdownNode,
         modifier = Modifier
             .fillMaxSize()
-            .padding(pad_l)
+            .then(
+                if (pageType == ManualPageType.AboutPenMouseS) Modifier
+                    .padding(top = pad_l)
+                    .padding(horizontal = pad_l)
+                else Modifier.padding(all = pad_l)
+            )
     )
 }
 

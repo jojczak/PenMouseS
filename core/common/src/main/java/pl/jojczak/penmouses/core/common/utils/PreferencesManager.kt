@@ -117,6 +117,7 @@ enum class CursorType(
     Light("light.png", R.string.cursor_type_light),
     Dark("dark.png", R.string.cursor_type_dark),
     Retro("retro.png", R.string.cursor_type_retro),
+    SPen("spen.png", R.string.cursor_type_spen),
     Custom("custom.png", R.string.cursor_type_custom);
 
     fun getFileName(mode: ModeStatus? = null) = when (mode) {
