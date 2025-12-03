@@ -12,8 +12,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
-import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.Event
+import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.spen.SPenManager
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 import pl.jojczak.penmouses.mousemode.base.BaseMode
@@ -73,6 +73,7 @@ class MouseService : AccessibilityService() {
             dispatchGesture = ::dispatchGesture,
             preferences = preferences,
             sPenManager = sPenManager,
+            stopService = ::stopMode,
             context = this,
         )
 
@@ -81,6 +82,7 @@ class MouseService : AccessibilityService() {
             dispatchGesture = ::dispatchGesture,
             preferences = preferences,
             sPenManager = sPenManager,
+            stopService = ::stopMode,
             context = this,
         )
 
@@ -89,6 +91,7 @@ class MouseService : AccessibilityService() {
             dispatchGesture = ::dispatchGesture,
             preferences = preferences,
             sPenManager = sPenManager,
+            stopService = ::stopMode,
             context = this,
         )
 

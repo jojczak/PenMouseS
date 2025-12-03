@@ -14,15 +14,13 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import pl.jojczak.penmouses.core.common.di.ActivityProvider
+import androidx.core.net.toUri
 import javax.inject.Inject
 import javax.inject.Singleton
 import pl.jojczak.penmouses.core.ui.R as coreR
 
 @Singleton
-class NotificationsManager @Inject constructor(
-    private val activityProvider: ActivityProvider
-) {
+class NotificationsManager @Inject constructor() {
     fun showIdleNotification(context: Context) {
         Log.d(TAG, "Showing idle notification")
         createNotificationChannels(context)
@@ -135,15 +133,12 @@ class NotificationsManager @Inject constructor(
         }
     }
 
-    private fun getAppPendingIntent(context: Context): PendingIntent {
-        val activityClass = activityProvider.getActivity()?.javaClass
-        return PendingIntent.getActivity(
-            context,
-            0,
-            Intent(context, activityClass),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-    }
+    private fun getAppPendingIntent(context: Context) = PendingIntent.getActivity(
+        context,
+        0,
+        Intent(Intent.ACTION_VIEW, MAIN_ACTIVITY_DEEPLINK.toUri()),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
 
     private fun getStopActionIntent(context: Context): NotificationCompat.Action {
         val actionIntent = Intent(context, NotificationsActionReceiver::class.java).apply {
@@ -207,5 +202,6 @@ class NotificationsManager @Inject constructor(
     companion object {
         private const val TAG = "NotificationsManager"
         private const val ERROR_NOTIFICATION_ID = 1002
+        private const val MAIN_ACTIVITY_DEEPLINK = "penmouses://open_main"
     }
 }

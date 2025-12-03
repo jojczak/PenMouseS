@@ -60,7 +60,10 @@ class SPenManager(
         }
     }
 
-    fun registerButtonEventListener(buttonEventListener: ButtonEventListener) {
+    fun registerButtonEventListener(
+        buttonEventListener: ButtonEventListener,
+        errorCallback: (Int) -> Unit
+    ) {
         sPenUnitManager?.let { unitManager ->
             val buttonUnit = unitManager.getUnit(SpenUnit.TYPE_BUTTON)
 
@@ -73,13 +76,24 @@ class SPenManager(
                 buttonEventListener.onEvent(mEvent.action, mEvent.timeStamp)
             }
 
-            unitManager.registerSpenEventListener(mButtonEventListener, buttonUnit)
+            try {
+                unitManager.registerSpenEventListener(mButtonEventListener, buttonUnit)
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Error registering button event listener", e)
+                errorCallback(SpenRemote.Error.UNSUPPORTED_DEVICE)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error registering button event listener", e)
+                errorCallback(SpenRemote.Error.UNKNOWN)
+            }
 
             Log.i(TAG, "Button event listener registered")
         }
     }
 
-    fun registerAirMotionEventListener(airMotionEventListener: AirMotionEventListener) {
+    fun registerAirMotionEventListener(
+        airMotionEventListener: AirMotionEventListener,
+        errorCallback: (Int) -> Unit
+    ) {
         if (isAirMotionRegistered) {
             Log.w(TAG, "Air motion event listener already registered")
             return
@@ -94,7 +108,15 @@ class SPenManager(
                 airMotionEventListener.onEvent(mEvent.deltaX, mEvent.deltaY, mEvent.timeStamp)
             }
 
-            unitManager.registerSpenEventListener(mAirMotionEventListener, airMotionUnit)
+            try {
+                unitManager.registerSpenEventListener(mAirMotionEventListener, airMotionUnit)
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Error registering button event listener", e)
+                errorCallback(SpenRemote.Error.UNSUPPORTED_DEVICE)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error registering button event listener", e)
+                errorCallback(SpenRemote.Error.UNKNOWN)
+            }
 
             Log.i(TAG, "Air motion event listener registered")
         }

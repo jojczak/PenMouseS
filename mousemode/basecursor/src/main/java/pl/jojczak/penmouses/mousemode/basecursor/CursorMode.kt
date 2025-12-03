@@ -29,6 +29,7 @@ abstract class CursorMode<T : CursorAnimator>(
     notificationsManager: NotificationsManager,
     preferences: PreferencesManager,
     sPenManager: SPenManager,
+    stopService: () -> Unit,
     context: Context,
     private val modeStatus: ModeStatus,
     val animatorFactory: (ImageView) -> T
@@ -37,13 +38,12 @@ abstract class CursorMode<T : CursorAnimator>(
     dispatchGesture = dispatchGesture,
     preferences = preferences,
     sPenManager = sPenManager,
+    stopService = stopService,
     context = context,
 ) {
 
-    protected var windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
-    protected val displayManager =
-        context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+    protected var windowManager = getNewWindowManager()
+    protected var displayManager = getNewDisplayManager()
 
     protected val cursorPreferences = CursorPreferences(
         context = context,
@@ -66,6 +66,7 @@ abstract class CursorMode<T : CursorAnimator>(
             view.alpha = cursorPreferences.getOpacity(modeStatus)
             view.setPreDrawObserver()
 
+            displayManager = getNewDisplayManager()
             val (screenWidth, screenHeight) = getDisplaySize(getDisplay())
 
             layoutParams.x = (screenWidth - width) / 2
@@ -81,6 +82,7 @@ abstract class CursorMode<T : CursorAnimator>(
             )
 
             mainHandler.post {
+                windowManager = getNewWindowManager()
                 windowManager.addView(view, layoutParams)
                 Log.d(tagName, "Cursor view added to window manager")
             }
@@ -154,7 +156,9 @@ abstract class CursorMode<T : CursorAnimator>(
         val lp = view.layoutParams as WindowManager.LayoutParams
         lp.block()
         view.post {
-            windowManager.updateViewLayout(view, lp)
+            if (view.isAttachedToWindow) {
+                windowManager.updateViewLayout(view, lp)
+            }
         }
     }
 
@@ -172,5 +176,12 @@ abstract class CursorMode<T : CursorAnimator>(
         return Point(lp.x, lp.y)
     }
 
-    protected fun getDisplay(): Display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)
+    protected fun getDisplay(): Display =
+        displayManager.getDisplay(Display.DEFAULT_DISPLAY)
+
+    private fun getNewWindowManager() =
+        context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+    private fun getNewDisplayManager() =
+        context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 }
