@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">PenMouse S</string>
-    <string name="app_name_debug">PenMouse S</string>
+    <string name="app_name_debug">[D] PenMouse S</string>
 
     <string name="pen_mouse_s_service_description">Pen Mouse S requires its accessibility service to be enabled for proper functionality.\n\nAccessibility services are needed to:\n\n- Display the cursor above other apps, including the notification panel and the lock screen\n- Simulate touch input on the screen, mirroring S Pen movements\n\nPen Mouse S does not read your screen content.</string>
 
@@ -21,6 +21,7 @@
 
     <string name="common_accessibility">Accessibility settings</string>
     <string name="common_link_error">An error occurred while trying to open the link.</string>
+    <string name="start_error_msg">Error while starting. Restart the app and try again</string>
 
     <string name="connection_unsupported_device">Error! your device most likely doesn\'t support S Pen Remote.</string>
     <string name="connection_unknown_error">An unknown error has occurred. Try restarting the device.</string>

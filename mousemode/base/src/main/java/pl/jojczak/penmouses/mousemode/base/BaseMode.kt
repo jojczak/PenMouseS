@@ -43,6 +43,14 @@ abstract class BaseMode(
                 ).show()
             }
 
+            ERROR_WINDOW_MANAGER -> {
+                Toast.makeText(
+                    context,
+                    context.getString(coreR.string.start_error_msg),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
             else -> {
                 Toast.makeText(
                     context,
@@ -57,6 +65,7 @@ abstract class BaseMode(
     protected val tagName by lazy { this::class.simpleName }
 
     companion object {
-        private const val ERROR_UNSUPPORTED_DEVICE: Int = -1
+        const val ERROR_UNSUPPORTED_DEVICE: Int = -1
+        const val ERROR_WINDOW_MANAGER: Int = -2
     }
 }

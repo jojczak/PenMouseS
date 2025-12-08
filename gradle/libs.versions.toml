@@ -23,13 +23,21 @@ splashscreen = "1.2.0"
 playReview = "2.0.2"
 composeRichtext = "1.0.0-alpha03"
 accompanist = "0.37.3"
+googleServices = "4.4.4"
+firebaseBom = "34.6.0"
+crashlytics = "3.0.6"
 
 [libraries]
-#core
+#coreó
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+
+#firebase
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 
 #ui
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -82,6 +90,7 @@ haze = ["chrisbanes-haze", "chrisbanes-haze-materials"]
 hilt = ["hilt-android", "androidx-hilt-navigation-compose"]
 hilt-ksp = ["hilt-compiler", "hilt-ksp"]
 exoplayer = ["exoplayer", "exoplayer-ui"]
+firebase = ["firebase-analytics", "firebase-crashlytics"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -93,3 +102,5 @@ hilt-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 module-android-application = { id = "pl.jojczak.penmouses.module.android.application" }
 module-android-library = { id = "pl.jojczak.penmouses.module.android.library" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }

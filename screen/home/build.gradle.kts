@@ -24,6 +24,8 @@ dependencies {
     implementation(libs.bundles.exoplayer)
     implementation(libs.bundles.halilibo.richtext)
     implementation(libs.bundles.review)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
 
     implementation(libs.bundles.hilt)
     ksp(libs.bundles.hilt.ksp)

@@ -8,11 +8,11 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 fun Project.setupAndroidModule(isApplication: Boolean) {
     with(pluginManager) {
         if (isApplication) {
-            alias(libs.plugins.android.application)
+            aliasConv(libs.plugins.android.application)
         } else {
-            alias(libs.plugins.android.library)
+            aliasConv(libs.plugins.android.library)
         }
-        alias(libs.plugins.kotlin.android)
+        aliasConv(libs.plugins.kotlin.android)
     }
 
     extensions.configure<BaseExtension> {

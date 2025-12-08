@@ -46,6 +46,7 @@ import pl.jojczak.penmouses.core.ui.theme.pad_s
 import pl.jojczak.penmouses.core.ui.theme.radius_l
 import pl.jojczak.penmouses.core.ui.utils.add
 import pl.jojczak.penmouses.screen.home.components.stepsContainer
+import pl.jojczak.penmouses.screen.home.dialog.AnalyticsDialog
 import pl.jojczak.penmouses.screen.home.dialog.DialogFirstRun
 import pl.jojczak.penmouses.screen.home.dialog.DialogUnsupportedDevice
 import pl.jojczak.penmouses.core.ui.R as coreR
@@ -81,7 +82,8 @@ fun HomeScreen(
         showManualPageClicked = showManualPageClicked,
         sendEventToService = { viewModel.onViewAction(HomeViewAction.SendEventToService(it)) },
         toggleUnsupportedDeviceDialog = { viewModel.onViewAction(HomeViewAction.ToggleUnsupportedDeviceDialog(it)) },
-        toggleFirstRunDialog = { viewModel.onViewAction(HomeViewAction.ToggleFirstRunDialog(it)) }
+        toggleFirstRunDialog = { viewModel.onViewAction(HomeViewAction.ToggleFirstRunDialog(it)) },
+        toggleAnalyticsConsent = { viewModel.onViewAction(HomeViewAction.ToggleAnalyticsConsent(it)) }
     )
     //@formatter:on
 }
@@ -95,7 +97,8 @@ private fun HomeScreenContent(
     showManualPageClicked: (ManualPageType) -> Unit,
     sendEventToService: (event: AppToServiceEvent.Event) -> Unit = {},
     toggleUnsupportedDeviceDialog: (Boolean) -> Unit,
-    toggleFirstRunDialog: (Boolean) -> Unit
+    toggleFirstRunDialog: (Boolean) -> Unit,
+    toggleAnalyticsConsent: (Boolean) -> Unit
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -133,6 +136,13 @@ private fun HomeScreenContent(
                 toggleFirstRunDialog(false)
                 showManualPageClicked(ManualPageType.HowToUse)
             }
+        )
+    }
+
+    if (state.analyticsDialogEnabled) {
+        AnalyticsDialog(
+            onConfirm = { toggleAnalyticsConsent(true) },
+            onDecline = { toggleAnalyticsConsent(false) },
         )
     }
 }
@@ -236,7 +246,8 @@ private fun HomeScreenPreview() {
             paddingValues = it,
             showManualPageClicked = {},
             toggleUnsupportedDeviceDialog = {},
-            toggleFirstRunDialog = {}
+            toggleFirstRunDialog = {},
+            toggleAnalyticsConsent = {}
         )
     }
 }

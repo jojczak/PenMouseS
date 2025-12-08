@@ -11,6 +11,7 @@ data class HomeScreenState(
     val isAccessibilityEnabled: Boolean = false,
     val unsupportedDeviceDialogEnabled: Boolean = false,
     val firstRunDialogEnabled: Boolean = false,
+    val analyticsDialogEnabled: Boolean = false,
     val serviceStatus: ModeStatus = ModeStatus.Off
 )
 
@@ -22,6 +23,7 @@ sealed class HomeViewAction {
     data class LifecycleEvent(val state: Lifecycle.State) : HomeViewAction()
     data class ToggleUnsupportedDeviceDialog(val enabled: Boolean) : HomeViewAction()
     data class ToggleFirstRunDialog(val enabled: Boolean) : HomeViewAction()
+    data class ToggleAnalyticsConsent(val enabled: Boolean) : HomeViewAction()
     data class SendEventToService(val event: AppToServiceEvent.Event) : HomeViewAction()
 }
 

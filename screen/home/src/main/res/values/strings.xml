@@ -23,4 +23,10 @@
     <string name="dialog_first_run_title">Welcome to PenMouse S</string>
     <string name="dialog_first_manual_button">Go to the manual</string>
     <string name="dialog_first_dismiss_button">Dismiss</string>
+
+    <string name="dialog_analytics_icon">Analytics icon</string>
+    <string name="dialog_analytics_title">Help Us Improve the App</string>
+    <string name="dialog_analytics">Do you allow the app to collect anonymous diagnostic and usage data? This helps us detect issues and improve the app\'s performance.</string>
+    <string name="dialog_analytics_confirm">Allow</string>
+    <string name="dialog_analytics_decline">Deny</string>
 </resources>

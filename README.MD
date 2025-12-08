@@ -53,6 +53,8 @@ You can download PenMouse S from the [Releases](https://github.com/jojczak/PenMo
 2. Open Android Studio and click `File > New > Import Project` and select the PenMouseS repository folder.
 3. Select the app module from the run configurations dropdown and click the Run button
 
+> The app uses Firebase for analytics and crash tracking. To run the app from source, you need to place the `google-services.json` config file in the `app` folder or remove the Firebase dependencies from the app.
+
 ### Used Libraries
 - Jetpack Compose - Declarative UI toolkit for building native Android apps
 - Hilt - Dependency injection framework
