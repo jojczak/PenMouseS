@@ -1,6 +1,6 @@
 [versions]
-versionCode = "8"
-versionName = "2.0.1"
+versionCode = "9"
+versionName = "2.1"
 compileSdk = "36"
 minSdk = "31"
 
@@ -28,7 +28,7 @@ firebaseBom = "34.6.0"
 crashlytics = "3.0.6"
 
 [libraries]
-#coreó
+#core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
