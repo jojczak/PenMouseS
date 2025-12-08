@@ -5,4 +5,6 @@ Would you like to contribute to the development of the app? Translate it into yo
 - Karirad — S Pen cursor icon
 #### Legal:
 *"Samsung", "Galaxy", and "S Pen" are registered trademarks of Samsung Electronics Co., Ltd. This application is not affiliated with, endorsed by, or sponsored by Samsung Electronics Co., Ltd.*
+
+[PenMouse S Privacy Policy](https://jojczak.github.io/penmouse-s-privacy-policy.html)
 #### More:
