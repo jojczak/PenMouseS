@@ -19,7 +19,8 @@ dependencies {
 
     implementation(libs.bundles.compose.core)
     implementation(platform(libs.androidx.compose.bom))
-
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
     implementation(libs.bundles.haze)
 
     implementation(libs.bundles.hilt)

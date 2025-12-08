@@ -13,9 +13,11 @@ import android.view.Display
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
-import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
 import android.view.WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
 import android.widget.ImageView
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import pl.jojczak.penmouses.core.common.notifications.NotificationsManager
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.spen.SPenManager
@@ -74,6 +76,8 @@ abstract class CursorMode<T : CursorAnimator>(
             layoutParams.width = width
             layoutParams.height = height
 
+            windowManager = getNewWindowManager()
+
             Log.d(
                 tagName,
                 "Adding cursor view to window manager. " +
@@ -82,10 +86,16 @@ abstract class CursorMode<T : CursorAnimator>(
             )
 
             mainHandler.post {
-                windowManager = getNewWindowManager()
-                windowManager.addView(view, layoutParams)
-                Log.d(tagName, "Cursor view added to window manager")
+                try {
+                    windowManager.addView(view, layoutParams)
+                } catch (e: Exception) {
+                    Log.e(tagName, "Error adding cursor view to window manager", e)
+                    Firebase.crashlytics.recordException(e)
+                    showErrorAndStopService(ERROR_WINDOW_MANAGER)
+                }
             }
+
+            Log.d(tagName, "Cursor view added to window manager")
 
             notificationsManager.showIdleNotification(context)
         } ?: run {
@@ -148,7 +158,7 @@ abstract class CursorMode<T : CursorAnimator>(
         PenConst.OVERLAY_FLAGS,
         PixelFormat.TRANSLUCENT
     ).apply {
-        layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+        layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
         gravity = Gravity.TOP or Gravity.START
     }
 

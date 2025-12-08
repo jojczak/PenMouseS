@@ -48,6 +48,9 @@
         <receiver
             android:name=".core.common.notifications.NotificationsActionReceiver"
             android:exported="false" />
+
+        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
     </application>
 
 </manifest>

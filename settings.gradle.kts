@@ -1,4 +1,6 @@
 pluginManagement {
+    includeBuild("build-logic")
+
     repositories {
         google {
             content {
@@ -13,11 +15,8 @@ pluginManagement {
             dirs("libs")
         }
     }
-
-    pluginManagement {
-        includeBuild("build-logic")
-    }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {

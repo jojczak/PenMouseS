@@ -11,18 +11,18 @@ import org.gradle.plugin.use.PluginDependency
 val Project.libs
     get(): LibrariesForLibs = extensionOf(this, "libs") as LibrariesForLibs
 
-fun PluginManager.alias(notation: Provider<PluginDependency>) {
+fun PluginManager.aliasConv(notation: Provider<PluginDependency>) {
     apply(notation.get().pluginId)
 }
 
-fun PluginManager.alias(notation: ProviderConvertible<PluginDependency>) {
+fun PluginManager.aliasConv(notation: ProviderConvertible<PluginDependency>) {
     apply(notation.asProvider().get().pluginId)
 }
 
-fun DependencyHandler.implementation(provider: Provider<MinimalExternalModuleDependency>) {
+fun DependencyHandler.implementationConv(provider: Provider<MinimalExternalModuleDependency>) {
     add("implementation", provider.get().group + ":" + provider.get().name + ":" + provider.get().version)
 }
 
-fun DependencyHandler.ksp(provider: Provider<MinimalExternalModuleDependency>) {
+fun DependencyHandler.kspConv(provider: Provider<MinimalExternalModuleDependency>) {
     add("ksp", provider.get().group + ":" + provider.get().name + ":" + provider.get().version)
 }

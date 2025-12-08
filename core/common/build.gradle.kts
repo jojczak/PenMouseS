@@ -12,7 +12,8 @@ dependencies {
     implementation(project(":core:ui"))
 
     implementation(libs.androidx.core.ktx)
-
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
     implementation(files("../../libs/sdk-v1.0.0.jar"))
     implementation(files("../../libs/spenremote-v1.0.1.jar"))
 

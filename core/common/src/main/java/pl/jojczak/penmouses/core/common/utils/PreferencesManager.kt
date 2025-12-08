@@ -101,6 +101,8 @@ object PrefKeys {
     val SCROLL_EXPERIMENTAL_MODE = PrefKey("scroll_experimental_mode", false)
     val FIRST_RUN = PrefKey("first_run", true)
     val LAUNCH_COUNT = PrefKey("launch_count", 0)
+    val ANALYTICS_CONSENT_SHOWED = PrefKey("analytics_consent_showed", false)
+    val ANALYTICS_ENABLED = PrefKey("analytics_enabled", false)
 }
 
 data class PrefKey<T>(

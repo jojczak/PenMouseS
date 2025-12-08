@@ -25,6 +25,7 @@
     <string name="settings_s_pen_sleep_disabled_warning">Warning: Continuous use of the S Pen\'s gyroscope may quickly drain the stylus battery.</string>
 
     <string name="settings_notification">Notification settings</string>
+    <string name="settings_analytics">Enable Analytics</string>
 
     <string name="settings_reset_dialog_title">Reset settings?</string>
     <string name="settings_reset_dialog_desc">Are you sure you want to reset all settings to their default values?</string>

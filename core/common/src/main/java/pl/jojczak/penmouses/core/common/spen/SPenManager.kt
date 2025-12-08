@@ -1,6 +1,8 @@
 package pl.jojczak.penmouses.core.common.spen
 
 import android.util.Log
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.samsung.android.sdk.penremote.AirMotionEvent
 import com.samsung.android.sdk.penremote.ButtonEvent
 import com.samsung.android.sdk.penremote.SpenEventListener
@@ -79,9 +81,11 @@ class SPenManager(
             try {
                 unitManager.registerSpenEventListener(mButtonEventListener, buttonUnit)
             } catch (e: SecurityException) {
+                Firebase.crashlytics.recordException(e)
                 Log.e(TAG, "Error registering button event listener", e)
                 errorCallback(SpenRemote.Error.UNSUPPORTED_DEVICE)
             } catch (e: Exception) {
+                Firebase.crashlytics.recordException(e)
                 Log.e(TAG, "Error registering button event listener", e)
                 errorCallback(SpenRemote.Error.UNKNOWN)
             }
@@ -112,9 +116,11 @@ class SPenManager(
                 unitManager.registerSpenEventListener(mAirMotionEventListener, airMotionUnit)
             } catch (e: SecurityException) {
                 Log.e(TAG, "Error registering button event listener", e)
+                Firebase.crashlytics.recordException(e)
                 errorCallback(SpenRemote.Error.UNSUPPORTED_DEVICE)
             } catch (e: Exception) {
                 Log.e(TAG, "Error registering button event listener", e)
+                Firebase.crashlytics.recordException(e)
                 errorCallback(SpenRemote.Error.UNKNOWN)
             }
 
@@ -152,6 +158,7 @@ class SPenManager(
                 "Error disconnecting from S-Pen, probably activity destroyed before disconnect",
                 e
             )
+            Firebase.crashlytics.recordException(e)
         }
     }
 
@@ -182,9 +189,11 @@ class SPenManager(
             }
         } catch (e: ClassNotFoundException) {
             Log.e(TAG, "SpenRemote class not found, S-Pen features unavailable", e)
+            Firebase.crashlytics.recordException(e)
             false
         } catch (e: Exception) {
             Log.e(TAG, "Error checking if S-Pen is supported", e)
+            Firebase.crashlytics.recordException(e)
             false
         }
     }

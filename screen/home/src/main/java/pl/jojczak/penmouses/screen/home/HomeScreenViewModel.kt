@@ -2,9 +2,13 @@ package pl.jojczak.penmouses.screen.home
 
 import android.content.Context
 import android.provider.Settings
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,6 +38,7 @@ class HomeScreenViewModel @Inject constructor(
     val state: StateFlow<HomeScreenState> = _state.asStateFlow()
 
     init {
+        checkAnalyticsConsent()
         checkIfLaunchedFirstTime()
         checkAccessibilityPermission()
         checkSPenSupportAndShowDialogIfNot()
@@ -45,6 +50,7 @@ class HomeScreenViewModel @Inject constructor(
         is HomeViewAction.LifecycleEvent -> onLifecycleEvent(viewAction.state)
         is HomeViewAction.ToggleUnsupportedDeviceDialog -> _state.update { it.copy(unsupportedDeviceDialogEnabled = viewAction.enabled) }
         is HomeViewAction.ToggleFirstRunDialog -> _state.update { it.copy(firstRunDialogEnabled = viewAction.enabled) }
+        is HomeViewAction.ToggleAnalyticsConsent -> toggleAnalyticsConsent(viewAction.enabled)
         is HomeViewAction.SendEventToService -> sendEventToService(viewAction.event)
     }
     //@formatter:on
@@ -103,7 +109,25 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
+    private fun checkAnalyticsConsent() {
+        val consentDisplayed = preferencesManager.get(PrefKeys.ANALYTICS_CONSENT_SHOWED)
+        Log.d(TAG, "checkAnalyticsConsent: $consentDisplayed")
+        if (!consentDisplayed) {
+            _state.update { it.copy(analyticsDialogEnabled = true) }
+        }
+    }
+
+    private fun toggleAnalyticsConsent(enabled: Boolean) {
+        Log.d(TAG, "toggleAnalyticsConsent: $enabled")
+        preferencesManager.put(PrefKeys.ANALYTICS_ENABLED, enabled)
+        preferencesManager.put(PrefKeys.ANALYTICS_CONSENT_SHOWED, true)
+        Firebase.analytics.setAnalyticsCollectionEnabled(enabled)
+        Firebase.crashlytics.isCrashlyticsCollectionEnabled = enabled
+        _state.update { it.copy(analyticsDialogEnabled = false) }
+    }
+
     companion object {
+        private const val TAG = "HomeScreenViewModel"
         private const val MOUSE_SERVICE_NAME = "pl.jojczak.penmouses.service.MouseService"
     }
 }

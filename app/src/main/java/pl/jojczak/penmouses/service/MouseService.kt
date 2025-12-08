@@ -3,6 +3,10 @@ package pl.jojczak.penmouses.service
 import android.accessibilityservice.AccessibilityService
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +19,7 @@ import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.Event
 import pl.jojczak.penmouses.core.common.spen.AppToServiceEvent.ModeStatus
 import pl.jojczak.penmouses.core.common.spen.SPenManager
+import pl.jojczak.penmouses.core.common.utils.Analytics
 import pl.jojczak.penmouses.core.common.utils.PreferencesManager
 import pl.jojczak.penmouses.mousemode.base.BaseMode
 import pl.jojczak.penmouses.mousemode.mouse.MouseMode
@@ -60,6 +65,12 @@ class MouseService : AccessibilityService() {
     }
 
     private fun stopCurrentStartNew(newMode: ModeStatus) = serviceScope.launch {
+        if (newMode != ModeStatus.Off) {
+            Firebase.analytics.logEvent(Analytics.EVENT_MODE_STARTED) {
+                param(FirebaseAnalytics.Param.ITEM_NAME, newMode.name)
+            }
+        }
+
         stopMode(stopMode = ModeStatus.Loading)
         delay(timeMillis = DELAY_BETWEEN_MODES)
         currentMode = getNewMode(newMode = newMode)
