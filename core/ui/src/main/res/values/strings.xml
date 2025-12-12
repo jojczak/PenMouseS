@@ -2,7 +2,10 @@
     <string name="app_name">PenMouse S</string>
     <string name="app_name_debug">[D] PenMouse S</string>
 
-    <string name="pen_mouse_s_service_description">Pen Mouse S requires its accessibility service to be enabled for proper functionality.\n\nAccessibility services are needed to:\n\n- Display the cursor above other apps, including the notification panel and the lock screen\n- Simulate touch input on the screen, mirroring S Pen movements\n\nPen Mouse S does not read your screen content.</string>
+    <string name="pen_mouse_s_service_description">Pen Mouse S requires its accessibility service to be enabled for proper functionality.\n\nAccessibility services are needed to:\n\n- Display the cursor above other apps, including the notification panel and the lock screen\n- Simulate touch input on the screen, mirroring S Pen movements\n\nPenMouse S does not read, collect, store, or share any screen content or user data through the Accessibility Service</string>
+    <string name="accessibility_dialog_title">Accessibility permission required</string>
+    <string name="accessibility_dialog_accept">I understand and accept</string>
+    <string name="accessibility_dialog_cancel">Cancel</string>
 
     <string name="screen_home">Home</string>
     <string name="screen_manual">Manual</string>

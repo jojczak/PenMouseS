@@ -1,4 +1,4 @@
-package pl.jojczak.penmouses.screen.home.components
+package pl.jojczak.penmouses.core.ui.components
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
@@ -10,17 +10,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import com.halilibo.richtext.commonmark.CommonmarkAstNodeParser
-import pl.jojczak.penmouses.core.ui.components.PenMouseSMarkdown
 import pl.jojczak.penmouses.core.ui.theme.pad_xl
 import java.io.BufferedReader
 
 @Composable
-internal fun MarkdownDialog(
+fun MarkdownDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
     dismissButton: @Composable (() -> Unit)? = null,
@@ -28,9 +27,9 @@ internal fun MarkdownDialog(
     @StringRes titleId: Int,
     @RawRes markdownTextId: Int,
 ) {
-    val ctx = LocalContext.current
+    val resources = LocalResources.current
     val markdown = remember {
-        val rawMarkdown = ctx.resources.openRawResource(markdownTextId)
+        val rawMarkdown = resources.openRawResource(markdownTextId)
             .bufferedReader()
             .use(BufferedReader::readText)
 
