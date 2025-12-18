@@ -5,7 +5,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import pl.jojczak.penmouses.screen.home.R
-import pl.jojczak.penmouses.screen.home.components.MarkdownDialog
+import pl.jojczak.penmouses.core.ui.components.MarkdownDialog
 import pl.jojczak.penmouses.core.ui.R as coreR
 
 @Composable

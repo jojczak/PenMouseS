@@ -4,7 +4,6 @@
     android:canPerformGestures="true"
     android:canRetrieveWindowContent="false"
     android:description="@string/pen_mouse_s_service_description"
-    android:isAccessibilityTool="true"
     android:notificationTimeout="100"
     android:packageNames="pl.jojczak.penmouses"
     android:settingsActivity="pl.jojczak.penmouses.ui.main.MainActivity" />

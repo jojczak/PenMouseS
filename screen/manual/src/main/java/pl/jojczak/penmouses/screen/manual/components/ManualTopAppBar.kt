@@ -19,7 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import pl.jojczak.penmouses.core.common.types.ManualPageType
-import pl.jojczak.penmouses.core.common.utils.openAccessibilitySettings
 import pl.jojczak.penmouses.core.common.utils.openSettings
 import pl.jojczak.penmouses.core.ui.theme.pad_l
 import pl.jojczak.penmouses.core.ui.theme.pad_m
@@ -32,7 +31,8 @@ import pl.jojczak.penmouses.core.ui.R as coreR
 internal fun ManualTopAppBar(
     manualPage: ManualPageType,
     modifier: Modifier = Modifier,
-    onMenuIconClicked: () -> Unit
+    onMenuIconClicked: () -> Unit,
+    showAccessibilityDialog: () -> Unit
 ) {
     TopAppBar(
         title = {
@@ -54,7 +54,10 @@ internal fun ManualTopAppBar(
             }
         },
         actions = {
-            HandleManualPage(manualPage)
+            HandleManualPage(
+                manualPage = manualPage,
+                showAccessibilityDialog = showAccessibilityDialog
+            )
         },
         modifier = modifier
     )
@@ -63,6 +66,7 @@ internal fun ManualTopAppBar(
 @Composable
 private fun HandleManualPage(
     manualPage: ManualPageType,
+    showAccessibilityDialog: () -> Unit
 ) = CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
     val context = LocalContext.current
 
@@ -85,7 +89,7 @@ private fun HandleManualPage(
 
         ManualPageType.PreparationStep3 -> {
             OutlinedButton(
-                onClick = { openAccessibilitySettings(context) },
+                onClick = { showAccessibilityDialog() },
                 modifier = Modifier.padding(end = pad_s)
             ) {
                 Text(text = stringResource(coreR.string.common_accessibility))

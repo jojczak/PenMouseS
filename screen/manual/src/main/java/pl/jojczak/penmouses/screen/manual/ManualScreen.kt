@@ -40,6 +40,8 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
 import pl.jojczak.penmouses.core.common.types.ManualPageType
+import pl.jojczak.penmouses.core.common.utils.openAccessibilitySettings
+import pl.jojczak.penmouses.core.ui.components.AccessibilitySettingsDialog
 import pl.jojczak.penmouses.core.ui.components.PenMouseSMarkdown
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSDevicePreview
 import pl.jojczak.penmouses.core.ui.theme.hazeUltraThinSurface
@@ -67,6 +69,7 @@ fun ManualScreen(
     val layoutDirection = LocalLayoutDirection.current
     val insets = WindowInsets.safeDrawing.asPaddingValues()
     var topAppBarHeight by remember { mutableStateOf(TopAppBarExpandedHeight) }
+    var showAccessibilityDialog by remember { mutableStateOf(false) }
 
     BackHandler(manualDrawerState.isOpen) {
         scope.launch { manualDrawerState.close() }
@@ -101,6 +104,9 @@ fun ManualScreen(
             onMenuIconClicked = {
                 scope.launch { manualDrawerState.apply { if (isClosed) open() else close() } }
             },
+            showAccessibilityDialog = {
+                showAccessibilityDialog = true
+            },
             modifier = Modifier
                 .hazeEffect(
                     state = localHazeState,
@@ -110,6 +116,18 @@ fun ManualScreen(
                     with(localDensity) { topAppBarHeight = it.size.height.toDp() }
                 },
         )
+
+        if (showAccessibilityDialog) {
+            AccessibilitySettingsDialog(
+                onDismiss = {
+                    showAccessibilityDialog = false
+                },
+                onConfirm = {
+                    showAccessibilityDialog = false
+                    openAccessibilitySettings(ctx)
+                }
+            )
+        }
     }
 }
 
