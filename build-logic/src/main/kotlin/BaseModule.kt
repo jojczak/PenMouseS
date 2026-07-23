@@ -1,4 +1,6 @@
-import com.android.build.gradle.BaseExtension
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -12,22 +14,36 @@ fun Project.setupAndroidModule(isApplication: Boolean) {
         } else {
             aliasConv(libs.plugins.android.library)
         }
-        aliasConv(libs.plugins.kotlin.android)
     }
 
-    extensions.configure<BaseExtension> {
-        compileSdkVersion(libs.versions.compileSdk.get().toInt())
+    extensions.configure<CommonExtension> {
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
 
-        defaultConfig {
-            minSdk = libs.versions.minSdk.get().toInt()
-            targetSdk = libs.versions.compileSdk.get().toInt()
-            versionCode = libs.versions.versionCode.get().toInt()
-            versionName = libs.versions.versionName.get()
+    if (isApplication) {
+        extensions.configure<ApplicationExtension> {
+            defaultConfig {
+                minSdk = libs.versions.minSdk.get().toInt()
+                targetSdk = libs.versions.compileSdk.get().toInt()
+                versionCode = libs.versions.versionCode.get().toInt()
+                versionName = libs.versions.versionName.get()
+            }
+
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_21
+                targetCompatibility = JavaVersion.VERSION_21
+            }
         }
+    } else {
+        extensions.configure<LibraryExtension> {
+            defaultConfig {
+                minSdk = libs.versions.minSdk.get().toInt()
+            }
 
-        compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_21
-            targetCompatibility = JavaVersion.VERSION_21
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_21
+                targetCompatibility = JavaVersion.VERSION_21
+            }
         }
     }
 

@@ -7,12 +7,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+
+val LocalDynamicLightColors = compositionLocalOf { lightColorScheme() }
 
 @Composable
 fun PenMouseSTheme(
@@ -20,6 +25,7 @@ fun PenMouseSTheme(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
+    val lightScheme = dynamicLightColorScheme(context)
 
     val colorScheme = if (darkTheme) {
         dynamicDarkColorScheme(context)
@@ -29,7 +35,11 @@ fun PenMouseSTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        content = content
+        content = {
+            CompositionLocalProvider(LocalDynamicLightColors provides lightScheme) {
+                content()
+            }
+        }
     )
 }
 

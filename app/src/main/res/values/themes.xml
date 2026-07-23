@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.BasePenMouseS" parent="android:Theme.Material.Light.NoActionBar"/>
 
-    <style name="Theme.PenMouseS" parent="Theme.BasePenMouseS">
+    <style name="Theme.PenMouseS" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar" />
+
+    <style name="Theme.PenMouseS.Splash" parent="Theme.PenMouseS">
         <item name="android:windowSplashScreenBrandingImage">@drawable/brand_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.PenMouseS</item>
     </style>
 </resources>

@@ -123,7 +123,7 @@ class PointMode(
                     initialTouch.x = event.rawX.toInt()
                     initialTouch.y = event.rawY.toInt()
 
-                    true
+                    return@setOnTouchListener true
                 }
 
                 MotionEvent.ACTION_MOVE -> {
@@ -131,7 +131,8 @@ class PointMode(
                     lp.y = initial.y + (event.rawY - initialTouch.y).toInt()
 
                     windowManager.updateViewLayout(view, lp)
-                    true
+
+                    return@setOnTouchListener true
                 }
             }
             false

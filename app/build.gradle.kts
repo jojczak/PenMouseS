@@ -63,6 +63,7 @@ dependencies {
     implementation(project(":mousemode:mouse"))
 
     implementation(libs.bundles.compose.core)
+    implementation(libs.android.material)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.splashscreen)
