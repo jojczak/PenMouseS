@@ -11,14 +11,13 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PenMouseS">
+        android:theme="@style/Theme.PenMouseS.Splash">
         <activity
             android:name=".main.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.PenMouseS">
+            android:theme="@style/Theme.PenMouseS.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

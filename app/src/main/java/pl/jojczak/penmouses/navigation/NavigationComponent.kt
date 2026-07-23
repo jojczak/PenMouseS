@@ -1,5 +1,6 @@
 package pl.jojczak.penmouses.navigation
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -23,6 +24,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +46,7 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import pl.jojczak.penmouses.R
 import pl.jojczak.penmouses.core.common.types.ManualPageType
 import pl.jojczak.penmouses.core.ui.theme.PenMouseSTheme
 import pl.jojczak.penmouses.core.ui.theme.hazeUltraThinSurface
@@ -53,6 +57,7 @@ import pl.jojczak.penmouses.screen.manual.ManualViewModel
 import pl.jojczak.penmouses.screen.manual.ManualViewState
 import pl.jojczak.penmouses.screen.manual.components.ManualDrawer
 import pl.jojczak.penmouses.screen.settings.SettingsScreen
+import pl.jojczak.penmouses.core.ui.R as coreR
 
 private const val MANUAL_DRAWER_DELAY_AFTER_PAGE_CHANGE_MS = 150L
 
@@ -209,6 +214,10 @@ private fun PenMouseSBottomBar(
     containerColor = Color.Transparent,
     modifier = modifier
 ) {
+    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
+    val donateUri = stringResource(coreR.string.donation_url)
+
     Screen.order.forEach { screen ->
         NavigationBarItem(
             selected = screen == currentScreen,
@@ -217,6 +226,25 @@ private fun PenMouseSBottomBar(
             label = { Text(text = stringResource(screen.titleResId)) }
         )
     }
+
+    NavigationBarItem(
+        selected = false,
+        onClick = {
+            Toast.makeText(
+                context,
+                coreR.string.donation_toast,
+                Toast.LENGTH_SHORT
+            ).show()
+            uriHandler.openUri(donateUri)
+        },
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.star_shine_24px),
+                contentDescription = stringResource(coreR.string.donation_description)
+            )
+        },
+        label = { Text(text = stringResource(coreR.string.donation)) }
+    )
 }
 
 @Composable

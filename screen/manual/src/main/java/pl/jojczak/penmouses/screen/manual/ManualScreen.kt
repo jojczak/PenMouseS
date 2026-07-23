@@ -51,7 +51,6 @@ import pl.jojczak.penmouses.core.ui.utils.copy
 import pl.jojczak.penmouses.screen.manual.components.ManualTopAppBar
 import pl.jojczak.penmouses.screen.manual.components.appInfoComponent
 import pl.jojczak.penmouses.screen.manual.components.birdHuntBanner
-import pl.jojczak.penmouses.screen.manual.components.donateComponent
 import pl.jojczak.penmouses.screen.manual.components.videoComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,7 +158,6 @@ private fun LazyListScope.handlePageFeature(
     }
 
     ManualPageFeature.Banners -> {
-        donateComponent()
         birdHuntBanner()
     }
 
