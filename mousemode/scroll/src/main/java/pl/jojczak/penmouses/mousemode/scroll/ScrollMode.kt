@@ -37,6 +37,9 @@ class ScrollMode(
 ) {
     private val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
     private var isExperimentalModeEnabled: Boolean = false
+    private var prefScrollDistance = PrefKeys.SCROLL_DISTANCE.default
+    private var prefScrollDuration = PrefKeys.SCROLL_DURATION.default
+    private var prefScrollDownOnly = PrefKeys.SCROLL_DOWN_ONLY.default
     private var deltaY = 0f
 
     override fun start() {
@@ -87,16 +90,17 @@ class ScrollMode(
     }
 
     private fun performScrollGesture() {
-        val isScrollingUp = deltaY > 0
+        val isScrollingUp = prefScrollDownOnly || deltaY > 0
 
         val (screenWidth, screenHeight) = getDisplaySize(displayManager.getDisplay(Display.DEFAULT_DISPLAY))
         val centerX = screenWidth / 2f
 
-        val topY = screenHeight * ((VERTICAL_SCROLL_SCREEN_FRACTION - 1f) / VERTICAL_SCROLL_SCREEN_FRACTION)
-        val bottomY = screenHeight * (1f / VERTICAL_SCROLL_SCREEN_FRACTION)
+        val halfSwipeLength = screenHeight * (prefScrollDistance / 100f) / 2f
+        val lowerY = screenHeight / 2f + halfSwipeLength
+        val upperY = screenHeight / 2f - halfSwipeLength
 
-        val startY = if (isScrollingUp) topY else bottomY
-        val endY = if (isScrollingUp) bottomY else topY
+        val startY = if (isScrollingUp) lowerY else upperY
+        val endY = if (isScrollingUp) upperY else lowerY
 
         val scrollPath = Path().apply {
             moveTo(centerX, startY)
@@ -104,7 +108,7 @@ class ScrollMode(
         }
 
         val gesture = GestureDescription.Builder()
-            .addStroke(StrokeDescription(scrollPath, 0L, GESTURE_TIME_MS))
+            .addStroke(StrokeDescription(scrollPath, 0L, prefScrollDuration.toLong()))
             .build()
 
         dispatchGesture(gesture, null, null)
@@ -113,10 +117,8 @@ class ScrollMode(
     override fun preferencesUpdated() {
         super.preferencesUpdated()
         isExperimentalModeEnabled = preferences.get(PrefKeys.SCROLL_EXPERIMENTAL_MODE)
-    }
-
-    companion object {
-        private const val VERTICAL_SCROLL_SCREEN_FRACTION = 5f
-        private const val GESTURE_TIME_MS = 150L
+        prefScrollDistance = preferences.get(PrefKeys.SCROLL_DISTANCE)
+        prefScrollDuration = preferences.get(PrefKeys.SCROLL_DURATION)
+        prefScrollDownOnly = preferences.get(PrefKeys.SCROLL_DOWN_ONLY)
     }
 }

@@ -32,6 +32,10 @@
     <string name="settings_reset_cancel">Cancel</string>
     <string name="settings_reset_confirm">Reset</string>
 
+    <string name="settings_scroll_distance">Scroll distance: %s%%</string>
+    <string name="settings_scroll_duration">Scroll duration: %s ms</string>
+    <string name="settings_scroll_down_only">Always scroll down</string>
+    <string name="settings_scroll_down_only_desc">Every S Pen button press scrolls down, regardless of the S Pen movement.</string>
     <string name="settings_scroll_experimental_mode">Power saving mode (Experimental!)</string>
     <string name="settings_scroll_experimental_mode_desc">S Pen will activate the gyroscope only after the button is pressed, which significantly saves the S Pen\'s battery but may interrupt the connection. Disable if scrolling suddenly stops working.</string>
 </resources>
